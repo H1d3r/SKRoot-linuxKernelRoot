@@ -1,0 +1,6 @@
+SKRoot(Pro)工程各目录说明：
+
+1.内核修补工具：patch_kernel_root_module
+2.SKRoot环境安装APP：PermissionManager
+3.SKRoot环境安装JNI程序：testInstall
+4.SKRoot内核模块演示：testModule

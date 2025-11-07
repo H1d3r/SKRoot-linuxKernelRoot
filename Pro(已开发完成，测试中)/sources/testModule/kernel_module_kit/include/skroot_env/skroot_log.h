@@ -1,0 +1,20 @@
+#pragma once
+#include <unistd.h>
+#include <iostream>
+
+namespace skroot_env {
+/***************************************************************************
+* 设置 SKRoot 环境日志开关
+* 参数: root_key     ROOT权限密钥文本
+*       enable       true 表示开启日志，false 表示关闭日志
+* 返回: OK           表示设置成功；其他值为错误码
+***************************************************************************/
+KModErr set_skroot_log_enable(const char* root_key, bool enable);
+
+/***************************************************************************
+* 查询 SKRoot 环境日志是否开启
+* 参数: root_key     ROOT权限密钥文本
+* 返回: true 表示开启日志，false表示关闭日志
+***************************************************************************/
+bool is_enable_skroot_log(const char* root_key);
+}

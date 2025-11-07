@@ -1,0 +1,34 @@
+package com.linux.permissionmanager.bridge;
+
+import com.linux.permissionmanager.model.SkrModItem;
+import com.linux.permissionmanager.model.SuAuthItem;
+
+public final class NativeBridge {
+    static { System.loadLibrary("permissionmanager"); }
+
+    public static native String installSkrootEnv(String rootKey);
+    public static native String uninstallSkrootEnv(String rootKey);
+    public static native String getInstalledSkrootEnvVersion(String rootKey);
+    public static native String getSdkSkrootEnvVersion();
+    public static native String readSkrootLogs(String rootKey);
+    public static native String setSkrootLogEnable(String rootKey, boolean enable);
+    public static native boolean isEnableSkrootLog(String rootKey);
+
+    public static native String addSuAuth(String rootKey, String appPackageName);
+    public static native String removeSuAuth(String rootKey, String appPackageName);
+    public static native String getSuAuthList(String rootKey);
+    public static native String clearSuAuthList(String rootKey);
+
+    public static native String installSkrootModule(String rootKey, String zipFilePath);
+    public static native String uninstallSkrootModule(String rootKey, String modUuid);
+    public static native String getSkrootModuleList(String rootKey, boolean runningOnly);
+    public static native String parseSkrootModuleDesc(String rootKey, String zipFilePath);
+    public static native String openSkrootModuleWebUI(String rootKey, String modUuid);
+
+    public static native String testRoot(String rootKey);
+    public static native String runRootCmd(String rootKey, String cmd);
+    public static native String rootExecProcessCmd(String rootKey, String cmd);
+    public static native String getAllCmdlineProcess(String rootKey);
+    public static native String parasitePrecheckApp(String rootKey, String targetProcessCmdline);
+    public static native String parasiteImplantApp(String rootKey, String targetProcessCmdline, String targetSoFullPath);
+}
