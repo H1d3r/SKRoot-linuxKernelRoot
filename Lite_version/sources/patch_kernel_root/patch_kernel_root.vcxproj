@@ -144,6 +144,7 @@
     <ClCompile Include="3rdparty\asmjit2-src\src\asmjit\x86\x86rapass.cpp" />
     <ClCompile Include="analyze\kallsyms_lookup_name.cpp" />
     <ClCompile Include="analyze\kallsyms_lookup_name_4_6_0.cpp" />
+    <ClCompile Include="analyze\kallsyms_lookup_name_6_12_0.cpp" />
     <ClCompile Include="analyze\kallsyms_lookup_name_6_1_42.cpp" />
     <ClCompile Include="analyze\kallsyms_lookup_name_6_1_60.cpp" />
     <ClCompile Include="analyze\kallsyms_lookup_name_6_4_0.cpp" />
@@ -252,8 +253,10 @@
     <ClInclude Include="analyze\aarch64_insn.h" />
     <ClInclude Include="analyze\aarch64_simulate_insn.h" />
     <ClInclude Include="analyze\base_func.h" />
+    <ClInclude Include="analyze\find_static_code_start.h" />
     <ClInclude Include="analyze\kallsyms_lookup_name.h" />
     <ClInclude Include="analyze\kallsyms_lookup_name_4_6_0.h" />
+    <ClInclude Include="analyze\kallsyms_lookup_name_6_12_0.h" />
     <ClInclude Include="analyze\kallsyms_lookup_name_6_1_42.h" />
     <ClInclude Include="analyze\kallsyms_lookup_name_6_1_60.h" />
     <ClInclude Include="analyze\kallsyms_lookup_name_6_4_0.h" />

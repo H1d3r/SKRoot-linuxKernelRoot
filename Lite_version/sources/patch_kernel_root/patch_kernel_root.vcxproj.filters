@@ -252,6 +252,9 @@
     <ClCompile Include="3rdparty\asmjit2-src\src\asmjit\arm\a64assembler.cpp">
       <Filter>asmjit2-src\src\asmjit\arm</Filter>
     </ClCompile>
+    <ClCompile Include="analyze\kallsyms_lookup_name_6_12_0.cpp">
+      <Filter>analyze</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="patch_do_execve.h">
@@ -576,6 +579,12 @@
       <Filter>analyze</Filter>
     </ClInclude>
     <ClInclude Include="analyze\aarch64_simulate_insn.h">
+      <Filter>analyze</Filter>
+    </ClInclude>
+    <ClInclude Include="analyze\kallsyms_lookup_name_6_12_0.h">
+      <Filter>analyze</Filter>
+    </ClInclude>
+    <ClInclude Include="analyze\find_static_code_start.h">
       <Filter>analyze</Filter>
     </ClInclude>
   </ItemGroup>

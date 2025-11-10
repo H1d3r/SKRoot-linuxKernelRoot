@@ -1,10 +1,11 @@
 ﻿#include "kallsyms_lookup_name_6_4_0.h"
-#include "base_func.h"
+#include "find_static_code_start.h"
 
 #ifndef MIN
 #define MIN(x, y)(x < y) ? (x) : (y)
 #endif // !MIN
 
+#define A64_NOP 0xD503201F
 #define R_AARCH64_RELATIVE 1027
 #define MAX_FIND_RANGE 0x1000
 namespace {
@@ -14,18 +15,6 @@ namespace {
 		uint64_t r_info = 0;
 		uint64_t r_addend = 0;
 	};
-
-	static inline uint32_t rd32_le(const std::vector<char>& buf, size_t off) {
-		uint32_t v = 0;
-		std::memcpy(&v, buf.data() + off, sizeof(v));
-		return v;
-	}
-
-	static inline uint64_t rd64_le(const std::vector<char>& buf, size_t off) {
-		uint64_t v = 0;
-		std::memcpy(&v, buf.data() + off, sizeof(v));
-		return v;
-	}
 
 	static inline bool looks_kernel_va(uint64_t v) {
 		static const uint64_t starts[] = {
@@ -49,7 +38,7 @@ KallsymsLookupName_6_4_0::~KallsymsLookupName_6_4_0()
 }
 
 bool KallsymsLookupName_6_4_0::init() {
-	size_t code_static_start = find_static_code_start();
+	size_t code_static_start = find_static_code_start(m_file_buf);
 	std::cout << std::hex << "code_static_start: 0x" << code_static_start << std::endl;
 
 	size_t offset_list_start = 0, offset_list_end = 0;
@@ -71,7 +60,7 @@ bool KallsymsLookupName_6_4_0::init() {
 
 		std::cout << std::hex << "kallsyms_relative_base: 0x" << m_kallsyms_relative_base << ", offset: 0x" << kallsyms_relative_base_offset << std::endl;
 
-		maybe_kallsyms_num_offset = find_maybe_kallsyms_num1((offset_list_end - offset_list_start) / sizeof(long), offset_list_start);
+		maybe_kallsyms_num_offset = find_maybe_kallsyms_num1(offset_list_start, offset_list_end);
 		if (!maybe_kallsyms_num_offset.size()) {
 			std::cout << "Unable to find the num of kallsyms offset list" << std::endl;
 			return false;
@@ -200,53 +189,6 @@ bool KallsymsLookupName_6_4_0::is_inited() {
 
 int KallsymsLookupName_6_4_0::get_kallsyms_num() {
 	return m_kallsyms_num;
-}
-
-size_t KallsymsLookupName_6_4_0::find_static_code_start() {
-	const uint32_t A64_NOP = 0xD503201F;
-	const size_t   N = m_file_buf.size();
-	if (N < 0x200) return 0;
-
-	const size_t SCAN_LIMIT = std::min(N, static_cast<size_t>(0x1000000));
-	const size_t START_OFF = 0x100;
-
-	const size_t ALLOW_NOISE_BYTES = 0x32;
-
-	size_t j = (START_OFF + 3) & ~size_t(3);  // 4-byte alignment
-	while (j + 4 <= SCAN_LIMIT) {
-		uint32_t w = rd32_le(m_file_buf, j);
-
-		// Normal filling: 0 or NOP, proceed directly
-		if (w == 0 || w == A64_NOP) {
-			j += 4;
-			continue;
-		}
-
-		// Encountering non filled: Try to find the next 0/NOP in [j+4, j+ALLOW-NOISE-BYTES]
-		size_t k = j + 4;
-		size_t k_limit = std::min(j + ALLOW_NOISE_BYTES, SCAN_LIMIT);
-		bool resumed = false;
-
-		while (k + 4 <= k_limit) {
-			uint32_t u = rd32_le(m_file_buf, k);
-			if (u == 0 || u == A64_NOP) {
-				// Regarded as small noise, continuous segments without interruption, continue from here
-				j = k + 4;
-				resumed = true;
-				break;
-			}
-			k += 4;
-		}
-
-		if (!resumed) {
-			// Within the allowed noise window, 0/NOP was not encountered again,
-			// Identifying J as the starting point of 'real code'
-			return j;
-		}
-		// If recovered, while the outer layer continues
-	}
-	// Scan to the upper limit but still unable to find the code starting point
-	return 0;
 }
 
 static bool __find_kallsyms_addresses_list(const std::vector<char>& file_buf, size_t max_cnt, size_t& start, size_t& end) {
@@ -391,7 +333,7 @@ size_t KallsymsLookupName_6_4_0::find_kallsyms_relative_base_offset(size_t offse
 	return 0;
 }
 
-std::vector<size_t> KallsymsLookupName_6_4_0::find_maybe_kallsyms_num1(size_t size, size_t offset_list_start) {
+std::vector<size_t> KallsymsLookupName_6_4_0::find_maybe_kallsyms_num1(size_t offset_list_start, size_t offset_list_end) {
 	//Search upwards
 	if (offset_list_start < MAX_FIND_RANGE) {
 		std::cout << "The starting position of kallsyms offset list is too small and abnormal." << std::endl;
@@ -403,7 +345,7 @@ std::vector<size_t> KallsymsLookupName_6_4_0::find_maybe_kallsyms_num1(size_t si
 		if (val1 != 0) {
 			break;
 		}
-		maybe_kallsyms_num.push_back(size + i * sizeof(long));
+		maybe_kallsyms_num.push_back((offset_list_end - offset_list_start + i * sizeof(long)) / sizeof(long));
 	}
 	if (maybe_kallsyms_num.size() == 0) {
 		std::cout << "Unable to find the kallsyms num, not even a single possibility." << std::endl;
@@ -607,7 +549,7 @@ bool KallsymsLookupName_6_4_0::resolve_kallsyms_offset_symbol_base(size_t code_s
 	}
 	if (has_kallsyms_symbol("_text")) {
 		base_off = kallsyms_lookup_name("_text");
-		return true;
+		if (base_off) return true;
 	}
 	size_t _stext_offset = kallsyms_lookup_name("_stext");
 	base_off = code_static_start - _stext_offset;

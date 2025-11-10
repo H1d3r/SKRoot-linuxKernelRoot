@@ -1,25 +1,15 @@
 ﻿#include "kallsyms_lookup_name.h"
-#include "base_func.h"
+#include "find_static_code_start.h"
 
 #ifndef MIN
 #define MIN(x, y)(x < y) ? (x) : (y)
 #endif // !MIN
 
+#define A64_NOP 0xD503201F
 #define MAX_FIND_RANGE 0x1000
 namespace {
 	const int KSYM_NAME_LEN = 128;
 
-	static inline uint32_t rd32_le(const std::vector<char>& buf, size_t off) {
-		uint32_t v = 0;
-		std::memcpy(&v, buf.data() + off, sizeof(v));
-		return v;
-	}
-
-	static inline uint64_t rd64_le(const std::vector<char>& buf, size_t off) {
-		uint64_t v = 0;
-		std::memcpy(&v, buf.data() + off, sizeof(v));
-		return v;
-	}
 	static inline bool looks_kernel_va(uint64_t v) {
 		static const uint64_t starts[] = {
 			0xFFFFFFC000000000ULL, // VA_BITS=39
@@ -42,7 +32,7 @@ KallsymsLookupName::~KallsymsLookupName()
 }
 
 bool KallsymsLookupName::init() {
-	size_t code_static_start = find_static_code_start();
+	size_t code_static_start = find_static_code_start(m_file_buf);
 	std::cout << std::hex << "code_static_start: 0x" << code_static_start << std::endl;
 
 	size_t addresses_list_start = 0, addresses_list_end = 0;
@@ -51,7 +41,7 @@ bool KallsymsLookupName::init() {
 		return false;
 	}
 	size_t kallsyms_num_offset = 0;
-	m_kallsyms_num = find_kallsyms_num((addresses_list_end - addresses_list_start) / sizeof(uint64_t), addresses_list_end, 10, kallsyms_num_offset);
+	m_kallsyms_num = find_kallsyms_num(addresses_list_start, addresses_list_end, 10, kallsyms_num_offset);
 	if (!m_kallsyms_num) {
 		std::cout << "Unable to find the num of kallsyms addresses list" << std::endl;
 		return false;
@@ -118,53 +108,6 @@ int KallsymsLookupName::get_kallsyms_num() {
 	return m_kallsyms_num;
 }
 
-size_t KallsymsLookupName::find_static_code_start() {
-	const uint32_t A64_NOP = 0xD503201F;
-	const size_t   N = m_file_buf.size();
-	if (N < 0x200) return 0;
-
-	const size_t SCAN_LIMIT = std::min(N, static_cast<size_t>(0x1000000));
-	const size_t START_OFF = 0x100;
-
-	const size_t ALLOW_NOISE_BYTES = 0x32;
-
-	size_t j = (START_OFF + 3) & ~size_t(3);  // 4-byte alignment
-	while (j + 4 <= SCAN_LIMIT) {
-		uint32_t w = rd32_le(m_file_buf, j);
-
-		// Normal filling: 0 or NOP, proceed directly
-		if (w == 0 || w == A64_NOP) {
-			j += 4;
-			continue;
-		}
-
-		// Encountering non filled: Try to find the next 0/NOP in [j+4, j+ALLOW-NOISE-BYTES]
-		size_t k = j + 4;
-		size_t k_limit = std::min(j + ALLOW_NOISE_BYTES, SCAN_LIMIT);
-		bool resumed = false;
-
-		while (k + 4 <= k_limit) {
-			uint32_t u = rd32_le(m_file_buf, k);
-			if (u == 0 || u == A64_NOP) {
-				// Regarded as small noise, continuous segments without interruption, continue from here
-				j = k + 4;
-				resumed = true;
-				break;
-			}
-			k += 4;
-		}
-
-		if (!resumed) {
-			// Within the allowed noise window, 0/NOP was not encountered again,
-			// Identifying J as the starting point of 'real code'
-			return j;
-		}
-		// If recovered, while the outer layer continues
-	}
-	// Scan to the upper limit but still unable to find the code starting point
-	return 0;
-}
-
 static bool __find_kallsyms_addresses_list(const std::vector<char>& file_buf, size_t max_cnt, size_t& start, size_t& end) {
 	const int var_len = sizeof(uint64_t);
 	for (auto x = 0; x + var_len < file_buf.size(); x += var_len) {
@@ -201,7 +144,8 @@ bool KallsymsLookupName::find_kallsyms_addresses_list(size_t& start, size_t& end
 	return false;
 }
 
-int KallsymsLookupName::find_kallsyms_num(size_t size, size_t addresses_list_end, size_t fuzzy_range, size_t& kallsyms_num_offset) {
+int KallsymsLookupName::find_kallsyms_num(size_t addresses_list_start, size_t addresses_list_end, size_t fuzzy_range, size_t& kallsyms_num_offset) {
+	size_t size = (addresses_list_end - addresses_list_start) / sizeof(uint64_t);
 	size_t allow_min_size = size - fuzzy_range;
 	size_t allow_max_size = size + fuzzy_range;
 	auto _min = MIN(m_file_buf.size(), MAX_FIND_RANGE);

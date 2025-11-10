@@ -93,3 +93,15 @@ static inline constexpr size_t align_up(size_t v) {
 	static_assert((N & (N - 1)) == 0, "N must be power of two");
 	return (v + (N - 1)) & ~(N - 1);
 }
+
+static inline uint32_t rd32_le(const std::vector<char>& buf, size_t off) {
+	uint32_t v = 0;
+	std::memcpy(&v, buf.data() + off, sizeof(v));
+	return v;
+}
+
+static inline uint64_t rd64_le(const std::vector<char>& buf, size_t off) {
+	uint64_t v = 0;
+	std::memcpy(&v, buf.data() + off, sizeof(v));
+	return v;
+}

@@ -107,6 +107,7 @@ void SymbolAnalyze::printf_symbol_offset() {
 	std::cout << "sys_getuid:" << m_kernel_sym_offset.sys_getuid.offset << ", size:" << m_kernel_sym_offset.sys_getuid.size << std::endl;
 	std::cout << "prctl_get_seccomp:" << m_kernel_sym_offset.prctl_get_seccomp.offset << ", size:" << m_kernel_sym_offset.prctl_get_seccomp.size << std::endl;
 
+	// bypass cfi
 	std::cout << "__cfi_check:" << m_kernel_sym_offset.__cfi_check.offset << ", size:" << m_kernel_sym_offset.__cfi_check.size << std::endl;
 	std::cout << "__cfi_check_fail:" << m_kernel_sym_offset.__cfi_check_fail << std::endl;
 	std::cout << "__cfi_slowpath_diag:" << m_kernel_sym_offset.__cfi_slowpath_diag << std::endl;
@@ -114,9 +115,11 @@ void SymbolAnalyze::printf_symbol_offset() {
 	std::cout << "__ubsan_handle_cfi_check_fail_abort:" << m_kernel_sym_offset.__ubsan_handle_cfi_check_fail_abort << std::endl;
 	std::cout << "__ubsan_handle_cfi_check_fail:" << m_kernel_sym_offset.__ubsan_handle_cfi_check_fail << std::endl;
 	std::cout << "report_cfi_failure:" << m_kernel_sym_offset.report_cfi_failure << std::endl;
-	std::cout << "hkip_check_uid_root:" << m_kernel_sym_offset.hkip_check_uid_root << std::endl;
-	std::cout << "hkip_check_gid_root:" << m_kernel_sym_offset.hkip_check_gid_root << std::endl;
-	std::cout << "hkip_check_xid_root:" << m_kernel_sym_offset.hkip_check_xid_root << std::endl;
+
+	// bypass huawei
+	if (m_kernel_sym_offset.hkip_check_uid_root) std::cout << "hkip_check_uid_root:" << m_kernel_sym_offset.hkip_check_uid_root << std::endl;
+	if (m_kernel_sym_offset.hkip_check_gid_root) std::cout << "hkip_check_gid_root:" << m_kernel_sym_offset.hkip_check_gid_root << std::endl;
+	if (m_kernel_sym_offset.hkip_check_xid_root) std::cout << "hkip_check_xid_root:" << m_kernel_sym_offset.hkip_check_xid_root << std::endl;
 }
 
 uint64_t SymbolAnalyze::kallsyms_matching_single(const char* name, bool fuzzy) {

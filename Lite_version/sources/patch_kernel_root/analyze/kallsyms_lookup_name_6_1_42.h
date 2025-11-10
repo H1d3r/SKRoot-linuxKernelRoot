@@ -16,11 +16,11 @@ public:
 	int get_kallsyms_num();
 
 private:
-	size_t find_static_code_start();
 	bool find_kallsyms_addresses_list(std::vector<std::pair<uint64_t, uint64_t>>& addresses);
 	bool find_kallsyms_offsets_list(size_t& start, size_t& end);
 	size_t find_kallsyms_relative_base_offset(size_t offset_list_end);
-	int find_kallsyms_num(size_t size, size_t kallsyms_relative_base_end_offset, size_t fuzzy_range, size_t& kallsyms_num_offset);
+	int find_kallsyms_num1(size_t offset_list_start, size_t offset_list_end, size_t kallsyms_relative_base_end_offset, size_t fuzzy_range, size_t& kallsyms_num_offset);
+	int find_kallsyms_num2(size_t size, size_t kallsyms_relative_base_end_offset, size_t fuzzy_range, size_t& kallsyms_num_offset);
 	bool find_kallsyms_names_list(int kallsyms_num, size_t kallsyms_num_end_offset, size_t& name_list_start, size_t& name_list_end);
 	bool find_kallsyms_markers_list(int kallsyms_num, size_t name_list_end_offset, size_t& markers_list_start, size_t& markers_list_end, bool & markers_list_is_align8);
 	bool find_kallsyms_seqs_of_names_list(int kallsyms_num, size_t markers_list_end_offset, bool markers_list_is_align8, size_t& seqs_of_names_list_start, size_t& seqs_of_names_list_end);

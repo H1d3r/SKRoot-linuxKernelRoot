@@ -25,6 +25,9 @@ bool parser_cred_offset(const std::vector<char>& file_buf, const SymbolRegion &s
 bool parse_cred_uid_offset(const std::vector<char>& file_buf, const SymbolRegion& symbol, size_t cred_offset, size_t& cred_uid_offset) {
 	using namespace a64_find_imm_register_offset;
 	cred_uid_offset = 0;
+	KernelVersionParser kernel_ver(file_buf);
+	size_t min_off = 8;
+	if (kernel_ver.is_kernel_version_less("6.6.8")) min_off = 4;
 
 	std::vector<int64_t> candidate_offsets;
 	if (!find_imm_register_offset(file_buf, symbol.offset, symbol.offset + symbol.size, candidate_offsets))
@@ -33,7 +36,7 @@ bool parse_cred_uid_offset(const std::vector<char>& file_buf, const SymbolRegion
 	auto it = std::find(candidate_offsets.begin(), candidate_offsets.end(), cred_offset);
 	if (it != candidate_offsets.end()) {
 		for (++it; it != candidate_offsets.end(); ++it) {
-			if (*it > 0x30 || *it < 4) continue;
+			if (*it > 0x30 || *it < min_off) continue;
 			cred_uid_offset = *it;
 			break;
 		}
@@ -142,7 +145,7 @@ int main(int argc, char* argv[]) {
 	++argv;
 	--argc;
 
-	std::cout << "本工具用于生成SKRoot(Lite) ARM64 Linux内核ROOT提权代码 V9" << std::endl << std::endl;
+	std::cout << "本工具用于生成SKRoot(Lite) ARM64 Linux内核ROOT提权代码 V10" << std::endl << std::endl;
 
 #ifdef _DEBUG
 #else
