@@ -17,7 +17,7 @@ static bool __is_really_empty(const std::vector<char>& file_buf, size_t start_po
 }
 
 static bool __is_really_work(const std::vector<char>& file_buf, size_t start_pos) {
-	const size_t must_work_cnt = 30;
+	const size_t must_work_cnt = 40;
 	for (size_t i = start_pos; i < start_pos + must_work_cnt * 4; i += 4) {
 		uint32_t w = rd32_le(file_buf, i);
 		if (w == 0) return false;

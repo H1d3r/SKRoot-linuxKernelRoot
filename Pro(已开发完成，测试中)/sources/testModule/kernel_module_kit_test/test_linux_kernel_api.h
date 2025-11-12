@@ -192,7 +192,7 @@ KModErr Test_module_alloc1() {
     auto a = asm_info.a.get();
     kernel_module::arm64_module_asm_func_start(a);
     aarch64_asm_mov_x(a, x1, 128);
-    kernel_module::export_symbol::module_alloc(g_root_key, a, err, x1);
+    kernel_module::export_symbol::linux_older::module_alloc(g_root_key, a, err, x1);
     RETURN_IF_ERROR_KMOD(err);
     kernel_module::arm64_module_asm_func_end(a, x0);
 	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
@@ -220,9 +220,9 @@ KModErr Test_module_memfree1() {
     auto a = asm_info.a.get();
     kernel_module::arm64_module_asm_func_start(a);
     aarch64_asm_mov_x(a, x1, 128);
-    kernel_module::export_symbol::module_alloc(g_root_key, a, err, x1);
+    kernel_module::export_symbol::linux_older::module_alloc(g_root_key, a, err, x1);
     RETURN_IF_ERROR_KMOD(err);
-    kernel_module::export_symbol::module_memfree(g_root_key, a, err, x0);
+    kernel_module::export_symbol::linux_older::module_memfree(g_root_key, a, err, x0);
     RETURN_IF_ERROR_KMOD(err);
     kernel_module::arm64_module_asm_func_end(a);
 	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
@@ -235,7 +235,7 @@ KModErr Test_module_memfree1() {
 
 KModErr Test_module_alloc2() {
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::export_symbol::module_alloc(g_root_key, 1024, addr));
+    RETURN_IF_ERROR_KMOD(kernel_module::export_symbol::linux_older::module_alloc(g_root_key, 1024, addr));
     printf("module_alloc2 addr: %p\n", (void*)addr);
     printf("module_alloc2 result: %s\n", addr ? "ok" : "failed");
     return KModErr::OK;
@@ -243,8 +243,8 @@ KModErr Test_module_alloc2() {
 
 KModErr Test_module_memfree2() {
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::export_symbol::module_alloc(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::export_symbol::module_memfree(g_root_key, addr));
+    RETURN_IF_ERROR_KMOD(kernel_module::export_symbol::linux_older::module_alloc(g_root_key, 1024, addr));
+    RETURN_IF_ERROR_KMOD(kernel_module::export_symbol::linux_older::module_memfree(g_root_key, addr));
     printf("module_memfree2 result: ok\n");
     return KModErr::OK;
 }
@@ -361,7 +361,7 @@ KModErr Test_kallsyms_on_each_symbol2() {
 KModErr Test_kern_path() {
     using LookupFlags = kernel_module::export_symbol::LookupFlags;
     uint64_t path_buf_addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::export_symbol::module_alloc(g_root_key, 0x1000, path_buf_addr));
+    RETURN_IF_ERROR_KMOD(kernel_module::export_symbol::linux_older::module_alloc(g_root_key, 0x1000, path_buf_addr));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();

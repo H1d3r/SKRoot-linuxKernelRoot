@@ -89,6 +89,29 @@ void kfree(const char* root_key, Assembler* a, KModErr& out_err, GpX objp);
 // kfree (外部封装版本)：释放内核内存，返回值为OK代表执行成功
 KModErr kfree(const char* root_key, uint64_t objp);
 
+namespace linux_above_6_12_0 {
+enum class ExecmemTypes : uint32_t {
+    EXECMEM_DEFAULT = 0,
+	EXECMEM_MODULE_TEXT = EXECMEM_DEFAULT,
+	EXECMEM_KPROBES,
+	EXECMEM_FTRACE,
+	EXECMEM_BPF,
+	EXECMEM_MODULE_DATA,
+	EXECMEM_TYPE_MAX,
+};
+// 原型：void *execmem_alloc(enum execmem_type type, size_t size)，返回值为X0寄存器
+void execmem_alloc(const char* root_key, Assembler* a, KModErr& out_err, GpW type, GpX size);
+void execmem_alloc(const char* root_key, Assembler* a, KModErr& out_err, ExecmemTypes type, uint64_t size);
+// execmem_alloc (外部封装版本)：申请内核内存，结果写入 out_ptr，返回值为OK代表执行成功
+KModErr execmem_alloc(const char* root_key, ExecmemTypes type, uint64_t size, uint64_t& out_ptr);
+
+// 原型：void execmem_free(void *ptr);
+void execmem_free(const char* root_key, Assembler* a, KModErr& out_err, GpX ptr);
+// execmem_free (外部封装版本)：释放内核内存，返回值为OK代表执行成功
+KModErr execmem_free(const char* root_key, uint64_t ptr);
+}
+
+namespace linux_older {
 // 原型：void *module_alloc(unsigned long size)，返回值为X0寄存器
 void module_alloc(const char* root_key, Assembler* a, KModErr& out_err, GpX size);
 void module_alloc(const char* root_key, Assembler* a, KModErr& out_err, uint64_t size);
@@ -99,6 +122,8 @@ KModErr module_alloc(const char* root_key, uint64_t size, uint64_t& out_module_r
 void module_memfree(const char* root_key, Assembler* a, KModErr& out_err, GpX module_region);
 // module_memfree (外部封装版本)：释放内核内存，返回值为OK代表执行成功
 KModErr module_memfree(const char* root_key, uint64_t module_region);
+}
+
 
 namespace linux_above_4_9_0 {
 // 原型: int access_process_vm(struct task_struct *tsk, unsigned long addr, void *buf, int len, unsigned int gup_flags)，返回值为W0寄存器

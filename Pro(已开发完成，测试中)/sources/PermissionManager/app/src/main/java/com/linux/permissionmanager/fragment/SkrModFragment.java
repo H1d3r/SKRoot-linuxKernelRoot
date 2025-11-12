@@ -144,6 +144,7 @@ public class SkrModFragment extends Fragment {
 
     public void onAddSkrMod(String zipFilePath) {
         String tip = NativeBridge.installSkrootModule(mRootKey, zipFilePath);
+        if(tip.indexOf("OK") != -1) tip += "，即将在，将在重启后生效";
         DialogUtils.showMsgDlg(mActivity, "执行结果", tip, null);
         setupSkrModRecyclerView();
     }
@@ -157,6 +158,7 @@ public class SkrModFragment extends Fragment {
                 "确定", (dialog, which) -> {
                     dialog.dismiss();
                     String tip = NativeBridge.uninstallSkrootModule(mRootKey, skrMod.getUuid());
+                    if(tip.indexOf("OK") != -1) tip += "，即将在，将在重启后生效";
                     DialogUtils.showMsgDlg(mActivity, "执行结果", tip, null);
                     setupSkrModRecyclerView();
                 },

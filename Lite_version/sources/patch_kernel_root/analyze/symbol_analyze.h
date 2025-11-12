@@ -10,6 +10,8 @@ struct SymbolRegion {
 		offset += n;
 		size -= n;
 	}
+	[[nodiscard]] constexpr bool valid() const noexcept { return offset != 0; }
+	explicit constexpr operator bool() const noexcept { return valid(); }
 };
 
 struct KernelSymbolOffset {

@@ -91,9 +91,9 @@ bool SymbolAnalyze::find_symbol_offset() {
 void SymbolAnalyze::printf_symbol_offset() {
 	std::cout << "_text:" << m_kernel_sym_offset._text << std::endl;
 	std::cout << "_stext:" << m_kernel_sym_offset._stext << std::endl;
-	std::cout << "die:" << m_kernel_sym_offset.die.offset << ", size:" << m_kernel_sym_offset.die.size << std::endl;
-	std::cout << "arm64_notify_die:" << m_kernel_sym_offset.arm64_notify_die.offset << ", size:" << m_kernel_sym_offset.arm64_notify_die.size << std::endl;
-	std::cout << "drm_dev_printk:" << m_kernel_sym_offset.drm_dev_printk.offset << ", size:" << m_kernel_sym_offset.drm_dev_printk.size << std::endl;
+	if (m_kernel_sym_offset.die) std::cout << "die:" << m_kernel_sym_offset.die.offset << ", size:" << m_kernel_sym_offset.die.size << std::endl;
+	if (m_kernel_sym_offset.arm64_notify_die) std::cout << "arm64_notify_die:" << m_kernel_sym_offset.arm64_notify_die.offset << ", size:" << m_kernel_sym_offset.arm64_notify_die.size << std::endl;
+	if (m_kernel_sym_offset.drm_dev_printk) std::cout << "drm_dev_printk:" << m_kernel_sym_offset.drm_dev_printk.offset << ", size:" << m_kernel_sym_offset.drm_dev_printk.size << std::endl;
 
 	std::cout << "__do_execve_file:" << m_kernel_sym_offset.__do_execve_file << std::endl;
 	std::cout << "do_execveat_common:" << m_kernel_sym_offset.do_execveat_common << std::endl;

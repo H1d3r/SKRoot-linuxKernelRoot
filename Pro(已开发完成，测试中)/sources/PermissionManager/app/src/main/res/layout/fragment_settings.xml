@@ -31,14 +31,14 @@
                     android:layout_gravity="center_vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="电池设置：" />
+                    android:text="故障排查：" />
 
 
                 <Button
-                    android:id="@+id/open_battery_optimization_btn"
+                    android:id="@+id/test_skroot_shellcode_channel_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="打开电池优化设置"/>
+                    android:text="通道检查"/>
 
             </LinearLayout>
 
@@ -83,6 +83,7 @@
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
+
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"

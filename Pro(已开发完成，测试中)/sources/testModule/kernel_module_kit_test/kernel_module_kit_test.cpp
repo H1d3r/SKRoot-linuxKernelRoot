@@ -21,14 +21,14 @@ KModErr Test_execute_kernel_asm_func() {
 KModErr Test_alloc_kernel_mem() {
     uint64_t addr = 0;
     RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    printf("Output address: %p\n", (void*)addr);
+    printf("Output addr: %p\n", (void*)addr);
     return KModErr::OK;
 }
 
 KModErr Test_free_kernel_mem() {
     uint64_t addr = 0;
     RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    printf("Output address: %p\n", (void*)addr);
+    printf("Output addr: %p\n", (void*)addr);
     RETURN_IF_ERROR_KMOD(kernel_module::free_kernel_mem(g_root_key, addr));
     return KModErr::OK;
 }
@@ -39,7 +39,7 @@ KModErr Test_write_rw_kernel_mem() {
     uint64_t addr = 0;
     RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
     RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, addr, &test_data, sizeof(test_data)));
-    printf("Output address: %p\n", (void*)addr);
+    printf("Output addr: %p\n", (void*)addr);
     return KModErr::OK;
 }
 
@@ -49,7 +49,7 @@ KModErr Test_read_kernel_mem() {
     uint64_t addr = 0;
     RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
     RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, addr, &test_data, sizeof(test_data)));
-    printf("Output address: %p\n", (void*)addr);
+    printf("Output addr: %p\n", (void*)addr);
 
     std::vector<uint8_t> buf(sizeof(test_data));
     RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
@@ -64,7 +64,7 @@ KModErr Test_read_kernel_mem() {
 KModErr Test_get_kernel_virtual_mem_start_addr() {
     uint64_t result_addr = 0;
     RETURN_IF_ERROR_KMOD(kernel_module::get_kernel_virtual_mem_start_addr(g_root_key, result_addr));
-    printf("Output address: %p\n", (void*)result_addr);
+    printf("Output addr: %p\n", (void*)result_addr);
     return KModErr::OK;
 }
 
@@ -127,7 +127,7 @@ std::vector<uint8_t> generate_filename_lookup_before_hook_bytes() {
 KModErr Test_install_kernel_function_before_hook() {
     kernel_module::SymbolHit filename_lookup;
     RETURN_IF_ERROR_KMOD(kernel_module::get_filename_lookup_addr(g_root_key, filename_lookup));
-    printf("get_filename_lookup_addr Output address: %p, name: %s\n", (void*)filename_lookup.addr, filename_lookup.name);
+    printf("get_filename_lookup_addr Output addr: %p, name: %s\n", (void*)filename_lookup.addr, filename_lookup.name);
    
     // Read memory before hook
     {
@@ -167,9 +167,9 @@ std::vector<uint8_t> generate_avc_denied_after_hook_bytes() {
 }
 
 KModErr Test_install_kernel_function_after_hook() {
-    uint64_t avc_denied_addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::get_avc_denied_addr(g_root_key, avc_denied_addr));
-    printf("get_avc_denied_addr Output address: %p\n", (void*)avc_denied_addr);
+    uint64_t avc_denied_addr = 0, ret_addr = 0;
+    RETURN_IF_ERROR_KMOD(kernel_module::get_avc_denied_addr(g_root_key, avc_denied_addr, ret_addr));
+    printf("get_avc_denied_addr Output start addr: %p, ret addr: %p\n", (void*)avc_denied_addr, (void*)ret_addr);
    
     // Read memory before hook
     {
@@ -287,7 +287,7 @@ int main(int argc, char *argv[]) {
         strncpy(g_root_key, argv[1], sizeof(g_root_key) - 1);
     } else {
         //TODO: 在此修改你的Root key值。
-        strncpy(g_root_key, "V11s8uCBHbfCSbYki0T2wR793AYkbe4T6Md29cU52q7KXxrX", sizeof(g_root_key) - 1);
+        strncpy(g_root_key, "KQDrJKBQvFyUS4cWS3SGkiUmAFnFblNwLJN3Hhvffjs5z93z", sizeof(g_root_key) - 1);
     }
     CpuPinGuardAuto cpu_lock;
 
@@ -302,7 +302,7 @@ int main(int argc, char *argv[]) {
     TEST(idx++, Test_write_x_kernel_mem);                    // 写入内核内存(仅执行区域)
     TEST(idx++, Test_rw_kernel_runtime_storage);             // 读取、写入内核运行时存储
     TEST(idx++, Test_install_kernel_function_before_hook);   // 安装内核钩子（在内核函数执行前）
-    TEST(idx++, Test_install_kernel_function_after_hook);       // 安装内核钩子（在内核函数执行后）
+    TEST(idx++, Test_install_kernel_function_after_hook);    // 安装内核钩子（在内核函数执行后）
     TEST(idx++, Test_get_task_struct_pid_offset);            // 获取 task_struct 结构体中 pid 字段的偏移量
     TEST(idx++, Test_get_task_struct_real_parent_offset);    // 获取 task_struct 结构体中 real_parent 字段的偏移量
     TEST(idx++, Test_get_task_struct_comm_offset);           // 获取 task_struct 结构体中 comm 字段的偏移量
@@ -371,5 +371,6 @@ int main(int argc, char *argv[]) {
     TEST(idx++, Test_kstartswith2);
     TEST(idx++, Test_kendswith1);
     TEST(idx++, Test_kendswith2);
+
     return 0;
 }

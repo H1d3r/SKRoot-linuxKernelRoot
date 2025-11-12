@@ -150,6 +150,18 @@ Java_com_linux_permissionmanager_bridge_NativeBridge_isEnableSkrootLog(
     return skroot_env::is_enable_skroot_log(strRootKey.c_str()) ? JNI_TRUE : JNI_FALSE;
 }
 
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_linux_permissionmanager_bridge_NativeBridge_testSkrootShellcodeChannel(
+        JNIEnv* env,
+        jclass /* this */,
+        jstring rootKey) {
+    string strRootKey = jstringToStr(env, rootKey);
+
+    KModErr err = skroot_env::test_skroot_shellcode_channel(strRootKey.c_str());
+    std::stringstream sstr;
+    sstr << "test_skroot_shellcode_channel: " << to_string(err).c_str();
+    return env->NewStringUTF(sstr.str().c_str());
+}
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_linux_permissionmanager_bridge_NativeBridge_addSuAuth(
@@ -231,7 +243,6 @@ Java_com_linux_permissionmanager_bridge_NativeBridge_installSkrootModule(
     KModErr err = skroot_env::install_module(strRootKey.c_str(), strZipFilePath.c_str());
     std::stringstream sstr;
     sstr << "install_module: " << to_string(err).c_str();
-    if(is_ok(err)) sstr  << "，将在重启后生效";
     return env->NewStringUTF(sstr.str().c_str());
 }
 
@@ -248,7 +259,6 @@ Java_com_linux_permissionmanager_bridge_NativeBridge_uninstallSkrootModule(
     KModErr err = skroot_env::uninstall_module(strRootKey.c_str(), strModUuid.c_str());
     std::stringstream sstr;
     sstr << "uninstall_module: " << to_string(err).c_str();
-    if(is_ok(err)) sstr  << "，将在重启后生效";
     return env->NewStringUTF(sstr.str().c_str());
 }
 

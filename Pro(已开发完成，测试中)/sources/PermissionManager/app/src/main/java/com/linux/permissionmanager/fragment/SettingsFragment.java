@@ -26,14 +26,13 @@ import androidx.fragment.app.Fragment;
 import com.linux.permissionmanager.BuildConfig;
 import com.linux.permissionmanager.R;
 import com.linux.permissionmanager.bridge.NativeBridge;
-import com.linux.permissionmanager.utils.BatteryOptimizationHelper;
 import com.linux.permissionmanager.utils.DialogUtils;
 
 public class SettingsFragment extends Fragment {
     private Activity mActivity;
     private String mRootKey = "";
 
-    private Button mBtnOpenBatteryOptimization;
+    private Button mBtnTestSkrootShellcodeChannel;
     private CheckBox mCkboxEnableSkrootLog;
     private Button mBtnShowSkrootLogs;
     private TextView mTvAboutVer;
@@ -52,7 +51,7 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mBtnOpenBatteryOptimization = view.findViewById(R.id.open_battery_optimization_btn);
+        mBtnTestSkrootShellcodeChannel = view.findViewById(R.id.test_skroot_shellcode_channel_btn);
         mCkboxEnableSkrootLog = view.findViewById(R.id.enable_skroot_log_ckbox);
         mBtnShowSkrootLogs = view.findViewById(R.id.show_skroot_logs_btn);
         mTvAboutVer = view.findViewById(R.id.about_ver_tv);
@@ -65,7 +64,12 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initSettingsControl() {
-        mBtnOpenBatteryOptimization.setOnClickListener(v -> BatteryOptimizationHelper.openIgnoreBatteryOptimizationsPanel(mActivity));
+        mBtnTestSkrootShellcodeChannel.setOnClickListener(
+                (v) -> {
+                    String tip = NativeBridge.testSkrootShellcodeChannel(mRootKey);
+                    DialogUtils.showMsgDlg(mActivity, "执行结果", tip, null);
+                }
+        );
         mCkboxEnableSkrootLog.setChecked(NativeBridge.isEnableSkrootLog(mRootKey));
         mBtnShowSkrootLogs.setOnClickListener(v -> showSkrootLogsDlg());
         mCkboxEnableSkrootLog.setOnCheckedChangeListener(

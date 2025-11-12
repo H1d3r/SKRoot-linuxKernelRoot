@@ -47,7 +47,7 @@ inline KModErr kallsyms_lookup_name(
 }
 
 /***************************************************************************
- * 获取do_execve起始地址
+ * 获取do_execve函数地址
  * 参数: root_key                   — ROOT权限密钥字符串
  *      out_addr                   — 输出参数，返回do_execve起始虚拟地址
  *      out_do_execve_filename_reg      — 输出参数，返回do_execve文件路径变量所在的寄存器数字
@@ -62,18 +62,20 @@ KModErr get_do_execve_addr(
 );
 
 /***************************************************************************
- * 获取avc_denied起始地址
- * 参数: root_key     — ROOT权限密钥字符串
- *      out_addr     — 输出参数，返回avc_denied起始虚拟地址
+ * 获取avc_denied函数地址
+ * 参数: root_key                   ROOT权限密钥字符串
+ *      func_start_addr             输出avc_denied起始虚拟地址
+ *      before_ret_can_hook_addr    输出avc_denied return前可安装HOOK的地址
  * 返回: OK 表示成功
  ***************************************************************************/
 KModErr get_avc_denied_addr(
     const char* root_key,
-    uint64_t&    out_addr
+    uint64_t&   func_start_addr,
+    uint64_t&   before_ret_can_hook_addr
 );
 
 /***************************************************************************
- * 获取filldir64起始地址
+ * 获取filldir64函数地址
  * 参数: root_key     — ROOT权限密钥字符串
  *      out_addr     — 输出参数，返回filldir64起始虚拟地址
  * 返回: OK 表示成功

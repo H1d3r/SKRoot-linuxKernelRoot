@@ -23,4 +23,5 @@
 #include "skroot_env/skroot_get_root.h"
 #include "skroot_env/skroot_su_auth.h"
 #include "skroot_env/skroot_log.h"
+#include "skroot_env/skroot_test.h"
 #include "skroot_env/features/skroot_module_webui_loader.h"
