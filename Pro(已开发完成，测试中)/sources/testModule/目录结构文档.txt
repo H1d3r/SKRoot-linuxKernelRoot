@@ -1,9 +1,0 @@
-testModule
-        |
-        |------->kernel_module_kit：SKRoot内核模块开发SDK
-        |
-        |------->kernel_module_kit_test：演示单元测试SDK所有接口
-        |
-        |------->module_example：演示hello world内核模块
-        |
-        |------->module_web_ui_example：演示具有WebUI页面的内核模块

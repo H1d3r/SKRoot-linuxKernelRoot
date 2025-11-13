@@ -1,5 +1,6 @@
-SKRoot(Lite)工程各目录说明：
-
-1.内核修补工具：patch_kernel_root
-2.Root权限操作APP：PermissionManager
-3.Root权限操作的JNI程序：testRoot
+SKRoot (Lite) 工程目录说明：
+──────────────────────────────
+1. 内核修补工具 .................... patch_kernel_root
+2. Root 权限管理 APP ............... PermissionManager
+3. Root 权限管理 JNI 程序 .......... testRoot
+──────────────────────────────

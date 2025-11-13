@@ -1,0 +1,7 @@
+testModule 模块目录清单：
+──────────────────────────────
+• SKRoot 内核模块开发 SDK .................. kernel_module_kit
+• SDK 全接口单元测试工程 .................... kernel_module_kit_test
+• Hello World 示例模块（源码） ............ module_example
+• 内置 WebUI 模块示例（源码） .............. module_web_ui_example
+──────────────────────────────
