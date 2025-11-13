@@ -19,7 +19,7 @@ KModErr run_kernel_shellcode(uint64_t & result) {
     kernel_module::arm64_module_asm_func_end(a, TEST_RETURN_VALUE);
 	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     return KModErr::OK;
 }
 

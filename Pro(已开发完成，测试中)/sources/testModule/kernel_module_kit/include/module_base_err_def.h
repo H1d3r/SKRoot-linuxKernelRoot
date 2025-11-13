@@ -98,22 +98,22 @@ constexpr bool is_failed(KModErr err) noexcept {
     return err != KModErr::OK;
 }
 
-#define RETURN_IF_ERROR_KMOD(expr)                                             \
+#define RETURN_IF_ERROR(expr)                                             \
     do {                                                                  \
         static_assert(                                                   \
             std::is_same<decltype(expr),KModErr>::value,                  \
-            "RETURN_IF_ERROR_KMOD: expr 必须返回 KModErr"                       \
+            "RETURN_IF_ERROR: expr 必须返回 KModErr"                       \
         );                                                                \
         KModErr _err = (expr);                                            \
         if (is_failed(_err))                                      \
             return _err;                                                  \
     } while (0)
 
-#define BREAK_IF_ERROR_KMOD(expr)                                              \
+#define BREAK_IF_ERROR(expr)                                              \
     {                                                                  \
         static_assert(                                                   \
             std::is_same<decltype(expr),KModErr>::value,                   \
-            "BREAK_IF_ERROR_KMOD: expr 必须返回 KModErr"                        \
+            "BREAK_IF_ERROR: expr 必须返回 KModErr"                        \
         );                                                                \
         KModErr _err = (expr);                                            \
         if (is_failed(_err))                                      \

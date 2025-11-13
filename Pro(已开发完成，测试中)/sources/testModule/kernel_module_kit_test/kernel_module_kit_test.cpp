@@ -11,7 +11,7 @@ KModErr Test_execute_kernel_asm_func() {
 	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     print_current_uid_caps_state();
     printf("Shellcode output result: %s, value: %p\n", result == 0x12345 ? "ok" : "failed", (void*)result);
@@ -20,16 +20,16 @@ KModErr Test_execute_kernel_asm_func() {
 
 KModErr Test_alloc_kernel_mem() {
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
     printf("Output addr: %p\n", (void*)addr);
     return KModErr::OK;
 }
 
 KModErr Test_free_kernel_mem() {
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
     printf("Output addr: %p\n", (void*)addr);
-    RETURN_IF_ERROR_KMOD(kernel_module::free_kernel_mem(g_root_key, addr));
+    RETURN_IF_ERROR(kernel_module::free_kernel_mem(g_root_key, addr));
     return KModErr::OK;
 }
 
@@ -37,8 +37,8 @@ KModErr Test_write_rw_kernel_mem() {
     uint32_t test_data[2] = {0x11223344, 0x55667788};
 
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, addr, &test_data, sizeof(test_data)));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, &test_data, sizeof(test_data)));
     printf("Output addr: %p\n", (void*)addr);
     return KModErr::OK;
 }
@@ -47,12 +47,12 @@ KModErr Test_read_kernel_mem() {
     uint32_t test_data[2] = {0xAABBCCDD, 0xEEFF1122};
 
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, addr, &test_data, sizeof(test_data)));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, &test_data, sizeof(test_data)));
     printf("Output addr: %p\n", (void*)addr);
 
     std::vector<uint8_t> buf(sizeof(test_data));
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     printf("read_kernel_mem Buffer bytes:");
     for (size_t i = 0; i < buf.size(); ++i) {
         printf(" %02hhx", buf[i]);
@@ -63,18 +63,18 @@ KModErr Test_read_kernel_mem() {
 
 KModErr Test_get_kernel_virtual_mem_start_addr() {
     uint64_t result_addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::get_kernel_virtual_mem_start_addr(g_root_key, result_addr));
+    RETURN_IF_ERROR(kernel_module::get_kernel_virtual_mem_start_addr(g_root_key, result_addr));
     printf("Output addr: %p\n", (void*)result_addr);
     return KModErr::OK;
 }
 
 KModErr Test_write_x_kernel_mem() {
     uint64_t result_addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::kallsyms_lookup_name(g_root_key, "kernel_halt", result_addr));
+    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(g_root_key, "kernel_halt", result_addr));
 
     // 读取原始内存内容
     uint8_t buf[16] = {0};
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, result_addr, buf, sizeof(buf)));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, result_addr, buf, sizeof(buf)));
     printf("read_kernel_mem (before) Buffer before:");
     for (size_t i = 0; i < sizeof(buf); ++i) {
         printf(" %02hhx", buf[i]);
@@ -83,11 +83,11 @@ KModErr Test_write_x_kernel_mem() {
 
     // 准备修改数据（8 字节）
     uint32_t ccmd[2] = { 0x11223344, 0x55667788 };
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, result_addr, ccmd, sizeof(ccmd), kernel_module::KernMemProt::KMP_X));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, result_addr, ccmd, sizeof(ccmd), kernel_module::KernMemProt::KMP_X));
 
     // 再次读取内存以验证修改效果
     memset(buf, 0, sizeof(buf));
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, result_addr, buf, sizeof(buf)));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, result_addr, buf, sizeof(buf)));
     printf("read_kernel_mem (after) Buffer after:");
     for (size_t i = 0; i < sizeof(buf); ++i) {
         printf(" %02hhx", buf[i]);
@@ -108,8 +108,8 @@ KModErr Test_rw_kernel_runtime_storage() {
     std::string new_value1 = std::to_string(time(NULL));
     std::string new_value2 = new_value1;
     std::reverse(new_value2.begin(), new_value2.end());
-    RETURN_IF_ERROR_KMOD(kernel_module::write_string_kernel_runtime_storage(g_root_key, EN_MODULE_NAME, "testKey1", new_value1.c_str()));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_string_kernel_runtime_storage(g_root_key, "app_name2", "testKey1", new_value2.c_str()));
+    RETURN_IF_ERROR(kernel_module::write_string_kernel_runtime_storage(g_root_key, EN_MODULE_NAME, "testKey1", new_value1.c_str()));
+    RETURN_IF_ERROR(kernel_module::write_string_kernel_runtime_storage(g_root_key, "app_name2", "testKey1", new_value2.c_str()));
     printf("write_string_kernel_storage Write string1: %s, string2: %s\n", new_value1.c_str(), new_value2.c_str());
     return KModErr::OK;
 }
@@ -126,13 +126,13 @@ std::vector<uint8_t> generate_filename_lookup_before_hook_bytes() {
 
 KModErr Test_install_kernel_function_before_hook() {
     kernel_module::SymbolHit filename_lookup;
-    RETURN_IF_ERROR_KMOD(kernel_module::get_filename_lookup_addr(g_root_key, filename_lookup));
+    RETURN_IF_ERROR(kernel_module::get_filename_lookup_addr(g_root_key, filename_lookup));
     printf("get_filename_lookup_addr Output addr: %p, name: %s\n", (void*)filename_lookup.addr, filename_lookup.name);
    
     // Read memory before hook
     {
         uint8_t buf[4] = {0};
-        RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, filename_lookup.addr, buf, sizeof(buf)));
+        RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, filename_lookup.addr, buf, sizeof(buf)));
         printf("read_kernel_mem (filename_lookup) Before before:");
         for (size_t i = 0; i < sizeof(buf); ++i) {
             printf(" %02hhx", buf[i]);
@@ -143,11 +143,11 @@ KModErr Test_install_kernel_function_before_hook() {
     std::vector<uint8_t> my_func_bytes = generate_filename_lookup_before_hook_bytes();
     KModErr err = kernel_module::install_kernel_function_before_hook(g_root_key, filename_lookup.addr, my_func_bytes);
     printf("install_kernel_function_before_hook return: %s\n", to_string(err).c_str());
-    RETURN_IF_ERROR_KMOD(err);
+    RETURN_IF_ERROR(err);
     // Read memory after hook
     {
         uint8_t buf[4] = {0};
-        RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, filename_lookup.addr, buf, sizeof(buf)));
+        RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, filename_lookup.addr, buf, sizeof(buf)));
         printf("read_kernel_mem (filename_lookup) After before:");
         for (size_t i = 0; i < sizeof(buf); ++i) {
             printf(" %02hhx", buf[i]);
@@ -168,13 +168,13 @@ std::vector<uint8_t> generate_avc_denied_after_hook_bytes() {
 
 KModErr Test_install_kernel_function_after_hook() {
     uint64_t avc_denied_addr = 0, ret_addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::get_avc_denied_addr(g_root_key, avc_denied_addr, ret_addr));
+    RETURN_IF_ERROR(kernel_module::get_avc_denied_addr(g_root_key, avc_denied_addr, ret_addr));
     printf("get_avc_denied_addr Output start addr: %p, ret addr: %p\n", (void*)avc_denied_addr, (void*)ret_addr);
    
     // Read memory before hook
     {
         uint8_t buf[4] = {0};
-        RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, avc_denied_addr, buf, sizeof(buf)));
+        RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, avc_denied_addr, buf, sizeof(buf)));
         printf("read_kernel_mem (avc_denied) Before before:");
         for (size_t i = 0; i < sizeof(buf); ++i) {
             printf(" %02hhx", buf[i]);
@@ -185,11 +185,11 @@ KModErr Test_install_kernel_function_after_hook() {
     std::vector<uint8_t> my_func_bytes = generate_avc_denied_after_hook_bytes();
     KModErr err = kernel_module::install_kernel_function_after_hook(g_root_key, avc_denied_addr, my_func_bytes);
     printf("install_kernel_function_after_hook return: %s\n", to_string(err).c_str());
-    RETURN_IF_ERROR_KMOD(err);
+    RETURN_IF_ERROR(err);
     // Read memory after hook
     {
         uint8_t buf[4] = {0};
-        RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, avc_denied_addr, buf, sizeof(buf)));
+        RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, avc_denied_addr, buf, sizeof(buf)));
         printf("read_kernel_mem (avc_denied) After before:");
         for (size_t i = 0; i < sizeof(buf); ++i) {
             printf(" %02hhx", buf[i]);
@@ -201,42 +201,42 @@ KModErr Test_install_kernel_function_after_hook() {
 
 KModErr Test_get_task_struct_pid_offset() {
     uint32_t result_offset = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::get_task_struct_pid_offset(g_root_key, result_offset));
+    RETURN_IF_ERROR(kernel_module::get_task_struct_pid_offset(g_root_key, result_offset));
     printf("Output offset: 0x%x\n", result_offset);
     return KModErr::OK;
 }
 
 KModErr Test_get_task_struct_real_parent_offset() {
     uint32_t result_offset = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::get_task_struct_real_parent_offset(g_root_key, result_offset));
+    RETURN_IF_ERROR(kernel_module::get_task_struct_real_parent_offset(g_root_key, result_offset));
     printf("Output offset: 0x%x\n", result_offset);
     return KModErr::OK;
 }
 
 KModErr Test_get_task_struct_comm_offset() {
     uint32_t result_offset = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::get_task_struct_comm_offset(g_root_key, result_offset));
+    RETURN_IF_ERROR(kernel_module::get_task_struct_comm_offset(g_root_key, result_offset));
     printf("Output offset: 0x%x\n", result_offset);
     return KModErr::OK;
 }
 
 KModErr Test_get_task_struct_real_cred_offset() {
     uint32_t result_offset = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::get_task_struct_real_cred_offset(g_root_key, result_offset));
+    RETURN_IF_ERROR(kernel_module::get_task_struct_real_cred_offset(g_root_key, result_offset));
     printf("Output offset: 0x%x\n", result_offset);
     return KModErr::OK;
 }
 
 KModErr Test_get_cred_uid_offset() {
     uint32_t result_offset = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::get_cred_uid_offset(g_root_key, result_offset));
+    RETURN_IF_ERROR(kernel_module::get_cred_uid_offset(g_root_key, result_offset));
     printf("Output offset: 0x%x\n", result_offset);
     return KModErr::OK;
 }
 
 KModErr Test_get_mm_struct_arg_offset() {
     uint32_t arg_start_offset = 0, arg_end_offset = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::get_mm_struct_arg_offset(g_root_key, arg_start_offset, arg_end_offset));
+    RETURN_IF_ERROR(kernel_module::get_mm_struct_arg_offset(g_root_key, arg_start_offset, arg_end_offset));
     printf("Output arg_start offset: 0x%x\n", arg_start_offset);
     printf("Output arg_end offset: 0x%x\n", arg_end_offset);
     return KModErr::OK;
@@ -244,7 +244,7 @@ KModErr Test_get_mm_struct_arg_offset() {
 
 KModErr Test_get_mm_struct_env_offset() {
     uint32_t env_start_offset = 0, env_end_offset = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::get_mm_struct_env_offset(g_root_key, env_start_offset, env_end_offset));
+    RETURN_IF_ERROR(kernel_module::get_mm_struct_env_offset(g_root_key, env_start_offset, env_end_offset));
     printf("Output env_start offset: 0x%x\n", env_start_offset);
     printf("Output env_end offset: 0x%x\n", env_end_offset);
     return KModErr::OK;
@@ -261,7 +261,7 @@ KModErr Test_set_current_caps() {
         printf("Ambient    : 0x%016llx\n", (unsigned long long)caps.ambient);
     }
     printf("get_current_caps return:%s\n", to_string(err).c_str());
-    RETURN_IF_ERROR_KMOD(err);
+    RETURN_IF_ERROR(err);
     caps.inheritable = 0x2FFFFFFFFF;
     caps.permitted = 0x2FFFFFFFFF;
     caps.effective = 0x2FFFFFFFFF;
@@ -269,7 +269,7 @@ KModErr Test_set_current_caps() {
     caps.ambient = 0x2FFFFFFFFF;
     err = kernel_module::set_current_caps(g_root_key, caps);
     printf("set_current_caps return:%s\n", to_string(err).c_str());
-    RETURN_IF_ERROR_KMOD(err);
+    RETURN_IF_ERROR(err);
     err = kernel_module::get_current_caps(caps);
     if(err == KModErr::OK) {
         printf("Inheritable: 0x%016llx\n", (unsigned long long)caps.inheritable);

@@ -86,17 +86,11 @@
                     android:id="@+id/show_thirty_app_ckbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
                     android:text="第三方应用"
                     android:checked="true"
                     android:textColor="@color/white" />
 
-                <CheckBox
-                    android:id="@+id/show_running_app_ckbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="正在运行"
-                    android:checked="true"
-                    android:textColor="@color/white" />
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView

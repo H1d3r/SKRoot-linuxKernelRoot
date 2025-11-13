@@ -1,3 +1,0 @@
-testRoot
-       |
-       |------>kernel_root_kit：SKRoot内核SDK

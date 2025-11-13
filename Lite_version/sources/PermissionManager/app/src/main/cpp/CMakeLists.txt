@@ -47,7 +47,7 @@ find_library( # Sets the name of the path variable.
 target_include_directories(
 		permissionmanager
 		PRIVATE
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testRoot/jni/
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testRoot/
 )
 
 target_link_libraries( # Specifies the target library.
@@ -55,5 +55,5 @@ target_link_libraries( # Specifies the target library.
 
         # Links the target library to the log library
         # included in the NDK.
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testRoot/jni/kernel_root_kit/lib/libkernel_root_kit_static.a
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testRoot/kernel_root_kit/lib/libkernel_root_kit_static.a
         ${log-lib})

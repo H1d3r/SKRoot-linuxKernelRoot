@@ -132,10 +132,8 @@ public class SuAuthFragment extends Fragment {
         View view = SelectAppDlg.showSelectAppDlg(mActivity, mRootKey, selectImplantAppCallback);
         CheckBox show_system_app_ckbox = view.findViewById(R.id.show_system_app_ckbox);
         CheckBox show_thirty_app_ckbox = view.findViewById(R.id.show_thirty_app_ckbox);
-        CheckBox show_running_app_ckbox = view.findViewById(R.id.show_running_app_ckbox);
         show_system_app_ckbox.setChecked(false);
         show_thirty_app_ckbox.setChecked(true);
-        show_running_app_ckbox.setChecked(false);
     }
 
     private void onAddSuAuth(SelectAppItem app) {

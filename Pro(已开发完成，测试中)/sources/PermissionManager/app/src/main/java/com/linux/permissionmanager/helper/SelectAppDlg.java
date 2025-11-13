@@ -99,19 +99,12 @@ public class SelectAppDlg {
         select_app_recycler_view.setLayoutManager(linearLayoutManager);
         select_app_recycler_view.setAdapter(adapter);
 
-        // 获取正在运行的APP
-        String runningApp = NativeBridge.getAllCmdlineProcess(rootKey);
-        Map<Integer, String> processMap = parseProcessInfo(runningApp);
-
         TextView clear_search_btn = view.findViewById(R.id.clear_search_btn);
         EditText search_edit = view.findViewById(R.id.search_edit);
         CheckBox show_system_app_ckbox = view.findViewById(R.id.show_system_app_ckbox);
         CheckBox show_thirty_app_ckbox = view.findViewById(R.id.show_thirty_app_ckbox);
-        CheckBox show_running_app_ckbox = view.findViewById(R.id.show_running_app_ckbox);
         show_system_app_ckbox.setEnabled(true);
         show_thirty_app_ckbox.setEnabled(true);
-        show_running_app_ckbox.setEnabled(true);
-        Map<Integer, String> finalProcessMap = processMap;
         @SuppressLint("HandlerLeak") Handler updateAppListFunc = new Handler() {
             @Override
             public void handleMessage(@NonNull Message msg) {
@@ -124,11 +117,6 @@ public class SelectAppDlg {
                     }
                     if(!show_thirty_app_ckbox.isChecked()) {
                         if ((pack.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) continue; // 第三方应用
-                    }
-                    if (show_running_app_ckbox.isChecked()) {
-                        boolean isFound = finalProcessMap.values().stream()
-                                .anyMatch(value -> value.contains(item.getPackageName()));
-                        if (!isFound) continue;
                     }
                     if(item.getPackageName().indexOf(filterText) != -1 || item.getShowName(activity).indexOf(filterText) != -1) {
                         newAppList.add(item);
@@ -170,30 +158,8 @@ public class SelectAppDlg {
                 updateAppListFunc.sendMessage(new Message());
             }
         });
-        show_running_app_ckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateAppListFunc.sendMessage(new Message());
-            }
-        });
         updateAppListFunc.sendMessage(new Message());
         return view;
     }
 
-    private static Map<Integer, String> parseProcessInfo(String jsonStr) {
-        Map<Integer, String> processMap = new HashMap<>();
-        try {
-            JSONArray jsonArray = new JSONArray(jsonStr);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                int pid = jsonObject.getInt("pid");
-                String encodedValue = jsonObject.getString("name");
-                String name = URLDecoder.decode(encodedValue, "UTF-8");
-                processMap.put(pid, name);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return processMap;
-    }
 }

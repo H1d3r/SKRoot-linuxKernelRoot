@@ -66,7 +66,7 @@ inline KModErr read_kernel_runtime_storage(
     const char *key_name,
     T &out_value) {
     std::string s;
-    RETURN_IF_ERROR_KMOD(read_string_kernel_runtime_storage(root_key, app_name, key_name, s));
+    RETURN_IF_ERROR(read_string_kernel_runtime_storage(root_key, app_name, key_name, s));
     out_value = detail::from_string_generic<T>(s);
     return KModErr::OK;
 }

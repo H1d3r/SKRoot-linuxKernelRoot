@@ -29,7 +29,4 @@ public final class NativeBridge {
     public static native String testRoot(String rootKey);
     public static native String runRootCmd(String rootKey, String cmd);
     public static native String rootExecProcessCmd(String rootKey, String cmd);
-    public static native String getAllCmdlineProcess(String rootKey);
-    public static native String parasitePrecheckApp(String rootKey, String targetProcessCmdline);
-    public static native String parasiteImplantApp(String rootKey, String targetProcessCmdline, String targetSoFullPath);
 }

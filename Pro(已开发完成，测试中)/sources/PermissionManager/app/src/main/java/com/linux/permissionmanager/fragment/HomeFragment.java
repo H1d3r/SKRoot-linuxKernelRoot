@@ -1,63 +1,32 @@
 package com.linux.permissionmanager.fragment;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.linux.permissionmanager.AppSettings;
 import com.linux.permissionmanager.R;
-import com.linux.permissionmanager.adapter.SelectFileRecyclerAdapter;
 import com.linux.permissionmanager.bridge.NativeBridge;
-import com.linux.permissionmanager.helper.SelectAppDlg;
-import com.linux.permissionmanager.helper.SelectFileDlg;
-import com.linux.permissionmanager.model.PopupWindowOnTouchClose;
-import com.linux.permissionmanager.model.SelectAppItem;
-import com.linux.permissionmanager.model.SelectFileItem;
 import com.linux.permissionmanager.utils.ClipboardUtils;
 import com.linux.permissionmanager.utils.DialogUtils;
-import com.linux.permissionmanager.utils.ScreenInfoUtils;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.net.URLDecoder;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class HomeFragment extends Fragment implements View.OnClickListener {
     private Activity mActivity;
     private String mRootKey = "";
     private String lastInputCmd = "id";
     private String lastInputRootExecPath = "";
-    private ProgressDialog m_loadingDlg = null;
 
     private EditText console_edit;
 
@@ -84,7 +53,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         Button test_root_btn = view.findViewById(R.id.test_root_btn);
         Button run_root_cmd_btn = view.findViewById(R.id.run_root_cmd_btn);
         Button root_exec_process_btn = view.findViewById(R.id.root_exec_process_btn);
-        Button implant_app_btn = view.findViewById(R.id.implant_app_btn);
         Button copy_info_btn = view.findViewById(R.id.copy_info_btn);
         Button clean_info_btn = view.findViewById(R.id.clean_info_btn);
         console_edit = view.findViewById(R.id.console_edit);
@@ -94,7 +62,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         test_root_btn.setOnClickListener(this);
         run_root_cmd_btn.setOnClickListener(this);
         root_exec_process_btn.setOnClickListener(this);
-        implant_app_btn.setOnClickListener(this);
         copy_info_btn.setOnClickListener(this);
         clean_info_btn.setOnClickListener(this);
     }
@@ -121,9 +88,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 break;
             case R.id.root_exec_process_btn:
                 showInputRootExecProcessPathDlg();
-                break;
-            case R.id.implant_app_btn:
-                onClickImplantAppBtn();
                 break;
             case R.id.copy_info_btn:
                 copyConsoleMsg();
@@ -201,68 +165,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         DialogUtils.showMsgDlg(mActivity,"提示", "本功能是以ROOT身份直接运行程序，可避免产生su、sh等多余驻留后台进程，能最大程度上避免侦测", null);
     }
 
-    private void onClickImplantAppBtn() {
-        Handler selectImplantAppCallback = new Handler() {
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                SelectAppItem app = (SelectAppItem) msg.obj;
-                if (m_loadingDlg == null) {
-                    m_loadingDlg = new ProgressDialog(mActivity);
-                    m_loadingDlg.setCancelable(false);
-                }
-                m_loadingDlg.setTitle("");
-                m_loadingDlg.setMessage("请现在手动启动APP [" + app.getShowName(mActivity) + "]");
-                m_loadingDlg.show();
-                startImplantAppThread(app);
-                super.handleMessage(msg);
-            }
-        };
-        View view = SelectAppDlg.showSelectAppDlg(mActivity, mRootKey, selectImplantAppCallback);
-        CheckBox show_system_app_ckbox = view.findViewById(R.id.show_system_app_ckbox);
-        CheckBox show_thirty_app_ckbox = view.findViewById(R.id.show_thirty_app_ckbox);
-        CheckBox show_running_app_ckbox = view.findViewById(R.id.show_running_app_ckbox);
-        show_system_app_ckbox.setChecked(false);
-        show_system_app_ckbox.setEnabled(false);
-        show_thirty_app_ckbox.setChecked(true);
-        show_thirty_app_ckbox.setEnabled(false);
-        show_running_app_ckbox.setChecked(true);
-        show_running_app_ckbox.setEnabled(false);
-    }
-
-    private void startImplantAppThread(SelectAppItem app) {
-        new Thread() {
-            public void run() {
-                String parasitePrecheckAppRet = NativeBridge.parasitePrecheckApp(mRootKey, app.getPackageName());
-
-                mActivity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        m_loadingDlg.cancel();
-                        Map<String, SelectFileDlg.FileStatus> fileList = parseSoFullPathInfo(parasitePrecheckAppRet);
-                        if (fileList.size() == 0 && !parasitePrecheckAppRet.isEmpty()) {
-                            appendConsoleMsg(parasitePrecheckAppRet);
-                            return;
-                        }
-                        Handler selectFileCallback = new Handler() {
-                            @Override
-                            public void handleMessage(@NonNull Message msg) {
-                                SelectFileItem fileItem = (SelectFileItem) msg.obj;
-                                String parasiteImplantAppRet = NativeBridge.parasiteImplantApp(mRootKey, app.getPackageName(), fileItem.getFilePath());
-                                appendConsoleMsg(parasiteImplantAppRet);
-                                if(parasiteImplantAppRet.indexOf("parasite_implant_app done.")!= -1) {
-                                    DialogUtils.showMsgDlg(mActivity, "提示",
-                                            "已经寄生到APP [" + app.getShowName(mActivity) + "]",
-                                            app.getDrawable(mActivity));
-                                }
-                                super.handleMessage(msg);
-                            }
-                        };
-                        SelectFileDlg.showSelectFileDlg(mActivity, fileList, selectFileCallback);
-                    }
-                });
-            }
-        }.start();
-    }
-
     private void appendConsoleMsg(String msg) {
         StringBuffer txt = new StringBuffer();
         txt.append(console_edit.getText().toString());
@@ -280,24 +182,5 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
     private void cleanConsoleMsg() {
         console_edit.setText("");
-    }
-
-    private Map<String, SelectFileDlg.FileStatus> parseSoFullPathInfo(String jsonStr) {
-        Map<String, SelectFileDlg.FileStatus> soPathMap = new HashMap<>();
-        try {
-            JSONArray jsonArray = new JSONArray(jsonStr);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                String name = URLDecoder.decode(jsonObject.getString("name"), "UTF-8");
-                int n = jsonObject.getInt("status");
-                SelectFileDlg.FileStatus status =  SelectFileDlg.FileStatus.Unknown;
-                status = n == 1 ?  SelectFileDlg.FileStatus.Running : status;
-                status = n == 2 ?  SelectFileDlg.FileStatus.NotRunning : status;
-                soPathMap.put(name, status);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return soPathMap;
     }
 }

@@ -10,6 +10,9 @@ cmake_minimum_required(VERSION 3.18.1)
 project("permissionmanager")
 
 set(OTHER_SRC
+		"${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testInstall/command.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testInstall/exec_process.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testInstall/test.cpp"
 		"${CMAKE_CURRENT_SOURCE_DIR}/cJSON.cpp"
 		"${CMAKE_CURRENT_SOURCE_DIR}/native-lib.cpp"
 		)
@@ -47,8 +50,8 @@ find_library( # Sets the name of the path variable.
 target_include_directories(
 		permissionmanager
 		PRIVATE
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testInstall/jni/
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testModule/
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testInstall/
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testModule/kernel_module_kit/include/
 )
 
 target_link_libraries( # Specifies the target library.
@@ -56,7 +59,6 @@ target_link_libraries( # Specifies the target library.
 
         # Links the target library to the log library
         # included in the NDK.
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testInstall/jni/skroot_box/lib/libskroot_box_static.a
 		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../testModule/kernel_module_kit/lib/libkernel_module_kit_static.a
 		z
         ${log-lib})

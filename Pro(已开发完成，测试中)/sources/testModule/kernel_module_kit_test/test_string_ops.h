@@ -17,7 +17,7 @@ KModErr Test_kstrlen() {
 	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     printf("kstrlen result: %s\n", result == 9 ? "ok" : "failed");
     return KModErr::OK;
 }
@@ -34,7 +34,7 @@ KModErr Test_kstrcmp1() {
 	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     printf("kstrcmp1 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
 }
@@ -52,7 +52,7 @@ KModErr Test_kstrcmp2() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     printf("kstrcmp2 result: %s\n", result != 0 ? "ok" : "failed");
     return KModErr::OK;
 }
@@ -69,7 +69,7 @@ KModErr Test_kstrcmp3() {
 	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     printf("kstrcmp2 result: %s\n", result != 0 ? "ok" : "failed");
     return KModErr::OK;
 }
@@ -87,7 +87,7 @@ KModErr Test_kstrncmp1() {
     std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     printf("kstrncmp1 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
 }
@@ -105,7 +105,7 @@ KModErr Test_kstrncmp2() {
     std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     printf("kstrncmp2 result: %s\n", result != 0 ? "ok" : "failed");
     return KModErr::OK;
 }
@@ -124,7 +124,7 @@ KModErr Test_kstrncmp3() {
     std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     printf("kstrncmp3 result: %s\n", result != 0 ? "ok" : "failed");
     return KModErr::OK;
 }
@@ -142,7 +142,7 @@ KModErr Test_kstrncmp4() {
     std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     printf("kstrncmp4 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
 }
@@ -160,7 +160,7 @@ KModErr Test_kstrncmp5() {
     std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     printf("kstrncmp5 result: %s\n", result != 0 ? "ok" : "failed");
     return KModErr::OK;
 }
@@ -178,7 +178,7 @@ KModErr Test_kstrncmp6() {
     std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kstrncmp6 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -197,7 +197,7 @@ KModErr Test_kstrncmp7() {
     std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kstrncmp7 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -207,8 +207,8 @@ KModErr Test_kstrcpy() {
     uint32_t test_data[2] = {0x11223344, 0x55667788};
 
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, &test_data, sizeof(test_data)));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, &test_data, sizeof(test_data)));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -221,10 +221,10 @@ KModErr Test_kstrcpy() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
 
     std::vector<uint8_t> buf(sizeof(test_data));
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     std::string after_str(reinterpret_cast<const char*>(buf.data()));
     printf("kmemcpy result: %s\n", after_str == "abc" ? "ok" : "failed");
     return KModErr::OK;
@@ -242,7 +242,7 @@ KModErr Test_kstrstr1() {
 	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kstrstr1 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -261,7 +261,7 @@ KModErr Test_kstrstr2() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kstrstr2 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -269,8 +269,8 @@ KModErr Test_kstrstr2() {
 
 KModErr Test_kstrstr3() {
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -284,12 +284,12 @@ KModErr Test_kstrstr3() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
 
     addr = result;
     std::vector<uint8_t> buf(sizeof("789aaabbbccc"));
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     std::string after_str(reinterpret_cast<const char*>(buf.data()));
     printf("kstrstr3 result: %s\n", after_str == "789aaabbbccc" ? "ok" : "failed");
     return KModErr::OK;
@@ -308,7 +308,7 @@ KModErr Test_kstrchr1() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kstrchr1 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -316,8 +316,8 @@ KModErr Test_kstrchr1() {
 
 KModErr Test_kstrchr2() {
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -331,12 +331,12 @@ KModErr Test_kstrchr2() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
 
     addr = result;
     std::vector<uint8_t> buf(sizeof("789aaabbbccc"));
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     std::string after_str(reinterpret_cast<const char*>(buf.data()));
     printf("kstrchr3 result: %s\n", after_str == "789aaabbbccc" ? "ok" : "failed");
     return KModErr::OK;
@@ -344,8 +344,8 @@ KModErr Test_kstrchr2() {
 
 KModErr Test_kmemset1() {
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -359,12 +359,12 @@ KModErr Test_kmemset1() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
 
     addr = result;
     std::vector<uint8_t> buf(sizeof("kkkkk6789aaabbbccc"));
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     std::string after_str(reinterpret_cast<const char*>(buf.data()));
     printf("kmemset1 result: %s\n", after_str == "kkkkk6789aaabbbccc" ? "ok" : "failed");
     return KModErr::OK;
@@ -372,8 +372,8 @@ KModErr Test_kmemset1() {
 
 KModErr Test_kmemset2() {
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -386,11 +386,11 @@ KModErr Test_kmemset2() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
 
     addr = result;
     std::vector<uint8_t> buf(sizeof("kkkkk6789aaabbbccc"));
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     std::string after_str(reinterpret_cast<const char*>(buf.data()));
     printf("kmemset2 result: %s\n", after_str == "kkkkk6789aaabbbccc" ? "ok" : "failed");
     return KModErr::OK;
@@ -410,7 +410,7 @@ KModErr Test_kmemcmp1() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kmemcmp1 result: %s\n", result != 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -430,7 +430,7 @@ KModErr Test_kmemcmp2() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kmemcmp2 result: %s\n", result != 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -450,7 +450,7 @@ KModErr Test_kmemcmp3() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kmemcmp3 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -460,8 +460,8 @@ KModErr Test_kmemcpy() {
     uint32_t test_data[2] = {0x11223344, 0x55667788};
 
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, &test_data, sizeof(test_data)));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, &test_data, sizeof(test_data)));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -475,11 +475,11 @@ KModErr Test_kmemcpy() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
 
     std::vector<uint8_t> buf(sizeof(test_data));
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     std::string after_str(reinterpret_cast<const char*>(buf.data()));
     printf("kmemcpy result: %s\n", after_str == "aabbcc" ? "ok" : "failed");
     return KModErr::OK;
@@ -500,15 +500,15 @@ KModErr Test_kmemmem1() {
     std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (bytes.empty()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     printf("kmemmem1 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
 }
 
 KModErr Test_kmemmem2() {
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, addr, "123456789aaabbbccc", sizeof("123456789aaabbbccc")));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, "123456789aaabbbccc", sizeof("123456789aaabbbccc")));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -526,11 +526,11 @@ KModErr Test_kmemmem2() {
     if (bytes.empty()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
 
     addr = result;
     std::vector<uint8_t> buf(sizeof("789aaabbbccc") - 1);
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     buf.push_back(0);
     std::string s(reinterpret_cast<const char*>(buf.data()));
     printf("kmemmem2 result: %s\n", s == "789aaabbbccc" ? "ok" : "failed");
@@ -540,8 +540,8 @@ KModErr Test_kmemmem2() {
 KModErr Test_kmemmem3() {
     //单元测试：kmemmem3 - 命中（起始位置），返回值应等于 buf 的地址
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, addr, "hello-world", sizeof("hello-world")));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, "hello-world", sizeof("hello-world")));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -559,12 +559,12 @@ KModErr Test_kmemmem3() {
     if (bytes.empty()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
 
     addr = result;
     std::vector<uint8_t> buf(sizeof("hello") - 1);
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     buf.push_back(0);
     std::string s(reinterpret_cast<const char*>(buf.data()));
     printf("kmemmem3 result: %s\n", s == "hello" ? "ok" : "failed");
@@ -574,8 +574,8 @@ KModErr Test_kmemmem3() {
 KModErr Test_kmemmem4() {
     // 单元测试：kmemmem4 - 空模式串（needle_n == 0），应返回 buf
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", sizeof("123456789aaabbbccc")));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", sizeof("123456789aaabbbccc")));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -593,11 +593,11 @@ KModErr Test_kmemmem4() {
     if (bytes.empty()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     addr = result;
     std::vector<uint8_t> buf(sizeof("123456789aaabbbccc") - 1);
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     buf.push_back(0);
     std::string s(reinterpret_cast<const char*>(buf.data()));
     printf("kmemmem4 result: %s\n", s == "123456789aaabbbccc" ? "ok" : "failed");
@@ -610,8 +610,8 @@ KModErr Test_kmemmem5() {
         0x00, 0x74, 0x65, 0x73, 0x74, 0x4b, 0x65, 0x79, 0x31, 0x00, 0x31, 0x37, 0x35, 0x36, 0x33, 0x39, 0x36, 0x36,
         0x36, 0x37, 0x00};
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, datas, sizeof(datas)));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, datas, sizeof(datas)));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -630,7 +630,7 @@ KModErr Test_kmemmem5() {
     if (bytes.empty()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     uint64_t result_addr = result;
     printf("kmemmem5 result: %s\n", result_addr == 0 ? "ok" : "failed");
@@ -642,8 +642,8 @@ KModErr Test_kmemmem6() {
         0x00, 0x74, 0x65, 0x73, 0x74, 0x4b, 0x65, 0x79, 0x31, 0x00, 0x31, 0x37, 0x35, 0x36, 0x33, 0x39, 0x36, 0x36,
         0x36, 0x00, 0x00};
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, datas, sizeof(datas)));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, datas, sizeof(datas)));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -662,7 +662,7 @@ KModErr Test_kmemmem6() {
     if (bytes.empty()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     uint64_t correct_addr = addr + sizeof(datas) - 2;
     uint64_t result_addr = result;
@@ -675,8 +675,8 @@ KModErr Test_kmemmem7() {
         0x00, 0x74, 0x65, 0x73, 0x74, 0x4b, 0x65, 0x79, 0x31, 0x00, 0x31, 0x37, 0x35, 0x36, 0x33, 0x39, 0x36, 0x36,
         0x36, 0x00, 0x00};
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, datas, sizeof(datas)));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, datas, sizeof(datas)));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -695,7 +695,7 @@ KModErr Test_kmemmem7() {
     if (bytes.empty()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
 	uint64_t correct_addr = addr + 14;
     uint64_t result_addr = result;
@@ -717,7 +717,7 @@ KModErr Test_kmemchr1() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kmemchr1 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -725,8 +725,8 @@ KModErr Test_kmemchr1() {
 
 KModErr Test_kmemchr2() {
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -741,12 +741,12 @@ KModErr Test_kmemchr2() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
 
     addr = result;
     std::vector<uint8_t> buf(sizeof("789aaabbbccc"));
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     std::string after_str(reinterpret_cast<const char*>(buf.data()));
     printf("kmemchr3 result: %s\n", after_str == "789aaabbbccc" ? "ok" : "failed");
     return KModErr::OK;
@@ -766,7 +766,7 @@ KModErr Test_kmemchr3() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kmemchr3 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -786,7 +786,7 @@ KModErr Test_kmemrchr1() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kmemrchr1 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -794,8 +794,8 @@ KModErr Test_kmemrchr1() {
 
 KModErr Test_kmemrchr2() {
     uint64_t addr = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR_KMOD(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -810,12 +810,12 @@ KModErr Test_kmemrchr2() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
 
     addr = result;
     std::vector<uint8_t> buf(sizeof("bccc"));
-    RETURN_IF_ERROR_KMOD(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
     std::string after_str(reinterpret_cast<const char*>(buf.data()));
     printf("kmemrchr3 result: %s\n", after_str == "bccc" ? "ok" : "failed");
     return KModErr::OK;
@@ -835,7 +835,7 @@ KModErr Test_kmemrchr3() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kmemrchr3 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -855,7 +855,7 @@ KModErr Test_kstartswith1() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kstartswith1 result: %s\n", result == 1 ? "ok" : "failed");
     return KModErr::OK;
@@ -874,7 +874,7 @@ KModErr Test_kstartswith2() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kstartswith2 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
@@ -893,7 +893,7 @@ KModErr Test_kendswith1() {
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
 
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kendswith1 result: %s\n", result == 1 ? "ok" : "failed");
     return KModErr::OK;
@@ -911,7 +911,7 @@ KModErr Test_kendswith2() {
     std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
-    RETURN_IF_ERROR_KMOD(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     printf("kendswith2 result: %s\n", result == 0 ? "ok" : "failed");
     return KModErr::OK;
