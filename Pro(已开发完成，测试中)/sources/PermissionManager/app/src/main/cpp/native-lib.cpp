@@ -29,10 +29,9 @@ static string jstringToStr(JNIEnv* env, jstring jstring1) {
 static string urlEncodeToStr(string str) {
     size_t len = str.length();
     size_t max_encoded_len = 3 * len + 1;
-    shared_ptr<char> spData(new (std::nothrow) char[max_encoded_len], std::default_delete<char[]>());
-    memset(spData.get(), 0, max_encoded_len);
-    url_encode(const_cast<char*>(str.c_str()), spData.get());
-    return spData.get();
+    std::vector<uint8_t> buf(max_encoded_len);
+    url_encode(const_cast<char*>(str.c_str()), (char*)buf.data());
+    return (char*)buf.data();
 }
 
 static cJSON * suAuthToJsonObj(skroot_env::su_auth_item & auth) {

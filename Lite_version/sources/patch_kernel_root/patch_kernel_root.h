@@ -6,12 +6,13 @@
 #define ROOT_KEY_LEN 48
 #define FOLDER_HEAD_ROOT_KEY_LEN 16
 
-#define IF_EXIT(cond) do { if (cond) { system("pause"); exit(0); } } while (0)
+#define IF_EXIT(cond) do { if (cond) { printf("[ERROR] Patch empty addr!\n"); system("pause"); exit(0); } } while (0)
 
 #define PATCH_AND_CONSUME(region, call_expr) \
     do { \
         size_t __sz = (call_expr); \
         IF_EXIT(!__sz); \
+        IF_EXIT(!region.offset); \
         (region).consume(__sz); \
     } while (0)
 

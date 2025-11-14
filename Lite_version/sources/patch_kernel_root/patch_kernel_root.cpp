@@ -10,6 +10,7 @@
 #pragma comment(lib, "3rdparty/capstone-4.0.2-win64/capstone.lib")
 
 struct PatchKernelResult {
+	bool patched = false;
 	size_t root_key_start = 0;
 };
 
@@ -85,13 +86,6 @@ void huawei_bypass(const std::vector<char>& file_buf, KernelSymbolOffset &sym, s
 	}
 }
 
-void no_use_patch(const std::vector<char>& file_buf, KernelSymbolOffset &sym, std::vector<patch_bytes_data>& vec_patch_bytes_data) {
-	if (sym.drm_dev_printk.offset) {
-		PATCH_AND_CONSUME(sym.drm_dev_printk, patch_ret_cmd(file_buf, sym.drm_dev_printk.offset, vec_patch_bytes_data));
-	}
-}
-
-
 PatchKernelResult patch_kernel_handler(const std::vector<char>& file_buf, size_t cred_offset, size_t cred_uid_offset, size_t seccomp_offset, KernelSymbolOffset& sym, std::vector<patch_bytes_data>& vec_patch_bytes_data) {
 	KernelVersionParser kernel_ver(file_buf);
 	PatchBase patchBase(file_buf, cred_uid_offset);
@@ -99,7 +93,8 @@ PatchKernelResult patch_kernel_handler(const std::vector<char>& file_buf, size_t
 	PatchAvcDenied patchAvcDenied(patchBase, sym.avc_denied);
 	PatchFilldir64 patchFilldir64(patchBase, sym.filldir64);
 
-	PatchKernelResult r = { 0 };
+	bool patched = true;
+	PatchKernelResult r;
 	if (kernel_ver.is_kernel_version_less("5.5.0")) {
 		SymbolRegion next_hook_start_region = { 0x200, 0x300 };
 		r.root_key_start = next_hook_start_region.offset;
@@ -107,7 +102,6 @@ PatchKernelResult patch_kernel_handler(const std::vector<char>& file_buf, size_t
 		PATCH_AND_CONSUME(next_hook_start_region, patchFilldir64.patch_filldir64_root_key_guide(r.root_key_start, next_hook_start_region, vec_patch_bytes_data));
 		PATCH_AND_CONSUME(next_hook_start_region, patchFilldir64.patch_filldir64_core(next_hook_start_region, vec_patch_bytes_data));
 		PATCH_AND_CONSUME(next_hook_start_region, patchAvcDenied.patch_avc_denied(next_hook_start_region, cred_offset, vec_patch_bytes_data));
-
 	} else if (kernel_ver.is_kernel_version_less("6.0.0") && sym.__cfi_check.offset) {
 		SymbolRegion next_hook_start_region = sym.__cfi_check;
 		r.root_key_start = next_hook_start_region.offset;
@@ -115,16 +109,18 @@ PatchKernelResult patch_kernel_handler(const std::vector<char>& file_buf, size_t
 		PATCH_AND_CONSUME(next_hook_start_region, patchFilldir64.patch_filldir64_root_key_guide(r.root_key_start, next_hook_start_region, vec_patch_bytes_data));
 		PATCH_AND_CONSUME(next_hook_start_region, patchFilldir64.patch_filldir64_core(next_hook_start_region, vec_patch_bytes_data));
 		PATCH_AND_CONSUME(next_hook_start_region, patchAvcDenied.patch_avc_denied(next_hook_start_region, cred_offset, vec_patch_bytes_data));
-
 	} else if (sym.die.offset && sym.arm64_notify_die.offset && sym.drm_dev_printk.offset) {
+		PATCH_AND_CONSUME(sym.drm_dev_printk, patch_ret_cmd(file_buf, sym.drm_dev_printk.offset, vec_patch_bytes_data));
 		r.root_key_start = sym.die.offset;
 		PATCH_AND_CONSUME(sym.die, patchDoExecve.patch_do_execve(sym.die, cred_offset, seccomp_offset, vec_patch_bytes_data));
 		PATCH_AND_CONSUME(sym.die, patchFilldir64.patch_filldir64_root_key_guide(r.root_key_start, sym.die, vec_patch_bytes_data));
 		PATCH_AND_CONSUME(sym.die, patchFilldir64.patch_jump(sym.die.offset, sym.arm64_notify_die.offset, vec_patch_bytes_data));
 		PATCH_AND_CONSUME(sym.arm64_notify_die, patchFilldir64.patch_filldir64_core(sym.arm64_notify_die, vec_patch_bytes_data));
 		PATCH_AND_CONSUME(sym.drm_dev_printk, patchAvcDenied.patch_avc_denied(sym.drm_dev_printk, cred_offset, vec_patch_bytes_data));
+	} else {
+		patched = false;
 	}
-
+	r.patched = patched;
 	return r;
 }
 
@@ -212,11 +208,10 @@ int main(int argc, char* argv[]) {
 	std::vector<patch_bytes_data> vec_patch_bytes_data;
 	cfi_bypass(file_buf, sym, vec_patch_bytes_data);
 	huawei_bypass(file_buf, sym, vec_patch_bytes_data);
-	no_use_patch(file_buf, sym, vec_patch_bytes_data);
 
 	size_t first_hook_start = 0;
 	PatchKernelResult pr = patch_kernel_handler(file_buf, cred_offset, cred_uid_offset, seccomp_offset, sym, vec_patch_bytes_data);
-	if (pr.root_key_start == 0) {
+	if (!pr.patched) {
 		std::cout << "Failed to find hook start addr" << std::endl;
 		system("pause");
 		return 0;
