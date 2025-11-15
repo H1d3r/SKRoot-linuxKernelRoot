@@ -89,10 +89,7 @@ public class SettingsFragment extends Fragment {
 
     private void initAboutText() {
         StringBuffer sb = new StringBuffer();
-        sb.append("当前APP管理器版本：");
-        sb.append(BuildConfig.VERSION_NAME);
-        sb.append("\n");
-        sb.append("当前SDK版本：");
+        sb.append("内置核心版本：");
         sb.append(NativeBridge.getSdkSkrootEnvVersion());
         mTvAboutVer.setText(sb.toString());
     }

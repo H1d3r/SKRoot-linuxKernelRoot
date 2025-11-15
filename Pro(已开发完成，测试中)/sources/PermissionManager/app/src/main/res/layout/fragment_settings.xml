@@ -78,7 +78,7 @@
                     android:id="@+id/show_skroot_logs_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="查看开机日志"/>
+                    android:text="查看日志"/>
 
             </LinearLayout>
 
@@ -151,7 +151,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="当前APP管理器版本：\n当前SDK版本：" />
+                    android:text="内置核心版本：" />
 
                 <LinearLayout
                     android:layout_width="match_parent"

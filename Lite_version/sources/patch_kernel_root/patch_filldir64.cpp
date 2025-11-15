@@ -16,6 +16,7 @@ size_t PatchFilldir64::patch_filldir64_root_key_guide(size_t root_key_mem_addr, 
 
 	aarch64_asm_info asm_info = init_aarch64_asm();
 	auto a = asm_info.a.get();
+
 	int root_key_adr_offset = root_key_mem_addr - (hook_func_start_addr + a->offset());
 	aarch64_asm_adr_x(a, x11, root_key_adr_offset);
 
@@ -44,16 +45,19 @@ size_t PatchFilldir64::patch_filldir64_core(const SymbolRegion& hook_func_start_
 	std::cout << "Start hooking addr:  " << std::hex << hook_func_start_addr << std::endl << std::endl;
 	size_t hook_jump_back_addr = m_filldir64 + 4;
 
+	GpX x_name_arg = x1;
+	GpW w_namelen_arg = w2;
+
 	aarch64_asm_info asm_info = init_aarch64_asm();
 	auto a = asm_info.a.get();
 	Label label_end = a->newLabel();
 	Label label_cycle_name = a->newLabel();
 
-	a->cmp(w2, Imm(FOLDER_HEAD_ROOT_KEY_LEN));
+	a->cmp(w_namelen_arg, Imm(FOLDER_HEAD_ROOT_KEY_LEN));
 	a->b(CondCode::kNE, label_end);
 	a->mov(x12, Imm(0));
 	a->bind(label_cycle_name);
-	a->ldrb(w13, ptr(x1, x12));
+	a->ldrb(w13, ptr(x_name_arg, x12));
 	a->ldrb(w14, ptr(x11, x12));
 	a->cmp(w13, w14);
 	a->b(CondCode::kNE, label_end);

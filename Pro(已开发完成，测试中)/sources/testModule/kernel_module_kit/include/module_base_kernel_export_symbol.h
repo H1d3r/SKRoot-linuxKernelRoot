@@ -27,7 +27,7 @@ void copy_from_user(const char* root_key, Assembler* a, KModErr& out_err, GpX to
 void copy_to_user(const char* root_key, Assembler* a, KModErr& out_err, GpX __user_to, GpX from, GpX n);
 void copy_to_user(const char* root_key, Assembler* a, KModErr& out_err, GpX __user_to, GpX from, uint64_t n);
 
-// 原型：int printk(const char *fmt, ...);
+// 原型：void printk(const char *fmt, ...); 无返回值
 template <typename... Regs>
 void printk(const char* root_key, Assembler* a, KModErr& out_err, const char *fmt, Regs... regs) {
     auto orig = mk_args(std::forward<Regs>(regs)...);

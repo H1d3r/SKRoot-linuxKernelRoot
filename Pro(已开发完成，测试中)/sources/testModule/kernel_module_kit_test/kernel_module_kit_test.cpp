@@ -125,15 +125,15 @@ std::vector<uint8_t> generate_filename_lookup_before_hook_bytes() {
 }
 
 KModErr Test_install_kernel_function_before_hook() {
-    kernel_module::SymbolHit filename_lookup;
-    RETURN_IF_ERROR(kernel_module::get_filename_lookup_addr(g_root_key, filename_lookup));
-    printf("get_filename_lookup_addr Output addr: %p, name: %s\n", (void*)filename_lookup.addr, filename_lookup.name);
+    kernel_module::SymbolHit hit;
+    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(g_root_key, "filename_lookup", kernel_module::SymbolMatchMode::Prefix, hit));
+    printf("%s, Output addr: %p\n", hit.name, (void*)hit.addr);
    
     // Read memory before hook
     {
         uint8_t buf[4] = {0};
-        RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, filename_lookup.addr, buf, sizeof(buf)));
-        printf("read_kernel_mem (filename_lookup) Before before:");
+        RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, hit.addr, buf, sizeof(buf)));
+        printf("read_kernel_mem (%s) Before before:", hit.name);
         for (size_t i = 0; i < sizeof(buf); ++i) {
             printf(" %02hhx", buf[i]);
         }
@@ -141,14 +141,14 @@ KModErr Test_install_kernel_function_before_hook() {
     }
 
     std::vector<uint8_t> my_func_bytes = generate_filename_lookup_before_hook_bytes();
-    KModErr err = kernel_module::install_kernel_function_before_hook(g_root_key, filename_lookup.addr, my_func_bytes);
+    KModErr err = kernel_module::install_kernel_function_before_hook(g_root_key, hit.addr, my_func_bytes);
     printf("install_kernel_function_before_hook return: %s\n", to_string(err).c_str());
     RETURN_IF_ERROR(err);
     // Read memory after hook
     {
         uint8_t buf[4] = {0};
-        RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, filename_lookup.addr, buf, sizeof(buf)));
-        printf("read_kernel_mem (filename_lookup) After before:");
+        RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, hit.addr, buf, sizeof(buf)));
+        printf("read_kernel_mem (%s) After before:", hit.name);
         for (size_t i = 0; i < sizeof(buf); ++i) {
             printf(" %02hhx", buf[i]);
         }
