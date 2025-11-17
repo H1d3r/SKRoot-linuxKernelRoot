@@ -96,21 +96,33 @@ KModErr Test_write_x_kernel_mem() {
     return KModErr::OK;
 }
 
-KModErr Test_rw_kernel_runtime_storage() {
+KModErr Test_disk_storage() {
+    if(getuid() != 0) {
+        printf("[ERROR] Test this place, please run with ROOT permission.")
+        return KModErr::ERR_MODULE_PARAM;
+    }
+
     KModErr err = KModErr::ERR_MODULE_ASM;
     std::string str_value1;
     std::string str_value2;
-    err = kernel_module::read_string_kernel_runtime_storage(g_root_key, EN_MODULE_NAME, "testKey1", str_value1);
-    if (is_failed(err) && err != KModErr::ERR_MODULE_STORAGE_NO_FOUND) return err;
-    err = kernel_module::read_string_kernel_runtime_storage(g_root_key, "app_name2", "testKey1", str_value2);
-    if (is_failed(err) && err != KModErr::ERR_MODULE_STORAGE_NO_FOUND) return err;
-    printf("read_string_kernel_storage Output string1: %s, string2: %s\n", str_value1.c_str(), str_value2.c_str());
+
+    // 读取已有值（如果不存在则忽略错误）
+    err = kernel_module::read_string_disk_storage(g_root_key, "testKey1", str_value1);
+    if (is_failed(err) && err != KModErr::ERR_MODULE_STORAGE_NOT_FOUND) return err;
+
+    err = kernel_module::read_string_disk_storage(g_root_key, "testKey2", str_value2);
+    if (is_failed(err) && err != KModErr::ERR_MODULE_STORAGE_NOT_FOUND) return err;
+
+    printf("read_string_disk_storage Output string1: %s, string2: %s\n", str_value1.c_str(), str_value2.c_str());
+
+    // 写入新值
     std::string new_value1 = std::to_string(time(NULL));
     std::string new_value2 = new_value1;
     std::reverse(new_value2.begin(), new_value2.end());
-    RETURN_IF_ERROR(kernel_module::write_string_kernel_runtime_storage(g_root_key, EN_MODULE_NAME, "testKey1", new_value1.c_str()));
-    RETURN_IF_ERROR(kernel_module::write_string_kernel_runtime_storage(g_root_key, "app_name2", "testKey1", new_value2.c_str()));
-    printf("write_string_kernel_storage Write string1: %s, string2: %s\n", new_value1.c_str(), new_value2.c_str());
+    RETURN_IF_ERROR(kernel_module::write_string_disk_storage(g_root_key, "testKey1", new_value1.c_str()));
+    RETURN_IF_ERROR(kernel_module::write_string_disk_storage(g_root_key, "testKey2", new_value2.c_str()));
+    printf("write_string_disk_storage Write string1: %s, string2: %s\n",
+           new_value1.c_str(), new_value2.c_str());
     return KModErr::OK;
 }
 
@@ -287,7 +299,7 @@ int main(int argc, char *argv[]) {
         strncpy(g_root_key, argv[1], sizeof(g_root_key) - 1);
     } else {
         //TODO: 在此修改你的Root key值。
-        strncpy(g_root_key, "KQDrJKBQvFyUS4cWS3SGkiUmAFnFblNwLJN3Hhvffjs5z93z", sizeof(g_root_key) - 1);
+        strncpy(g_root_key, "IOWt4h9wvuk55nZfdXhVZNPhhs6QntB4eAI30wFVvh0zSsmS", sizeof(g_root_key) - 1);
     }
     CpuPinGuardAuto cpu_lock;
 
@@ -300,7 +312,7 @@ int main(int argc, char *argv[]) {
     TEST(idx++, Test_read_kernel_mem);                       // 读取内核内存
     TEST(idx++, Test_get_kernel_virtual_mem_start_addr);     // 获取内核静态代码段（.text）起始虚拟地址
     TEST(idx++, Test_write_x_kernel_mem);                    // 写入内核内存(仅执行区域)
-    TEST(idx++, Test_rw_kernel_runtime_storage);             // 读取、写入内核运行时存储
+    TEST(idx++, Test_disk_storage);                          // 读取、写入磁盘存储
     TEST(idx++, Test_install_kernel_function_before_hook);   // 安装内核钩子（在内核函数执行前）
     TEST(idx++, Test_install_kernel_function_after_hook);    // 安装内核钩子（在内核函数执行后）
     TEST(idx++, Test_get_task_struct_pid_offset);            // 获取 task_struct 结构体中 pid 字段的偏移量
