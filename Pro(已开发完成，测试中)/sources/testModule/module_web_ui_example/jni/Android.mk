@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := module_web_ui_example
 
 LOCAL_SRC_FILES := \
-     $(LOCAL_PATH)/../module_web_ui_example.cpp\
+     $(LOCAL_PATH)/../module_web_ui_example.cpp
 
 KERNEL_MODULE_KIT := $(LOCAL_PATH)/../../kernel_module_kit
 LOCAL_C_INCLUDES  += $(KERNEL_MODULE_KIT)/include
