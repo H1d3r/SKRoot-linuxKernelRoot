@@ -24,9 +24,12 @@ KModErr run_kernel_shellcode(uint64_t & result) {
 }
 
 /* 
- * SKRoot模块入口函数（会在zygote64进程启动之前被执行。）
- *		root_key						为 ROOT 密钥文本。
- * 		module_private_dir		为模块私有目录（受隐藏保护；需隐藏的文件请放此处）。
+ * SKRoot 模块入口函数。
+ * 调用时机：会在 zygote64 进程启动之前被执行。
+ * 行为说明：skroot_module_main 返回后，本模块会被自动卸载。
+ * 参数：
+ *   root_key           ROOT 密钥文本。
+ *   module_private_dir 模块私有目录（受隐藏保护；需隐藏的文件请放此处）。
  */
 int skroot_module_main(const char* root_key, const char* module_private_dir) {
     printf("[module_hello_world] starting... \n");
