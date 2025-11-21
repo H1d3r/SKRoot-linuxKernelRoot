@@ -1,13 +1,9 @@
 ﻿#include "symbol_analyze.h"
 #include "3rdparty/find_func_return_offset.h"
 
-SymbolAnalyze::SymbolAnalyze(const std::vector<char>& file_buf) : m_file_buf(file_buf), m_kernel_sym_parser(file_buf)
-{
-}
+SymbolAnalyze::SymbolAnalyze(const std::vector<char> &file_buf) : m_file_buf(file_buf), m_kernel_sym_parser(file_buf) { }
 
-SymbolAnalyze::~SymbolAnalyze()
-{
-}
+SymbolAnalyze::~SymbolAnalyze() { }
 
 bool SymbolAnalyze::analyze_kernel_symbol() {
 	if (!m_kernel_sym_parser.init_kallsyms_lookup_name()) {
@@ -28,57 +24,74 @@ KernelSymbolOffset SymbolAnalyze::get_symbol_offset() {
 }
 
 bool SymbolAnalyze::find_symbol_offset() {
-	m_kernel_sym_offset._text = kallsyms_matching_single("_text");
-	m_kernel_sym_offset._stext = kallsyms_matching_single("_stext");
-
-	m_kernel_sym_offset.die = parse_symbol_region(kallsyms_matching_single("die"));
-	m_kernel_sym_offset.arm64_notify_die = parse_symbol_region(kallsyms_matching_single("arm64_notify_die"));
-	m_kernel_sym_offset.drm_dev_printk = parse_symbol_region(kallsyms_matching_single("drm_dev_printk"));
-
-	m_kernel_sym_offset.__do_execve_file = kallsyms_matching_single("__do_execve_file");
-	m_kernel_sym_offset.do_execveat_common = kallsyms_matching_single("do_execveat_common");
-	if (m_kernel_sym_offset.do_execveat_common == 0) {
-		m_kernel_sym_offset.do_execveat_common = kallsyms_matching_single("do_execveat_common", true);
-	}
-
-	m_kernel_sym_offset.do_execve_common = kallsyms_matching_single("do_execve_common");
-	if (m_kernel_sym_offset.do_execve_common == 0) {
-		m_kernel_sym_offset.do_execve_common = kallsyms_matching_single("do_execve_common", true);
-	}
-
-	m_kernel_sym_offset.do_execveat = kallsyms_matching_single("do_execveat");
-	m_kernel_sym_offset.do_execve = kallsyms_matching_single("do_execve");
-
-	m_kernel_sym_offset.avc_denied = parse_symbol_region(kallsyms_matching_single("avc_denied"));
-	if (m_kernel_sym_offset.avc_denied.offset == 0) {
-		m_kernel_sym_offset.avc_denied = parse_symbol_region(kallsyms_matching_single("avc_denied", true));
-	}
-	m_kernel_sym_offset.filldir64 = kallsyms_matching_single("filldir64");
-	if (m_kernel_sym_offset.filldir64 == 0) {
-		m_kernel_sym_offset.filldir64 = kallsyms_matching_single("filldir64", true);
-	}
-
-	m_kernel_sym_offset.sys_getuid = parse_symbol_region(kallsyms_matching_single("sys_getuid"));
-	if (m_kernel_sym_offset.sys_getuid.offset == 0) {
-		m_kernel_sym_offset.sys_getuid = parse_symbol_region(kallsyms_matching_single("__arm64_sys_getuid"));
-		if (m_kernel_sym_offset.sys_getuid.offset == 0) {
-			m_kernel_sym_offset.sys_getuid = parse_symbol_region(kallsyms_matching_single("sys_getuid", true));
+	auto find_addr = [this](std::initializer_list<std::pair<const char *, bool>> names) -> uint64_t {
+		for (auto &n : names) {
+			uint64_t addr = kallsyms_matching_single(n.first, n.second);
+			if (addr)
+				return addr;
 		}
-	}
-	m_kernel_sym_offset.prctl_get_seccomp = parse_symbol_region(kallsyms_matching_single("prctl_get_seccomp")); // backup: seccomp_filter_release
-	 
-	
-	m_kernel_sym_offset.__cfi_check = parse_symbol_region(kallsyms_matching_single("__cfi_check"));
-	m_kernel_sym_offset.__cfi_check_fail = kallsyms_matching_single("__cfi_check_fail");
-	m_kernel_sym_offset.__cfi_slowpath_diag = kallsyms_matching_single("__cfi_slowpath_diag");
-	m_kernel_sym_offset.__cfi_slowpath = kallsyms_matching_single("__cfi_slowpath");
-	m_kernel_sym_offset.__ubsan_handle_cfi_check_fail_abort = kallsyms_matching_single("__ubsan_handle_cfi_check_fail_abort");
-	m_kernel_sym_offset.__ubsan_handle_cfi_check_fail = kallsyms_matching_single("__ubsan_handle_cfi_check_fail");
-	m_kernel_sym_offset.report_cfi_failure = kallsyms_matching_single("report_cfi_failure");
+		return 0;
+	};
 
-	m_kernel_sym_offset.hkip_check_uid_root = kallsyms_matching_single("hkip_check_uid_root");
-	m_kernel_sym_offset.hkip_check_gid_root = kallsyms_matching_single("hkip_check_gid_root");
-	m_kernel_sym_offset.hkip_check_xid_root = kallsyms_matching_single("hkip_check_xid_root");
+	auto find_region = [this](std::initializer_list<std::pair<const char *, bool>> names) -> SymbolRegion {
+		for (auto &n : names) {
+			uint64_t addr = kallsyms_matching_single(n.first, n.second);
+			if (!addr)
+				continue;
+			auto region = parse_symbol_region(addr);
+			if (region.valid())
+				return region;
+		}
+		return {};
+	};
+	m_kernel_sym_offset._text = find_addr({{"_text", false}});
+	m_kernel_sym_offset._stext = find_addr({{"_stext", false}});
+	m_kernel_sym_offset.die = find_region({{"die", false}});
+	m_kernel_sym_offset.arm64_notify_die = find_region({{"arm64_notify_die", false}});
+	m_kernel_sym_offset.drm_dev_printk = find_region({{"drm_dev_printk", false}});
+
+	m_kernel_sym_offset.__do_execve_file = find_addr({{"__do_execve_file", false}});
+	m_kernel_sym_offset.do_execveat_common = find_addr({
+		{"do_execveat_common", false}, 
+		{"do_execveat_common", true},
+		});
+	m_kernel_sym_offset.do_execve_common = find_addr({
+		{"do_execve_common", false},
+		{"do_execve_common", true},
+		});
+	m_kernel_sym_offset.do_execveat = find_addr({{"do_execveat", false}});
+	m_kernel_sym_offset.do_execve = find_addr({{"do_execve", false}});
+
+	m_kernel_sym_offset.avc_denied = find_region({
+		{"avc_denied", false},
+		{"avc_denied", true},
+		});
+
+	m_kernel_sym_offset.filldir64 = find_addr({
+		{"filldir64", false},
+		{"filldir64", true}
+		});
+
+
+	m_kernel_sym_offset.sys_getuid = find_region({
+		{"sys_getuid", false},
+		{"__arm64_sys_getuid", false},
+		{"sys_getuid", true},
+		});
+	
+	m_kernel_sym_offset.prctl_get_seccomp = find_region({{"prctl_get_seccomp", false}});  // backup: seccomp_filter_release
+	
+	m_kernel_sym_offset.__cfi_check = find_region({{"__cfi_check", false}});
+	m_kernel_sym_offset.__cfi_check_fail = find_addr({{"__cfi_check_fail", false}});
+	m_kernel_sym_offset.__cfi_slowpath_diag = find_addr({{"__cfi_slowpath_diag", false}});
+	m_kernel_sym_offset.__cfi_slowpath = find_addr({{"__cfi_slowpath", false}});
+	m_kernel_sym_offset.__ubsan_handle_cfi_check_fail_abort = find_addr({{"__ubsan_handle_cfi_check_fail_abort", false}});
+	m_kernel_sym_offset.__ubsan_handle_cfi_check_fail = find_addr({{"__ubsan_handle_cfi_check_fail", false}});
+	m_kernel_sym_offset.report_cfi_failure = find_addr({{"report_cfi_failure", false}});
+
+	m_kernel_sym_offset.hkip_check_uid_root = find_addr({{"hkip_check_uid_root", false}});
+	m_kernel_sym_offset.hkip_check_gid_root = find_addr({{"hkip_check_gid_root", false}});
+	m_kernel_sym_offset.hkip_check_xid_root = find_addr({{"hkip_check_xid_root", false}});
 
 	return (m_kernel_sym_offset.do_execve || m_kernel_sym_offset.do_execveat || m_kernel_sym_offset.do_execveat_common) 
 		&& m_kernel_sym_offset.avc_denied.offset
@@ -86,7 +99,6 @@ bool SymbolAnalyze::find_symbol_offset() {
 		&& m_kernel_sym_offset.sys_getuid.offset
 		&& m_kernel_sym_offset.prctl_get_seccomp.offset;
 }
-
 
 void SymbolAnalyze::printf_symbol_offset() {
 	std::cout << "_text:" << m_kernel_sym_offset._text << std::endl;
@@ -141,7 +153,7 @@ SymbolRegion SymbolAnalyze::parse_symbol_region(uint64_t offset) {
 	using namespace a64_find_func_return_offset;
 	SymbolRegion results;
 	results.offset = offset;
-	if (offset == 0) return results;
+	if (!results.valid()) return results;
 	size_t candidate_offsets = 0;
 	if (!find_func_return_offset(m_file_buf, offset, candidate_offsets)) return results;
 	results.size = candidate_offsets + 4;

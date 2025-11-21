@@ -12,7 +12,7 @@
 
 namespace a64_find_func_return_offset {
 	constexpr size_t k_npos = static_cast<size_t>(-1);
-	constexpr int k_max_jump_region = 1024 * 1024; // 1MB
+	constexpr int k_max_jump_region = 1024 * 1024 * 5; // 5MB
 	struct code_line {
 		uint64_t addr = 0;
 		arm64_insn cmd_id = ARM64_INS_INVALID;
