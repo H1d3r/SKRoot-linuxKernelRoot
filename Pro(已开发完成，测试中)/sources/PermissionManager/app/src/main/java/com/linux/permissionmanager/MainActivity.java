@@ -32,7 +32,6 @@ import com.linux.permissionmanager.utils.GetSdcardPermissionsHelper;
 
 public class MainActivity extends AppCompatActivity {
     private String mRootKey = "";
-
     private RadioGroup mNavigateRadioGroup;
     private MenuItem mMainMenu;
     private HomeFragment mHomeFragm = null;
@@ -42,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         setContentView(R.layout.activity_main);
         AppSettings.init(this);
         mRootKey = AppSettings.getString("rootKey", mRootKey);

@@ -41,7 +41,7 @@ KModErr Test_get_task_mm() {
 
     uint64_t result = 0;
     RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
-    printf("get_task_mm+mmput result: %s\n", result == 0x1234 ? "ok" : "failed");
+    printf("get_task_mm + mmput result: %s\n", result == 0x1234 ? "ok" : "failed");
     return KModErr::OK;
 }
 
@@ -65,8 +65,8 @@ KModErr Test_printk() {
 
 KModErr Test_copy_from_user() {
     uint64_t addr = 0;
-    std::vector<uint8_t> empty(1024);
-    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, empty, addr));
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
+    RETURN_IF_ERROR(kernel_module::fill00_kernel_mem(g_root_key, addr, 1024));
     const char * str = "abc123456789";
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -74,7 +74,6 @@ KModErr Test_copy_from_user() {
     aarch64_asm_mov_x(a, x1, addr);
     aarch64_asm_mov_x(a, x2, (uint64_t)str);
     aarch64_asm_mov_x(a, x3, 4);
-
     KModErr err = KModErr::ERR_MODULE_ASM;
     kernel_module::export_symbol::copy_from_user(g_root_key, a, err, x1, x2, x3);
     RETURN_IF_ERROR(err);
@@ -248,7 +247,6 @@ KModErr Test_module_memfree2() {
     printf("module_memfree2 result: ok\n");
     return KModErr::OK;
 }
-
 
 static void emit_cb(Assembler* a, GpX data, GpX name_ptr, GpX mod, GpX addr) {
     KModErr err = KModErr::OK;

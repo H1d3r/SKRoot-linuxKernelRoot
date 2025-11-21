@@ -208,7 +208,7 @@ KModErr Test_kstrcpy() {
 
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, &test_data, sizeof(test_data)));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, &test_data, sizeof(test_data)));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -270,7 +270,7 @@ KModErr Test_kstrstr2() {
 KModErr Test_kstrstr3() {
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -317,7 +317,7 @@ KModErr Test_kstrchr1() {
 KModErr Test_kstrchr2() {
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -345,7 +345,7 @@ KModErr Test_kstrchr2() {
 KModErr Test_kmemset1() {
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -373,7 +373,7 @@ KModErr Test_kmemset1() {
 KModErr Test_kmemset2() {
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -461,7 +461,7 @@ KModErr Test_kmemcpy() {
 
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, &test_data, sizeof(test_data)));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, &test_data, sizeof(test_data)));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -575,7 +575,7 @@ KModErr Test_kmemmem4() {
     // 单元测试：kmemmem4 - 空模式串（needle_n == 0），应返回 buf
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", sizeof("123456789aaabbbccc")));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, "123456789aaabbbccc", sizeof("123456789aaabbbccc")));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -611,7 +611,7 @@ KModErr Test_kmemmem5() {
         0x36, 0x37, 0x00};
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, datas, sizeof(datas)));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, datas, sizeof(datas)));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -643,7 +643,7 @@ KModErr Test_kmemmem6() {
         0x36, 0x00, 0x00};
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, datas, sizeof(datas)));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, datas, sizeof(datas)));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -676,7 +676,7 @@ KModErr Test_kmemmem7() {
         0x36, 0x00, 0x00};
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, datas, sizeof(datas)));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, datas, sizeof(datas)));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -726,7 +726,7 @@ KModErr Test_kmemchr1() {
 KModErr Test_kmemchr2() {
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
@@ -795,7 +795,7 @@ KModErr Test_kmemrchr1() {
 KModErr Test_kmemrchr2() {
     uint64_t addr = 0;
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, 0, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, "123456789aaabbbccc", strlen("123456789aaabbbccc") + 1));
 
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();

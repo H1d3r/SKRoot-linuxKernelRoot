@@ -106,7 +106,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             appendConsoleMsg("SKRoot环境未安装！");
         } else  {
             if (!core.equals(ver)) {
-                appendConsoleMsg("SKRoot环境已安装，核心版本：" + ver + "，请升级。");
+                appendConsoleMsg("SKRoot环境已安装，核心版本：" + ver + "，版本太低，请升级！");
                 appendConsoleMsg("升级方法：重新点击“安装SKRoot环境”按钮。");
             } else {
                 appendConsoleMsg("SKRoot环境已安装，核心版本：" + ver);

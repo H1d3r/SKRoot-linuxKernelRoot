@@ -7,14 +7,21 @@ KModErr Test_execute_kernel_asm_func() {
     aarch64_asm_info asm_info = init_aarch64_asm();
     auto a = asm_info.a.get();
     kernel_module::arm64_module_asm_func_start(a);
+    //nothing to do
+    a->mov(x0, x0);
     kernel_module::arm64_module_asm_func_end(a, 0x12345);
 	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
     RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
-    
-    print_current_uid_caps_state();
     printf("Shellcode output result: %s, value: %p\n", result == 0x12345 ? "ok" : "failed", (void*)result);
+    return KModErr::OK;
+}
+
+KModErr Test_get_kernel_virtual_mem_start_addr() {
+    uint64_t result_addr = 0;
+    RETURN_IF_ERROR(kernel_module::get_kernel_virtual_mem_start_addr(g_root_key, result_addr));
+    printf("Output addr: %p\n", (void*)result_addr);
     return KModErr::OK;
 }
 
@@ -30,16 +37,6 @@ KModErr Test_free_kernel_mem() {
     RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 1024, addr));
     printf("Output addr: %p\n", (void*)addr);
     RETURN_IF_ERROR(kernel_module::free_kernel_mem(g_root_key, addr));
-    return KModErr::OK;
-}
-
-KModErr Test_write_rw_kernel_mem() {
-    uint32_t test_data[2] = {0x11223344, 0x55667788};
-
-    uint64_t addr = 0;
-    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, &test_data, sizeof(test_data)));
-    printf("Output addr: %p\n", (void*)addr);
     return KModErr::OK;
 }
 
@@ -61,10 +58,13 @@ KModErr Test_read_kernel_mem() {
     return KModErr::OK;
 }
 
-KModErr Test_get_kernel_virtual_mem_start_addr() {
-    uint64_t result_addr = 0;
-    RETURN_IF_ERROR(kernel_module::get_kernel_virtual_mem_start_addr(g_root_key, result_addr));
-    printf("Output addr: %p\n", (void*)result_addr);
+KModErr Test_write_rw_kernel_mem() {
+    uint32_t test_data[2] = {0x11223344, 0x55667788};
+
+    uint64_t addr = 0;
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, &test_data, sizeof(test_data)));
+    printf("Output addr: %p\n", (void*)addr);
     return KModErr::OK;
 }
 
@@ -98,7 +98,7 @@ KModErr Test_write_x_kernel_mem() {
 
 KModErr Test_disk_storage() {
     if(getuid() != 0) {
-        printf("[ERROR] Test this place, please run with ROOT permission.")
+        printf("[ERROR] Test this place, please run with ROOT permission.");
         return KModErr::ERR_MODULE_PARAM;
     }
 
@@ -299,18 +299,18 @@ int main(int argc, char *argv[]) {
         strncpy(g_root_key, argv[1], sizeof(g_root_key) - 1);
     } else {
         //TODO: 在此修改你的Root key值。
-        strncpy(g_root_key, "IOWt4h9wvuk55nZfdXhVZNPhhs6QntB4eAI30wFVvh0zSsmS", sizeof(g_root_key) - 1);
+        strncpy(g_root_key, "OSHOunckgImsh8j8MQyVTBfA7aHZ6t38kqhTyCA0U98UNrFH", sizeof(g_root_key) - 1);
     }
     CpuPinGuardAuto cpu_lock;
 
     int idx = 1;
     // 单元测试：内核模块基础能力
     TEST(idx++, Test_execute_kernel_asm_func);               // 执行shellcode并获取返回值
+    TEST(idx++, Test_get_kernel_virtual_mem_start_addr);     // 获取内核静态代码段（.text）起始虚拟地址
     TEST(idx++, Test_alloc_kernel_mem);                      // 申请内核内存
     TEST(idx++, Test_free_kernel_mem);                       // 释放内核内存
-    TEST(idx++, Test_write_rw_kernel_mem);                   // 写入内核内存(可读写区域)
     TEST(idx++, Test_read_kernel_mem);                       // 读取内核内存
-    TEST(idx++, Test_get_kernel_virtual_mem_start_addr);     // 获取内核静态代码段（.text）起始虚拟地址
+    TEST(idx++, Test_write_rw_kernel_mem);                   // 写入内核内存(可读写区域)
     TEST(idx++, Test_write_x_kernel_mem);                    // 写入内核内存(仅执行区域)
     TEST(idx++, Test_disk_storage);                          // 读取、写入磁盘存储
     TEST(idx++, Test_install_kernel_function_before_hook);   // 安装内核钩子（在内核函数执行前）

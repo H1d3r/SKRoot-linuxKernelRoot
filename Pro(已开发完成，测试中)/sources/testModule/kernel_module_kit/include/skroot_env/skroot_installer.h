@@ -34,6 +34,7 @@ bool is_installed_skroot_environment(const char* root_key);
 #pragma pack(push, 1)
 struct SkrootSdkVersion { uint32_t major = 0, minor = 0, patch = 0; };
 #pragma pack(pop)
+
 SkrootSdkVersion get_sdk_version();
 
 /***************************************************************************
@@ -49,5 +50,28 @@ KModErr get_installed_skroot_environment_version(const char* root_key, SkrootSdk
  * 返回: OK 表示成功
  ***************************************************************************/
 KModErr read_skroot_autorun_log(const char* root_key, std::string& out);
+}
 
+constexpr bool operator<(const skroot_env::SkrootSdkVersion& a, const skroot_env::SkrootSdkVersion& b) {
+    return std::tie(a.major, a.minor, a.patch) < std::tie(b.major, b.minor, b.patch);
+}
+
+constexpr bool operator==(const skroot_env::SkrootSdkVersion& a, const skroot_env::SkrootSdkVersion& b) {
+    return std::tie(a.major, a.minor, a.patch) == std::tie(b.major, b.minor, b.patch);
+}
+
+constexpr bool operator!=(const skroot_env::SkrootSdkVersion& a, const skroot_env::SkrootSdkVersion& b) {
+    return !(a == b);
+}
+
+constexpr bool operator>(const skroot_env::SkrootSdkVersion& a, const skroot_env::SkrootSdkVersion& b) {
+    return b < a;
+}
+
+constexpr bool operator<=(const skroot_env::SkrootSdkVersion& a, const skroot_env::SkrootSdkVersion& b) {
+    return !(b < a);
+}
+
+constexpr bool operator>=(const skroot_env::SkrootSdkVersion& a, const skroot_env::SkrootSdkVersion& b) {
+    return !(a < b);
 }

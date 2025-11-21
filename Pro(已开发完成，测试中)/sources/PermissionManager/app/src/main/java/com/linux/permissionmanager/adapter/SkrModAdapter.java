@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.linux.permissionmanager.R;
+import com.linux.permissionmanager.bridge.NativeBridge;
 import com.linux.permissionmanager.model.SkrModItem;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class SkrModAdapter extends RecyclerView.Adapter<SkrModAdapter.ViewHolder
         this.skrmods = skrmods;
         this.listener = listener;
     }
+
 
     @NonNull
     @Override
@@ -87,5 +89,13 @@ public class SkrModAdapter extends RecyclerView.Adapter<SkrModAdapter.ViewHolder
             btnWebUI = itemView.findViewById(R.id.web_ui_btn);
 
         }
+    }
+
+    private long versionCode(String v) {
+        String[] p = v.split("\\.");
+        long major = Long.parseLong(p[0]);
+        long minor = Long.parseLong(p[1]);
+        long patch = Long.parseLong(p[2]);
+        return major * 1_000_000L + minor * 1_000L + patch; // 1000 * 1000
     }
 }
