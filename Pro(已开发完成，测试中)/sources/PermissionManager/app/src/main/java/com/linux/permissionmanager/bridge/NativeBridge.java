@@ -14,6 +14,7 @@ public final class NativeBridge {
     public static native String setSkrootLogEnable(String rootKey, boolean enable);
     public static native boolean isEnableSkrootLog(String rootKey);
     public static native String testSkrootShellcodeChannel(String rootKey);
+    public static native String testSkrootDefaultModule(String rootKey, String name);
 
     public static native String addSuAuth(String rootKey, String appPackageName);
     public static native String removeSuAuth(String rootKey, String appPackageName);

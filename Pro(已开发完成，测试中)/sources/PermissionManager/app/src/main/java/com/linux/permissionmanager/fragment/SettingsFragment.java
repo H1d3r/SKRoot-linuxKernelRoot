@@ -2,6 +2,7 @@ package com.linux.permissionmanager.fragment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.linux.permissionmanager.BuildConfig;
@@ -33,6 +35,7 @@ public class SettingsFragment extends Fragment {
     private String mRootKey = "";
 
     private Button mBtnTestSkrootShellcodeChannel;
+    private Button mBtnTestSkrootDefaultModule;
     private CheckBox mCkboxEnableSkrootLog;
     private Button mBtnShowSkrootLogs;
     private TextView mTvAboutVer;
@@ -52,6 +55,7 @@ public class SettingsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mBtnTestSkrootShellcodeChannel = view.findViewById(R.id.test_skroot_shellcode_channel_btn);
+        mBtnTestSkrootDefaultModule = view.findViewById(R.id.test_skroot_default_module_btn);
         mCkboxEnableSkrootLog = view.findViewById(R.id.enable_skroot_log_ckbox);
         mBtnShowSkrootLogs = view.findViewById(R.id.show_skroot_logs_btn);
         mTvAboutVer = view.findViewById(R.id.about_ver_tv);
@@ -70,6 +74,7 @@ public class SettingsFragment extends Fragment {
                     DialogUtils.showMsgDlg(mActivity, "执行结果", tip, null);
                 }
         );
+        mBtnTestSkrootDefaultModule.setOnClickListener((v) -> showSelectTestDefaultModuleDlg());
         mCkboxEnableSkrootLog.setChecked(NativeBridge.isEnableSkrootLog(mRootKey));
         mBtnShowSkrootLogs.setOnClickListener(v -> showSkrootLogsDlg());
         mCkboxEnableSkrootLog.setOnCheckedChangeListener(
@@ -80,6 +85,34 @@ public class SettingsFragment extends Fragment {
         );
         initAboutText();
         initLink();
+    }
+
+    private void showSelectTestDefaultModuleDlg() {
+        final String[] items = {"ROOT 权限模块", "su 重定向模块"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        builder.setTitle("请选择一个选项");
+        builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                String defName = "";
+                if(which == 0) defName = "RootBridge";
+                else if(which == 1) defName = "SuRedirect";
+                String tip = NativeBridge.testSkrootDefaultModule(mRootKey, defName);
+                DialogUtils.showMsgDlg(mActivity, "执行结果", tip, null);
+                if(tip.indexOf("OK") != -1 && !defName.equals("RootBridge")) {
+                    showSkrootLogsDlg();;
+                }
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void showSkrootLogsDlg() {

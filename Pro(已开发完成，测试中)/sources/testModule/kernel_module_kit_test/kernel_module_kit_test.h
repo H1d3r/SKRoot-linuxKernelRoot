@@ -6,7 +6,7 @@
 #include <sstream>
 #include <thread>
 #include <vector>
-
+#include <sys/prctl.h>
 #include <sys/syscall.h>
 
 #include "kernel_module_kit_umbrella.h"
@@ -24,3 +24,11 @@ inline char g_root_key[256] = {0};
         printf("----- End of Test%d -----\n\n", _test_idx);                \
     } while (0)
 
+
+static std::string get_comm_prctl() {
+    char name[16] = {0};
+    if (prctl(PR_GET_NAME, name) == 0) {
+        return std::string(name);
+    }
+    return "";
+}

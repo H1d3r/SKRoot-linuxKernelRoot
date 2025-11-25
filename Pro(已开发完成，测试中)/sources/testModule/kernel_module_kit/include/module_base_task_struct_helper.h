@@ -72,4 +72,12 @@ KModErr get_task_struct_seccomp_offset(
  *       false 表示内核未启用该配置（仍需通过 thread_info->task 获取）
  ***************************************************************************/
 bool is_CONFIG_THREAD_INFO_IN_TASK();
+
+/***************************************************************************
+ * 设置当前进程的 COMM 名称
+ * 参数: root_key       ROOT 权限密钥文本
+ *       comm_name      要设置的进程 COMM 名（仅前 15 字节有效，结尾自动补 '\0'）
+ * 返回: OK 表示成功
+ ***************************************************************************/
+KModErr set_current_process_name(const char* root_key, const char* comm_name);
 }

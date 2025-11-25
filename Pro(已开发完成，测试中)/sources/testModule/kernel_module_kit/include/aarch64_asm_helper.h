@@ -242,6 +242,17 @@ static bool aarch64_asm_bit_j(asmjit::a64::Assembler* a) {
 	return true;
 }
 
+static bool aarch64_asm_mrs_ctr_el0(asmjit::a64::Assembler* a, const asmjit::a64::GpX& reg) {
+	uint32_t reg_n = reg.id();
+	if (reg_n > 31) {
+		std::cout << "[发生错误] Xn 寄存器编号超出范围: " << reg_n << std::endl;
+		return false;
+	}
+	uint32_t ctr_el0 = asmjit::a64::Predicate::SysReg::encode(3, 3, 0, 0, 1);
+	a->mrs(reg, ctr_el0);
+	return true;
+}
+
 static bool aarch64_asm_dc_cvac(asmjit::a64::Assembler* a, const asmjit::a64::GpX& reg) {
 	uint32_t reg_n = reg.id();
 	if (reg_n > 31) {

@@ -34,11 +34,23 @@
                     android:text="故障排查：" />
 
 
-                <Button
-                    android:id="@+id/test_skroot_shellcode_channel_btn"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="通道检查"/>
+                    android:orientation="horizontal">
+                    <Button
+                        android:id="@+id/test_skroot_shellcode_channel_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="通道测试"/>
+
+                    <Button
+                        android:layout_marginLeft="8dp"
+                        android:id="@+id/test_skroot_default_module_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="核心模块自检"/>
+                </LinearLayout>
 
             </LinearLayout>
 

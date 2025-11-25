@@ -1,5 +1,5 @@
 @echo off
-set "ndk_path=c:\Users\abc\android-ndk-r25\ndk-build.cmd"
+set "ndk_path=c:\Users\abc\android-ndk-r26d\ndk-build.cmd"
 
 cd /d "%~dp0"
 

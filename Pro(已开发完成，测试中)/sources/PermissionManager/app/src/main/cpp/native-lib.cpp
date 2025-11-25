@@ -168,6 +168,26 @@ Java_com_linux_permissionmanager_bridge_NativeBridge_testSkrootShellcodeChannel(
 }
 
 extern "C" JNIEXPORT jstring JNICALL
+Java_com_linux_permissionmanager_bridge_NativeBridge_testSkrootDefaultModule(
+        JNIEnv* env,
+        jclass /* this */,
+        jstring rootKey,
+        jstring name) {
+    string strRootKey = jstringToStr(env, rootKey);
+    string strName = jstringToStr(env, name);
+
+    skroot_env::DeafultModuleName defName;
+    if(strName == "RootBridge") defName = skroot_env::DeafultModuleName::RootBridge;
+    else if(strName == "SuRedirect") defName = skroot_env::DeafultModuleName::SuRedirect;
+    else return env->NewStringUTF(strName.c_str());
+
+    KModErr err = skroot_env::test_skroot_deafult_module(strRootKey.c_str(), defName);
+    std::stringstream sstr;
+    sstr << "Test " << strName.c_str() <<": " << to_string(err).c_str();
+    return env->NewStringUTF(sstr.str().c_str());
+}
+
+extern "C" JNIEXPORT jstring JNICALL
 Java_com_linux_permissionmanager_bridge_NativeBridge_addSuAuth(
         JNIEnv* env,
         jclass /* this */,

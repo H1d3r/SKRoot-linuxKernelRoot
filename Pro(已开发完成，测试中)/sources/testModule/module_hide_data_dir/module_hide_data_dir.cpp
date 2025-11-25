@@ -5,7 +5,7 @@
 
 #include "kernel_module_kit_umbrella.h"
 
-#define MOD_VER "0.0.5"
+#define MOD_VER "0.0.8"
 
 // 把 ["aa","bb","cc"] 解析成 std::set<std::string>
 static std::set<std::string> parse_json(const std::string& json) {

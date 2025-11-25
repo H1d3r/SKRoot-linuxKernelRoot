@@ -41,6 +41,21 @@ KModErr Test_free_kernel_mem() {
 }
 
 KModErr Test_read_kernel_mem() {
+    uint64_t addr = 0;
+    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, 8, addr));
+    printf("Output addr: %p\n", (void*)addr);
+
+    std::vector<uint8_t> buf(8);
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, addr, buf.data(), buf.size()));
+    printf("read_kernel_mem Buffer bytes:");
+    for (size_t i = 0; i < buf.size(); ++i) {
+        printf(" %02hhx", buf[i]);
+    }
+    printf("\n");
+    return KModErr::OK;
+}
+
+KModErr Test_write_rw_kernel_mem() {
     uint32_t test_data[2] = {0xAABBCCDD, 0xEEFF1122};
 
     uint64_t addr = 0;
@@ -55,16 +70,6 @@ KModErr Test_read_kernel_mem() {
         printf(" %02hhx", buf[i]);
     }
     printf("\n");
-    return KModErr::OK;
-}
-
-KModErr Test_write_rw_kernel_mem() {
-    uint32_t test_data[2] = {0x11223344, 0x55667788};
-
-    uint64_t addr = 0;
-    RETURN_IF_ERROR(kernel_module::alloc_kernel_mem(g_root_key, sizeof(test_data), addr));
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, addr, &test_data, sizeof(test_data)));
-    printf("Output addr: %p\n", (void*)addr);
     return KModErr::OK;
 }
 
@@ -293,13 +298,21 @@ KModErr Test_set_current_caps() {
     return KModErr::OK;
 }
 
+KModErr Test_set_current_process_name() {
+    RETURN_IF_ERROR(kernel_module::set_current_process_name(g_root_key, "aaabbbddd"));
+    std::string name = get_comm_prctl();
+    bool ok = name == "aaabbbddd";
+    printf("set_current_process_name result: %s, %s\n", name.c_str(), ok ? "ok" : "failed");
+    return KModErr::OK;
+}
+
 int main(int argc, char *argv[]) {
     printf("Kernel Module Kit test starting...\n");
     if (argc >= 2) {
         strncpy(g_root_key, argv[1], sizeof(g_root_key) - 1);
     } else {
         //TODO: 在此修改你的Root key值。
-        strncpy(g_root_key, "OSHOunckgImsh8j8MQyVTBfA7aHZ6t38kqhTyCA0U98UNrFH", sizeof(g_root_key) - 1);
+        strncpy(g_root_key, "wCndSTFps3EWt21GJzqAJ8OjhDJjXNyRHkdiZWP51fvFjTNj", sizeof(g_root_key) - 1);
     }
     CpuPinGuardAuto cpu_lock;
 
@@ -323,6 +336,7 @@ int main(int argc, char *argv[]) {
     TEST(idx++, Test_get_mm_struct_arg_offset);              // 获取 mm_struct 结构体中 arg_start\arg_end 字段的偏移量
     TEST(idx++, Test_get_mm_struct_env_offset);              // 获取 mm_struct 结构体中 env_start\env_end 字段的偏移量
     TEST(idx++, Test_set_current_caps);                      // 设置进程能力集
+    TEST(idx++, Test_set_current_process_name);              // 设置进程名
 
     // 单元测试: Linux内核API调用
     TEST(idx++, Test_kallsyms_lookup_name1);                 // 调用内核API：kallsyms_lookup_name

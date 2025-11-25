@@ -1,6 +1,6 @@
 ﻿// ====== 业务配置 ======
 const FORBIDDEN_KEYWORDS = ['system', 'vendor', 'data', 'app']; // 小写匹配
-const NAME_RULE = /^[A-Za-z0-9._-]+$/; // 仅目录名，不能含 /
+const NAME_RULE = /^[A-Za-z0-9._\-+]+$/;
 const LS_KEY = 'hidden-folders-v1';
 
 // ====== DOM ======
@@ -58,7 +58,7 @@ function sanitizeName(raw) {
   const s = (raw || '').trim();
   if (!s) { showError('目录名不能为空'); return null; }
   if (!NAME_RULE.test(s)) {
-    showError('只允许字母/数字/点/下划线/短横线，且不要包含 /');
+    showError('只允许字母/数字/点/下划线/短横线/加号，且不要包含 /');
     return null;
   }
   const lower = s.toLowerCase();
