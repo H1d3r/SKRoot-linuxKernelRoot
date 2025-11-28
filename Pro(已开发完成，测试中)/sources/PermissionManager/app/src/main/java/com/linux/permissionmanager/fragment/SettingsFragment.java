@@ -98,11 +98,10 @@ public class SettingsFragment extends Fragment {
                 String defName = "";
                 if(which == 0) defName = "RootBridge";
                 else if(which == 1) defName = "SuRedirect";
-                String tip = NativeBridge.testSkrootDefaultModule(mRootKey, defName);
-                DialogUtils.showMsgDlg(mActivity, "执行结果", tip, null);
-                if(tip.indexOf("OK") != -1 && !defName.equals("RootBridge")) {
-                    showSkrootLogsDlg();;
-                }
+
+                String log = NativeBridge.testSkrootDefaultModule(mRootKey, defName);
+                if(log.length() > 50) DialogUtils.showLogDialog(mActivity, log);
+                else DialogUtils.showMsgDlg(mActivity, "执行结果", log, null);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {

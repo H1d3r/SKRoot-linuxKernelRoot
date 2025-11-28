@@ -181,9 +181,11 @@ Java_com_linux_permissionmanager_bridge_NativeBridge_testSkrootDefaultModule(
     else if(strName == "SuRedirect") defName = skroot_env::DeafultModuleName::SuRedirect;
     else return env->NewStringUTF(strName.c_str());
 
-    KModErr err = skroot_env::test_skroot_deafult_module(strRootKey.c_str(), defName);
     std::stringstream sstr;
-    sstr << "Test " << strName.c_str() <<": " << to_string(err).c_str();
+    std::string info;
+    KModErr err = skroot_env::test_skroot_deafult_module(strRootKey.c_str(), defName, info);
+    if(is_failed(err)) sstr << "Test " << strName.c_str() <<": " << to_string(err).c_str();
+    else sstr << info.c_str();
     return env->NewStringUTF(sstr.str().c_str());
 }
 
