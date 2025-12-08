@@ -4,7 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <time.h>
-#include "capstone-4.0.2-win64/include/capstone/capstone.h"
+#include <capstone/capstone.h>
 
 
 namespace a64_find_mrs_register {

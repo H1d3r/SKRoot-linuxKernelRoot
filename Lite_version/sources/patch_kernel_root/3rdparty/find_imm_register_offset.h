@@ -6,7 +6,7 @@
 #include <regex>
 #include <string>
 #include <cstdint>
-#include "capstone-4.0.2-win64/include/capstone/capstone.h"
+#include "capstone/capstone.h"
 
 namespace a64_find_imm_register_offset {
 struct code_line {

@@ -1,5 +1,4 @@
-﻿#pragma once
-#include "kernel_symbol_parser.h"
+﻿#include "kernel_symbol_parser.h"
 #include <sstream>
 #include <algorithm>
 #include <unordered_map>

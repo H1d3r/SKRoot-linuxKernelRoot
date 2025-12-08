@@ -194,10 +194,10 @@ bool KallsymsLookupName::find_kallsyms_names_list(int kallsyms_num, size_t kalls
 
 bool KallsymsLookupName::find_kallsyms_markers_list(int kallsyms_num, size_t name_list_end_offset, size_t& markers_list_start, size_t& markers_list_end) {
 	size_t start = align_up<8>(name_list_end_offset);
-	const int var_len = sizeof(long);
+	const int var_len = sizeof(uint32_t);
 	for (auto x = start; x + var_len < m_file_buf.size(); x += var_len) {
-		long val1 = *(long*)&m_file_buf[x];
-		long val2 = *(long*)&m_file_buf[x + var_len];
+		uint32_t val1 = *(uint32_t*)&m_file_buf[x];
+		uint32_t val2 = *(uint32_t*)&m_file_buf[x + var_len];
 		if (val1 == 0 && val2 > 0) {
 			markers_list_start = x;
 			break;
@@ -208,14 +208,12 @@ bool KallsymsLookupName::find_kallsyms_markers_list(int kallsyms_num, size_t nam
 		return false;
 	}
 
-	auto exist_val_start = markers_list_start + var_len;
-
 	bool is_align8 = false;
 	int cnt = 5;
-	long last_second_var_val = 0;
+	uint32_t last_second_var_val = 0;
 	for (auto y = markers_list_start + var_len; y + var_len < m_file_buf.size(); y += var_len * 2) {
-		long val1 = *(long*)&m_file_buf[y];
-		long val2 = *(long*)&m_file_buf[y + var_len];
+		uint32_t val1 = *(uint32_t*)&m_file_buf[y];
+		uint32_t val2 = *(uint32_t*)&m_file_buf[y + var_len];
 		if (val2 != last_second_var_val) {
 			break;
 		}
@@ -234,10 +232,10 @@ bool KallsymsLookupName::find_kallsyms_markers_list(int kallsyms_num, size_t nam
 		else {
 			markers_list_start -= back_val; // 4
 		}
-		markers_list_end = markers_list_start + ((kallsyms_num + 255) >> 8) * sizeof(long) * 2;
+		markers_list_end = markers_list_start + ((kallsyms_num + 255) >> 8) * sizeof(uint32_t) * 2;
 	}
 	else {
-		markers_list_end = markers_list_start + ((kallsyms_num + 255) >> 8) * sizeof(long);
+		markers_list_end = markers_list_start + ((kallsyms_num + 255) >> 8) * sizeof(uint32_t);
 	}
 
 	return true;
@@ -245,9 +243,9 @@ bool KallsymsLookupName::find_kallsyms_markers_list(int kallsyms_num, size_t nam
 
 bool KallsymsLookupName::find_kallsyms_token_table(size_t markers_list_end_offset, size_t& kallsyms_token_table_start, size_t& kallsyms_token_table_end) {
 	size_t start = align_up<8>(markers_list_end_offset);
-	const int var_len = sizeof(long);
+	const int var_len = sizeof(uint32_t);
 	for (auto x = start; x + var_len < m_file_buf.size(); x += var_len) {
-		long val1 = *(long*)&m_file_buf[x];
+		uint32_t val1 = *(uint32_t*)&m_file_buf[x];
 		if (val1 == 0) {
 			continue;
 		}

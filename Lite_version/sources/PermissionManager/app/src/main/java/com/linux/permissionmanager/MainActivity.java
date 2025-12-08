@@ -3,6 +3,7 @@ package com.linux.permissionmanager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -14,7 +15,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 
 import com.linux.permissionmanager.bridge.NativeBridge;
 import com.linux.permissionmanager.helper.SelectAppDlg;
@@ -107,6 +107,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
+    private void showSkrootStatus() {
+        appendConsoleMsg("APP版本：" + BuildConfig.VERSION_NAME);
+    }
+
     public void showInputRootKeyDlg() {
         Handler inputCallback = new Handler() {
             @Override
@@ -114,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String text = (String)msg.obj;
                 rootKey = text;
                 AppSettings.setString("rootKey", rootKey);
+                showSkrootStatus();
                 super.handleMessage(msg);
             }
         };

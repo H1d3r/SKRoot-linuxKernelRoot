@@ -45,17 +45,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)/3rdparty/capstone-4.0.2/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)/3rdparty/capstone-4.0.2/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);CAPSTONE_HAS_ARM64;CAPSTONE_USE_SYS_DYN_MEM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -70,7 +70,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);CAPSTONE_HAS_ARM64;CAPSTONE_USE_SYS_DYN_MEM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -142,6 +142,17 @@
     <ClCompile Include="3rdparty\asmjit2-src\src\asmjit\x86\x86instdb.cpp" />
     <ClCompile Include="3rdparty\asmjit2-src\src\asmjit\x86\x86operand.cpp" />
     <ClCompile Include="3rdparty\asmjit2-src\src\asmjit\x86\x86rapass.cpp" />
+    <ClCompile Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64BaseInfo.c" />
+    <ClCompile Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64Disassembler.c" />
+    <ClCompile Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64InstPrinter.c" />
+    <ClCompile Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64Mapping.c" />
+    <ClCompile Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64Module.c" />
+    <ClCompile Include="3rdparty\capstone-4.0.2\src\cs.c" />
+    <ClCompile Include="3rdparty\capstone-4.0.2\src\MCInst.c" />
+    <ClCompile Include="3rdparty\capstone-4.0.2\src\MCInstrDesc.c" />
+    <ClCompile Include="3rdparty\capstone-4.0.2\src\MCRegisterInfo.c" />
+    <ClCompile Include="3rdparty\capstone-4.0.2\src\SStream.c" />
+    <ClCompile Include="3rdparty\capstone-4.0.2\src\utils.c" />
     <ClCompile Include="analyze\kallsyms_lookup_name.cpp" />
     <ClCompile Include="analyze\kallsyms_lookup_name_4_6_0.cpp" />
     <ClCompile Include="analyze\kallsyms_lookup_name_6_12_0.cpp" />
@@ -250,6 +261,22 @@
     <ClInclude Include="3rdparty\asmjit2-src\src\asmjit\x86\x86opcode_p.h" />
     <ClInclude Include="3rdparty\asmjit2-src\src\asmjit\x86\x86operand.h" />
     <ClInclude Include="3rdparty\asmjit2-src\src\asmjit\x86\x86rapass_p.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64AddressingModes.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64BaseInfo.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64Disassembler.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64InstPrinter.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64Mapping.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64Module.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\cs_priv.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\LEB128.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\MathExtras.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\MCDisassembler.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\MCFixedLenDisassembler.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\MCInst.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\MCInstrDesc.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\MCRegisterInfo.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\SStream.h" />
+    <ClInclude Include="3rdparty\capstone-4.0.2\src\utils.h" />
     <ClInclude Include="analyze\aarch64_insn.h" />
     <ClInclude Include="analyze\aarch64_simulate_insn.h" />
     <ClInclude Include="analyze\base_func.h" />
@@ -268,6 +295,15 @@
     <ClInclude Include="patch_do_execve.h" />
     <ClInclude Include="patch_filldir64.h" />
     <ClInclude Include="patch_kernel_root.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64GenAsmWriter.inc" />
+    <None Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64GenDisassemblerTables.inc" />
+    <None Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64GenInstrInfo.inc" />
+    <None Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64GenRegisterInfo.inc" />
+    <None Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64GenSubtargetInfo.inc" />
+    <None Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64MappingInsn.inc" />
+    <None Include="3rdparty\capstone-4.0.2\src\arch\AArch64\AArch64MappingInsnOp.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

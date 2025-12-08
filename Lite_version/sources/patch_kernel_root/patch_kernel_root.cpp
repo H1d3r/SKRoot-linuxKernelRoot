@@ -7,7 +7,6 @@
 
 #include "3rdparty/find_mrs_register.h"
 #include "3rdparty/find_imm_register_offset.h"
-#pragma comment(lib, "3rdparty/capstone-4.0.2-win64/capstone.lib")
 
 struct PatchKernelResult {
 	bool patched = false;

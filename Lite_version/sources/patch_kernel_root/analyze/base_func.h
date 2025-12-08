@@ -8,6 +8,7 @@
 #include <chrono>
 #include <vector>
 #include <math.h>
+#include <cstring>
 
 static std::vector<char> read_file_buf(const std::string& file_path) {
 	std::ifstream file(file_path, std::ios::binary | std::ios::ate);
@@ -96,12 +97,12 @@ static inline constexpr size_t align_up(size_t v) {
 
 static inline uint32_t rd32_le(const std::vector<char>& buf, size_t off) {
 	uint32_t v = 0;
-	std::memcpy(&v, buf.data() + off, sizeof(v));
+	memcpy(&v, buf.data() + off, sizeof(v));
 	return v;
 }
 
 static inline uint64_t rd64_le(const std::vector<char>& buf, size_t off) {
 	uint64_t v = 0;
-	std::memcpy(&v, buf.data() + off, sizeof(v));
+	memcpy(&v, buf.data() + off, sizeof(v));
 	return v;
 }

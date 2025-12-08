@@ -1,6 +1,6 @@
-﻿#pragma once
-#include "kernel_version_parser.h"
+﻿#include "kernel_version_parser.h"
 #include <sstream>
+#include <cstring>
 
 #ifndef MIN
 #define MIN(x, y)(x < y) ? (x) : (y)

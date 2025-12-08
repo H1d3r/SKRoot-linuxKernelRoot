@@ -65,6 +65,6 @@ private:
 	std::unordered_map<std::string, SymbolRegion> parse_symbols_region(const std::unordered_map<std::string, uint64_t>& symbols);
 
 	const std::vector<char>& m_file_buf;
-	KernelSymbolParser m_kernel_sym_parser;
-	KernelSymbolOffset m_kernel_sym_offset;
+	KernelSymbolParser m_sym_parser;
+	KernelSymbolOffset m_sym_offset;
 };

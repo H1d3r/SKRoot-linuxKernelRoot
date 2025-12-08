@@ -8,7 +8,7 @@
 #include <string>
 #include <cstdint>
 #include <algorithm>
-#include "capstone-4.0.2-win64/include/capstone/capstone.h"
+#include <capstone/capstone.h>
 
 namespace a64_find_func_return_offset {
 	constexpr size_t k_npos = static_cast<size_t>(-1);
@@ -129,12 +129,12 @@ namespace a64_find_func_return_offset {
 			}
 			v_code_line.push_back(line);
 
+			if (v_code_line.size() > 0x10000) break; //error
 			size_t ret_cnt = get_aarch64_ret_count(file_buf, v_code_line);
 			if (ret_cnt == last_ret_cnt) continue;
 			last_ret_cnt = ret_cnt;
 			res = handle_candidate_offsets(v_code_line, candidate_offsets);
 			if (res) break;
-			if (v_code_line.size() > 0x10000) break; //error
 		}
 		cs_free(insn, 1);
 		cs_close(&handle);

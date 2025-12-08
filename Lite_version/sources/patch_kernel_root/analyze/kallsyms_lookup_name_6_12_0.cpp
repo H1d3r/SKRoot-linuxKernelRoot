@@ -71,15 +71,15 @@ bool KallsymsLookupName_6_12_0::init() {
 	}
 
 	for (size_t offset : maybe_kallsyms_num_offset) {
-		m_kallsyms_num = *(long*)&m_file_buf[offset];
+		m_kallsyms_num = *(uint32_t*)&m_file_buf[offset];
 		std::cout << std::hex << "current kallsyms_num: 0x" << m_kallsyms_num << ", offset: 0x" << offset << std::endl;
 
 		// revise the offset list offset again
-		const int offset_list_var_len = sizeof(long);
+		const int offset_list_var_len = sizeof(uint32_t);
 		offset_list_start = offset_list_end - m_kallsyms_num * offset_list_var_len;
-		long test_first_offset_list_val;
+		uint32_t test_first_offset_list_val;
 		do {
-			test_first_offset_list_val = *(long*)&m_file_buf[offset_list_start];
+			test_first_offset_list_val = *(uint32_t*)&m_file_buf[offset_list_start];
 			if (test_first_offset_list_val) {
 				offset_list_start -= offset_list_var_len;
 				offset_list_end -= offset_list_var_len;
@@ -159,18 +159,18 @@ int KallsymsLookupName_6_12_0::get_kallsyms_num() {
 }
 
 static bool __find_kallsyms_offsets_list(const std::vector<char>& file_buf, size_t max_cnt, size_t& start, size_t& end) {
-	const int var_len = sizeof(long);
+	const int var_len = sizeof(uint32_t);
 	for (auto x = 0; x + var_len < file_buf.size(); x += var_len) {
-		long val1 = *(long*)&file_buf[x];
-		long val2 = *(long*)&file_buf[x + var_len];
+		uint32_t val1 = *(uint32_t*)&file_buf[x];
+		uint32_t val2 = *(uint32_t*)&file_buf[x + var_len];
 		if (val1 != 0 || val1 >= val2) {
 			continue;
 		}
 		int cnt = 0;
 		auto j = x + var_len;
 		for (; j + var_len < file_buf.size(); j += var_len) {
-			val1 = *(long*)&file_buf[j];
-			val2 = *(long*)&file_buf[j + var_len];
+			val1 = *(uint32_t*)&file_buf[j];
+			val2 = *(uint32_t*)&file_buf[j + var_len];
 			if (val1 > val2 || val2 == 0 || (val2 - val1) > 0x1000000) {
 				j += var_len;
 				break;
@@ -214,11 +214,11 @@ std::vector<size_t> KallsymsLookupName_6_12_0::find_maybe_kallsyms_num(size_t of
 	}
 	std::vector<size_t> maybe_kallsyms_num;
 	for (int i = 0; i < 10; i++) {
-		long val1 = *(long*)&m_file_buf[offset_list_start - i * sizeof(long)];
+		uint32_t val1 = *(uint32_t*)&m_file_buf[offset_list_start - i * sizeof(uint32_t)];
 		if (val1 != 0) {
 			break;
 		}
-		maybe_kallsyms_num.push_back((offset_list_end - offset_list_start + i * sizeof(long)) / sizeof(long));
+		maybe_kallsyms_num.push_back((offset_list_end - offset_list_start + i * sizeof(uint32_t)) / sizeof(uint32_t));
 	}
 	if (maybe_kallsyms_num.size() == 0) {
 		std::cout << "Unable to find the kallsyms num, not even a single possibility." << std::endl;
@@ -229,8 +229,8 @@ std::vector<size_t> KallsymsLookupName_6_12_0::find_maybe_kallsyms_num(size_t of
 	std::vector<size_t> maybe_kallsyms_num_offset;
 	for (size_t maybe_num : maybe_kallsyms_num) {
 		const int kallsyms_token_index_len = 256 * sizeof(short);
-		for (size_t b = MAX_FIND_RANGE; b < offset_list_start - kallsyms_token_index_len; b += sizeof(long)) {
-			long num = *(long*)&m_file_buf[b];
+		for (size_t b = MAX_FIND_RANGE; b < offset_list_start - kallsyms_token_index_len; b += sizeof(uint32_t)) {
+			uint32_t num = *(uint32_t*)&m_file_buf[b];
 			if (num == maybe_num) {
 				maybe_kallsyms_num_offset.push_back(b);
 			}
@@ -273,10 +273,10 @@ bool KallsymsLookupName_6_12_0::find_kallsyms_names_list(int kallsyms_num, size_
 
 bool KallsymsLookupName_6_12_0::find_kallsyms_markers_list(int kallsyms_num, size_t name_list_end_offset, size_t& markers_list_start, size_t& markers_list_end, bool & markers_list_is_align8) {
 	size_t start = align_up<8>(name_list_end_offset);
-	const int var_len = sizeof(long);
+	const int var_len = sizeof(uint32_t);
 	for (auto x = start; x + var_len < m_file_buf.size(); x += var_len) {
-		long val1 = *(long*)&m_file_buf[x];
-		long val2 = *(long*)&m_file_buf[x + var_len];
+		uint32_t val1 = *(uint32_t*)&m_file_buf[x];
+		uint32_t val2 = *(uint32_t*)&m_file_buf[x + var_len];
 		if (val1 == 0 && val2 > 0) {
 			markers_list_start = x;
 			break;
@@ -290,10 +290,10 @@ bool KallsymsLookupName_6_12_0::find_kallsyms_markers_list(int kallsyms_num, siz
 
 	markers_list_is_align8 = false;
 	int cnt = 5;
-	long last_second_var_val = 0;
+	uint32_t last_second_var_val = 0;
 	for (auto y = markers_list_start + var_len; y + var_len < m_file_buf.size(); y += var_len * 2) {
-		long val1 = *(long*)&m_file_buf[y];
-		long val2 = *(long*)&m_file_buf[y + var_len];
+		uint32_t val1 = *(uint32_t*)&m_file_buf[y];
+		uint32_t val2 = *(uint32_t*)&m_file_buf[y + var_len];
 		if (val2 != last_second_var_val) {
 			break;
 		}
@@ -311,9 +311,9 @@ bool KallsymsLookupName_6_12_0::find_kallsyms_markers_list(int kallsyms_num, siz
 		} else {
 			markers_list_start -= back_val; // 4
 		}
-		markers_list_end = markers_list_start + ((kallsyms_num + 255) >> 8) * sizeof(long) * 2;
+		markers_list_end = markers_list_start + ((kallsyms_num + 255) >> 8) * sizeof(uint32_t) * 2;
 	} else {
-		markers_list_end = markers_list_start + ((kallsyms_num + 255) >> 8) * sizeof(long);
+		markers_list_end = markers_list_start + ((kallsyms_num + 255) >> 8) * sizeof(uint32_t);
 	}
 	
 	return true;
@@ -345,9 +345,9 @@ bool KallsymsLookupName_6_12_0::find_kallsyms_seqs_of_names_list(int kallsyms_nu
 
 bool KallsymsLookupName_6_12_0::find_kallsyms_token_table(size_t kallsyms_markers_end_offset, size_t& kallsyms_token_table_start, size_t& kallsyms_token_table_end) {
 	size_t start = align_up<8>(kallsyms_markers_end_offset);
-	const int var_len = sizeof(long);
+	const int var_len = sizeof(uint32_t);
 	for (auto x = start; x + var_len < m_file_buf.size(); x += var_len) {
-		long val1 = *(long*)&m_file_buf[x];
+		uint32_t val1 = *(uint32_t*)&m_file_buf[x];
 		if (val1 == 0) {
 			continue;
 		}
