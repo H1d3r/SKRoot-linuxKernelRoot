@@ -10,14 +10,6 @@ PatchAvcDenied::PatchAvcDenied(const PatchBase& patch_base, const SymbolRegion& 
 
 PatchAvcDenied::~PatchAvcDenied() {}
 
-int PatchAvcDenied::get_need_read_cap_cnt() {
-	int cnt = get_cap_cnt();
-	if (cnt < 5) {
-		cnt = 3;
-	}
-	return cnt;
-}
-
 size_t PatchAvcDenied::patch_avc_denied(const SymbolRegion& hook_func_start_region, size_t task_struct_cred_offset, std::vector<patch_bytes_data>& vec_out_patch_bytes_data) {
 	size_t hook_func_start_addr = hook_func_start_region.offset;
 	if (hook_func_start_addr == 0) { return 0; }
@@ -29,7 +21,7 @@ size_t PatchAvcDenied::patch_avc_denied(const SymbolRegion& hook_func_start_regi
 	int securebits_padding = get_cred_securebits_padding();
 	int securebits_len = 4 + securebits_padding;
 	uint64_t cap_ability_max = get_cap_ability_max();
-	int cap_cnt = get_need_read_cap_cnt();
+	int cap_cnt = get_cap_cnt();
 
 	aarch64_asm_info asm_info = init_aarch64_asm();
 	auto a = asm_info.a.get();
