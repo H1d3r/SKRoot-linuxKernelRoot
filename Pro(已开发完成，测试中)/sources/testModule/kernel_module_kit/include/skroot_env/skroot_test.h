@@ -2,12 +2,23 @@
 #include <iostream>
 namespace skroot_env {
 /***************************************************************************
- * 测试 SKRoot Shellcode通道
- * 参数: root_key   ROOT权限密钥文本
- * 返回: OK 表示正常
-***************************************************************************/
-KModErr test_skroot_shellcode_channel(const char* root_key);
+ * 测试 SKRoot 核心基础能力
+ *
+ * 参数: root_key   ROOT 权限密钥文本
+ *       item       要测试的项目
+ *       out        测试输出文本（可为空字符串）
+ *
+ * 返回: OK         表示正常，其它错误码表示对应能力异常
+ ***************************************************************************/
+enum class BasicItem : uint32_t {
+    Channel,            // 通道检查
+    KernelBase,         // 内核起始地址检查
+    WriteTest,          // 写入内存测试
+    ReadTrampoline,     // 读取跳板测试
+    WriteTrampoline,    // 写入跳板测试
+};
 
+KModErr test_skroot_basics(const char* root_key, BasicItem item, std::string& out);
 /***************************************************************************
  * 测试 SKRoot 自带默认模块
  * 参数: root_key   ROOT权限密钥文本

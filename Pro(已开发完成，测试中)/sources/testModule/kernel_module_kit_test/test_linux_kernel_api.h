@@ -11,9 +11,9 @@ using namespace asmjit::a64::Predicate;
 
 
 KModErr Test_kallsyms_lookup_name1() {
-    uint64_t result_addr = 0;
-    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(g_root_key, "kernel_halt", result_addr));
-    printf("kallsyms_lookup_name1 output addr: %p\n", (void*)result_addr);
+    uint64_t kaddr = 0;
+    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(g_root_key, "kernel_halt", kaddr));
+    printf("kallsyms_lookup_name1 output addr: %p\n", (void*)kaddr);
     return KModErr::OK;
 }
 
@@ -285,14 +285,14 @@ struct TLSKsymState2 {
 static thread_local TLSKsymState2 g_tls_ksym2;
 static void emit_cb_tls2(Assembler* a, GpX data, GpX name_ptr, GpX mod, GpX addr) {
     KModErr err = KModErr::OK;
-    IdleRegPool pool = IdleRegPool::Make(data, name_ptr, mod, addr);
+    IdleRegPool pool = IdleRegPool::make(data, name_ptr, mod, addr);
     GpX xMyKeyName = pool.acquireX();
     GpX xCopyTo = pool.acquireX();
     GpX xResult = pool.acquireX();
     GpX xLen = pool.acquireX();
     GpW wFlag = pool.acquireW();
 
-    RegProtectGuard g1(RegProtectGuard::SkipX0::Yes, a, pool.get_used());
+    RegProtectGuard g1(RegProtectGuard::SkipX0::Yes, a, pool.getUsed());
 
     Label L_end = a->newLabel();
     Label L_continue_next = a->newLabel();

@@ -40,10 +40,22 @@ public:
 		(appendOneUnique(regs), ...);
 		if (regs_.empty()) return;
 		if (regs_.size() & 1) regs_.push_back(xzr);
-		do_push_pairs();
+		doPushPairs();
 		pushed_ = true;
 	}
 
+	/*************************************************************************
+	 * 构造函数（根据寄存器编号集合构造）
+	 * 参数:skip     : 是否跳过 X0
+	 *		a        : Assembler 指针
+	 *		regs_id  : 需要保护的寄存器编号集合（0 表示 x0，1 表示 x1，...）。
+	 *
+	 * 逻辑:
+	 *   1. 将每个编号转换为 GpX (x(id)) 并去重加入 regs_；
+	 *   2. 若数量为奇数，则补一个 xzr；
+	 *   3. 发出 stp 指令对，将这些寄存器压栈；
+	 *   4. 析构时再自动弹栈恢复。
+	 *************************************************************************/
 	explicit RegProtectGuard(SkipX0 skip, asmjit::a64::Assembler* a, const std::set<uint32_t>& regs_id)
 		: a_(a), skip_x0_(skip == SkipX0::Yes) {
 		regs_.reserve(regs_id.size() + 1);
@@ -52,7 +64,7 @@ public:
 		}
 		if (regs_.empty()) return;
 		if (regs_.size() & 1) regs_.push_back(xzr);
-		do_push_pairs();
+		doPushPairs();
 		pushed_ = true;
 	}
 
@@ -93,7 +105,7 @@ private:
 		return (skip_x0_ && r.id() == 0) ? xzr : r;
 	}
 
-	void do_push_pairs() {
+	void doPushPairs() {
 		for (size_t i = 0; i < regs_.size(); i += 2) {
 			GpX a1 = mask(regs_[i]);
 			GpX a2 = mask(regs_[i + 1]);
@@ -102,7 +114,7 @@ private:
 		}
 	}
 
-	void do_pop_pairs() {
+	void doPopPairs() {
 		for (size_t i = regs_.size(); i > 0; i -= 2) {
 			GpX a1 = mask(regs_[i - 2]);
 			GpX a2 = mask(regs_[i - 1]);
@@ -113,7 +125,7 @@ private:
 
 	void cleanup() {
 		if (!pushed_ || !a_) return;
-		do_pop_pairs();
+		doPopPairs();
 		pushed_ = false;
 		regs_.clear();
 	}

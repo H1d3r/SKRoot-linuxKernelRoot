@@ -43,13 +43,6 @@ SkrootSdkVersion get_sdk_version();
  * 返回: OK 表示成功
  ***************************************************************************/
 KModErr get_installed_skroot_environment_version(const char* root_key, SkrootSdkVersion& out_ver);
-
-/***************************************************************************
- * 读取 SKRoot 开机日志
- * 参数: root_key  ROOT权限密钥文本
- * 返回: OK 表示成功
- ***************************************************************************/
-KModErr read_skroot_autorun_log(const char* root_key, std::string& out);
 }
 
 constexpr bool operator<(const skroot_env::SkrootSdkVersion& a, const skroot_env::SkrootSdkVersion& b) {

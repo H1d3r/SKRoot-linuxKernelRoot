@@ -5,14 +5,14 @@
 #include <string.h>
 #include <errno.h>
 #include <vector>
-#include "aarch64_asm_arg.h"
 #include "kernel_module_kit_umbrella.h"
+#include "aarch64_asm_arg.h"
 
-/*
- * 这里封装了对内核导出符号（exported symbols）的 API 调用函数。可后续补充。
+/***************************************************************************
+ * 这里封装了对内核导出符号（exported symbols）的 API 调用函数。
+ * 实现细节在 module_base_kernel_export_symbol.inl 中，后续可补充。
  * 主要目的是为了在汇编代码生成（asmjit AArch64）过程中，更方便地调用内核 API，而无需处理寻址细节。
- */
-
+ ***************************************************************************/
 namespace kernel_module {
 namespace export_symbol {
 using namespace asmjit::a64;
@@ -153,6 +153,5 @@ enum class LookupFlags : uint32_t {
 void kern_path(const char* root_key, Assembler* a, KModErr& out_err, GpX name, GpW flags, GpX path);
 void kern_path(const char* root_key, Assembler* a, KModErr& out_err, GpX name, LookupFlags flags, GpX path);
 void kern_path(const char* root_key, Assembler* a, KModErr& out_err, GpX name, LookupFlags flags, uint64_t path_buf_addr);
-
 } // namespace export_symbol
 } // namespace kernel_module

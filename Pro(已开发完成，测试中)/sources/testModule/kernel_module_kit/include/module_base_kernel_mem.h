@@ -111,12 +111,12 @@ KModErr set_kernel_memory_protection(
 
 
 /***************************************************************************
- * 获取内核虚拟起始地址
- * 参数: root_key     — ROOT权限密钥字符串
- *      result       — 输出参数，返回内核静态代码段（.text）的起始虚拟地址
+ * 获取内核虚拟基址
+ * 参数: root_key   — ROOT 权限密钥字符串
+ *       vaddr_out  — 输出参数，返回内核 .text 段的起始虚拟地址
  * 返回: OK 表示成功
  ***************************************************************************/
-KModErr get_kernel_virtual_mem_start_addr(
+KModErr get_kernel_base_vaddr(
         const char*  root_key,
         uint64_t&    result
 );

@@ -33,6 +33,7 @@ inline char skroot_module_name_5d1745f8a8fb4814fb0dbb5aab27bbca[1024] = {0};
         if(strlen(skroot_module_desc_c658b5f0a346f94d52b96379fc26b0c4) == 0) printf(""); \
         if(strlen(skroot_module_author_857d43a4f1978f830f6a2dc91d840338) == 0) printf(""); \
         if(strlen(skroot_module_uuid_927fa0e9f491cdcbd07e8a647f09e1e2) == 0) printf(""); \
+        if(strlen(skroot_module_update_json_7310fa0a06d95799b3f9beaf60e26e85) == 0) printf(""); \
         extern void __compile_save_min_support_sdk_ver(void); \
         __compile_save_min_support_sdk_ver(); \
         return skroot_module_main(root_key, module_private_dir); \
@@ -76,6 +77,15 @@ inline char skroot_module_uuid_927fa0e9f491cdcbd07e8a647f09e1e2[1024] = {0};
         extern void __set_current_module_uuid32_1b0494ae8a788541db46b82cc1f0577c(const char* uuid32); \
         __set_current_module_uuid32_1b0494ae8a788541db46b82cc1f0577c(val); \
     };
+    
+inline char skroot_module_update_json_7310fa0a06d95799b3f9beaf60e26e85[1024] = {0};
+#define ___MOD_UPDATE_JSON_TAG_BEGIN  "4363a6368f39d93cabadc121f9bfa51626da9f19699b68470d7a4fd46a9ad541"
+#define ___MOD_UPDATE_JSON_TAG_END    "9f2efdc4b7e133634ec4c1ecd85975f560be89962733a0a7b228f1160d8d0ebc"
+#define ___MOD_UPDATE_JSON(val) \
+    inline int ____skroot_update_json_reg_token_4217f56a580ff098290dfd8c50aa11b9 = []() { \
+        strncpy(skroot_module_update_json_7310fa0a06d95799b3f9beaf60e26e85, ___MOD_UPDATE_JSON_TAG_BEGIN val ___MOD_UPDATE_JSON_TAG_END, sizeof(skroot_module_update_json_7310fa0a06d95799b3f9beaf60e26e85) - 1); \
+        return 0; \
+    }();
 
 inline kernel_module::WebUIHttpHandler* skroot_web_ui_handler_6f9d89cc84c2ea1bf7364fc1afda99b5 = nullptr;
 inline char skroot_web_ui_enable_flag_e0c73f6473a0e653be67875a3cf23a53[1024] = {0};

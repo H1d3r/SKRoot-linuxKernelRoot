@@ -37,7 +37,7 @@ public:
     }
 
     bool handlePost(CivetServer* server, struct mg_connection* conn) override {
-        char buf[1024] = {0}; mg_read(conn, buf, sizeof(buf) - 1);
+        char buf[4096] = {0}; mg_read(conn, buf, sizeof(buf) - 1);
         const struct mg_request_info* req_info = mg_get_request_info(conn);
         std::string path = req_info->local_uri ? req_info->local_uri : "/";
         std::string body(buf);

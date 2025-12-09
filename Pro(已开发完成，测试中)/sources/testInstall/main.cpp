@@ -24,13 +24,16 @@ static void print_desc_info(const skroot_env::module_desc& desc) {
     printf("Desc    : %s\n", desc.desc);
     printf("Author  : %s\n", desc.author);
     printf("UUID    : %s\n", desc.uuid);
-    bool any_feature = desc.web_ui;
+    auto & sdk = desc.min_sdk_ver;
+    printf("MinSDK  : %u.%u.%u\n", sdk.major, sdk.minor, sdk.patch);
+	
+	bool online_update = !!strlen(desc.update_json);
+    bool any_feature = desc.web_ui || online_update;
     if (any_feature) {
         std::puts("Features:");
 		if(desc.web_ui) std::printf("  [+] Web UI\n");
+		if(online_update) std::printf("  [+] Online Update\n");
     }
-    auto & sdk = desc.min_sdk_ver;
-    printf("MinSDK  : %u.%u.%u\n", sdk.major, sdk.minor, sdk.patch);
     printf("------------------------------\n");
 }
 
@@ -209,7 +212,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	//TODO: 在此修改你的Root key值。
-	strncpy(ROOT_KEY, "KQDrJKBQvFyUS4cWS3SGkiUmAFnFblNwLJN3Hhvffjs5z93z", sizeof(ROOT_KEY) - 1);
+	strncpy(ROOT_KEY, "rvCBb7n0tifGnhffn5N1tTNrVnWwW7cqZOJi8SH7BMdkuOAC", sizeof(ROOT_KEY) - 1);
 
 	std::map<std::string, std::function<void()>> command_map = {
 		{"install", []() { test_install_skroot(); }},

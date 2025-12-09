@@ -11,7 +11,8 @@ struct module_desc {
     char version[1024] = {0};           // SKRoot 模块版本
     char desc[4096] = {0};              // SKRoot 模块描述信息
     char author[1024] = {0};            // SKRoot 模块作者
-    char uuid[1024] = {0};              // SKRoot 模块IIOD
+    char uuid[1024] = {0};              // SKRoot 模块UUID
+    char update_json[1024] = {0};       // SKRoot 更新信息
     bool web_ui = false;
     SkrootSdkVersion min_sdk_ver = {0};
 };

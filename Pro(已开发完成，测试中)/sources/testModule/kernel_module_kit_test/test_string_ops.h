@@ -632,8 +632,8 @@ KModErr Test_kmemmem5() {
     uint64_t result = 0;
     RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
-    uint64_t result_addr = result;
-    printf("kmemmem5 result: %s\n", result_addr == 0 ? "ok" : "failed");
+    uint64_t kaddr = result;
+    printf("kmemmem5 result: %s\n", kaddr == 0 ? "ok" : "failed");
     return KModErr::OK;
 }
 
@@ -665,8 +665,8 @@ KModErr Test_kmemmem6() {
     RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
     uint64_t correct_addr = addr + sizeof(datas) - 2;
-    uint64_t result_addr = result;
-    printf("kmemmem6 result: %s\n", result_addr == correct_addr ? "ok" : "failed");
+    uint64_t kaddr = result;
+    printf("kmemmem6 result: %s\n", kaddr == correct_addr ? "ok" : "failed");
     return KModErr::OK;
 }
 
@@ -698,8 +698,8 @@ KModErr Test_kmemmem7() {
     RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
     
 	uint64_t correct_addr = addr + 14;
-    uint64_t result_addr = result;
-    printf("kmemmem7 result: %s\n", result_addr == correct_addr ? "ok" : "failed");
+    uint64_t kaddr = result;
+    printf("kmemmem7 result: %s\n", kaddr == correct_addr ? "ok" : "failed");
     return KModErr::OK;
 }
 

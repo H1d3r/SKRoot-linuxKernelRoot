@@ -1,5 +1,4 @@
 ﻿
-#include "cpu_pin_guard_auto.h"
 #include "test_linux_kernel_api.h"
 #include "test_string_ops.h"
 
@@ -18,10 +17,10 @@ KModErr Test_execute_kernel_asm_func() {
     return KModErr::OK;
 }
 
-KModErr Test_get_kernel_virtual_mem_start_addr() {
-    uint64_t result_addr = 0;
-    RETURN_IF_ERROR(kernel_module::get_kernel_virtual_mem_start_addr(g_root_key, result_addr));
-    printf("Output addr: %p\n", (void*)result_addr);
+KModErr Test_get_kernel_base_vaddr() {
+    uint64_t kaddr = 0;
+    RETURN_IF_ERROR(kernel_module::get_kernel_base_vaddr(g_root_key, kaddr));
+    printf("Output addr: %p\n", (void*)kaddr);
     return KModErr::OK;
 }
 
@@ -74,12 +73,13 @@ KModErr Test_write_rw_kernel_mem() {
 }
 
 KModErr Test_write_x_kernel_mem() {
-    uint64_t result_addr = 0;
-    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(g_root_key, "kernel_halt", result_addr));
+    uint64_t kaddr = 0;
+    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(g_root_key, "kernel_halt", kaddr));
+    printf("Output addr: %p\n", (void*)kaddr);
 
     // 读取原始内存内容
     uint8_t buf[16] = {0};
-    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, result_addr, buf, sizeof(buf)));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, kaddr, buf, sizeof(buf)));
     printf("read_kernel_mem (before) Buffer before:");
     for (size_t i = 0; i < sizeof(buf); ++i) {
         printf(" %02hhx", buf[i]);
@@ -88,11 +88,11 @@ KModErr Test_write_x_kernel_mem() {
 
     // 准备修改数据（8 字节）
     uint32_t ccmd[2] = { 0x11223344, 0x55667788 };
-    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, result_addr, ccmd, sizeof(ccmd), kernel_module::KernMemProt::KMP_X));
+    RETURN_IF_ERROR(kernel_module::write_kernel_mem(g_root_key, kaddr, ccmd, sizeof(ccmd), kernel_module::KernMemProt::KMP_X));
 
     // 再次读取内存以验证修改效果
     memset(buf, 0, sizeof(buf));
-    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, result_addr, buf, sizeof(buf)));
+    RETURN_IF_ERROR(kernel_module::read_kernel_mem(g_root_key, kaddr, buf, sizeof(buf)));
     printf("read_kernel_mem (after) Buffer after:");
     for (size_t i = 0; i < sizeof(buf); ++i) {
         printf(" %02hhx", buf[i]);
@@ -312,14 +312,12 @@ int main(int argc, char *argv[]) {
         strncpy(g_root_key, argv[1], sizeof(g_root_key) - 1);
     } else {
         //TODO: 在此修改你的Root key值。
-        strncpy(g_root_key, "wCndSTFps3EWt21GJzqAJ8OjhDJjXNyRHkdiZWP51fvFjTNj", sizeof(g_root_key) - 1);
+        strncpy(g_root_key, "SWT9NgXyUHjJwKRwLWILC9xCxDQAuwpnDl8YEJncQof8WPRT", sizeof(g_root_key) - 1);
     }
-    CpuPinGuardAuto cpu_lock;
-
     int idx = 1;
     // 单元测试：内核模块基础能力
     TEST(idx++, Test_execute_kernel_asm_func);               // 执行shellcode并获取返回值
-    TEST(idx++, Test_get_kernel_virtual_mem_start_addr);     // 获取内核静态代码段（.text）起始虚拟地址
+    TEST(idx++, Test_get_kernel_base_vaddr);                 // 获取内核虚拟基址
     TEST(idx++, Test_alloc_kernel_mem);                      // 申请内核内存
     TEST(idx++, Test_free_kernel_mem);                       // 释放内核内存
     TEST(idx++, Test_read_kernel_mem);                       // 读取内核内存
