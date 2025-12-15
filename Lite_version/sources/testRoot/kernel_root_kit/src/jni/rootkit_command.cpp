@@ -13,6 +13,7 @@
 
 #include "rootkit_umbrella.h"
 #include "rootkit_fork_helper.h"
+#include "common/selinux_procattr_util.h"
 #include "common/cgroup_v2_self.h"
 #include "common/cgroup_v1_tasks_self.h"
 
@@ -24,7 +25,8 @@ KRootErr get_root(const char* str_root_key) {
 	internel_key.erase(internel_key.size() - 1);
 	syscall(__NR_execve, internel_key.c_str(), NULL, NULL);
 	if(getuid() != 0) return KRootErr::ERR_NO_ROOT;
-
+    selinux_procattr::setcon("u:r:shell:s0");
+    selinux_procattr::setexeccon("u:r:shell:s0");
 	cg_v2::migrate_self_to_root();
 	cg_v1::migrate_self_threads_v1(/*cpuset*/nullptr, /*stune*/nullptr);
 	return KRootErr::OK;
