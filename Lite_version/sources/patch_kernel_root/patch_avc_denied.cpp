@@ -23,8 +23,8 @@ size_t PatchAvcDenied::patch_avc_denied(const SymbolRegion& hook_func_start_regi
 	uint64_t cap_ability_max = get_cap_ability_max();
 	int cap_cnt = get_cap_cnt();
 
-	aarch64_asm_info asm_info = init_aarch64_asm();
-	auto a = asm_info.a.get();
+	aarch64_asm_ctx asm_ctx = init_aarch64_asm();
+	auto a = asm_ctx.assembler();
 	Label label_end = a->newLabel();
 	Label label_cycle_cap = a->newLabel();
 
@@ -46,9 +46,9 @@ size_t PatchAvcDenied::patch_avc_denied(const SymbolRegion& hook_func_start_regi
 	a->mov(w0, wzr);
 	a->bind(label_end);
 	a->ret(x30);
-	std::cout << print_aarch64_asm(asm_info) << std::endl;
+	std::cout << print_aarch64_asm(a) << std::endl;
 
-	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
+	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(a);
 	if (bytes.size() == 0) {
 		return 0;
 	}

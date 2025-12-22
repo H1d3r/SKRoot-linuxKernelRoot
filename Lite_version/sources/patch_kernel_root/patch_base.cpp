@@ -71,9 +71,10 @@ int PatchBase::get_cap_cnt() {
 }
 
 size_t PatchBase::patch_jump(size_t patch_addr, size_t jump_addr, std::vector<patch_bytes_data>& vec_out_patch_bytes_data) {
-	aarch64_asm_info asm_info = init_aarch64_asm();
-	aarch64_asm_b(asm_info.a.get(), (int32_t)(jump_addr - patch_addr));
-	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
+	aarch64_asm_ctx asm_ctx = init_aarch64_asm();
+	auto a = asm_ctx.assembler();
+	aarch64_asm_b(a, (int32_t)(jump_addr - patch_addr));
+	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(a);
 	if (bytes.size() == 0) {
 		return 0;
 	}

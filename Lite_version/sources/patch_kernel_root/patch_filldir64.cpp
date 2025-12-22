@@ -14,15 +14,15 @@ size_t PatchFilldir64::patch_filldir64_root_key_guide(size_t root_key_mem_addr, 
 	if (hook_func_start_addr == 0) { return 0; }
 	std::cout << "Start hooking addr:  " << std::hex << hook_func_start_addr << std::endl << std::endl;
 
-	aarch64_asm_info asm_info = init_aarch64_asm();
-	auto a = asm_info.a.get();
+	aarch64_asm_ctx asm_ctx = init_aarch64_asm();
+	auto a = asm_ctx.assembler();
 
 	int root_key_adr_offset = root_key_mem_addr - (hook_func_start_addr + a->offset());
 	aarch64_asm_adr_x(a, x11, root_key_adr_offset);
 
-	std::cout << print_aarch64_asm(asm_info) << std::endl;
+	std::cout << print_aarch64_asm(a) << std::endl;
 
-	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
+	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(a);
 	if (bytes.size() == 0) {
 		return 0;
 	}
@@ -48,8 +48,8 @@ size_t PatchFilldir64::patch_filldir64_core(const SymbolRegion& hook_func_start_
 	GpX x_name_arg = x1;
 	GpW w_namelen_arg = w2;
 
-	aarch64_asm_info asm_info = init_aarch64_asm();
-	auto a = asm_info.a.get();
+	aarch64_asm_ctx asm_ctx = init_aarch64_asm();
+	auto a = asm_ctx.assembler();
 	Label label_end = a->newLabel();
 	Label label_cycle_name = a->newLabel();
 
@@ -73,9 +73,9 @@ size_t PatchFilldir64::patch_filldir64_core(const SymbolRegion& hook_func_start_
 	a->bind(label_end);
 	a->mov(x0, x0);
 	aarch64_asm_b(a, (int32_t)(hook_jump_back_addr - (hook_func_start_addr + a->offset())));
-	std::cout << print_aarch64_asm(asm_info) << std::endl;
+	std::cout << print_aarch64_asm(a) << std::endl;
 
-	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
+	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(a);
 	if (bytes.size() == 0) {
 		return 0;
 	}

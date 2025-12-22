@@ -65,8 +65,8 @@ size_t PatchDoExecve::patch_do_execve(const SymbolRegion& hook_func_start_region
 	size_t hook_jump_back_addr = m_doexecve_reg_param.do_execve_addr + 4;
 	char empty_root_key_buf[ROOT_KEY_LEN] = { 0 };
 
-	aarch64_asm_info asm_info = init_aarch64_asm();
-	auto a = asm_info.a.get();
+	aarch64_asm_ctx asm_ctx = init_aarch64_asm();
+	auto a = asm_ctx.assembler();
 	Label label_end = a->newLabel();
 	Label label_cycle_name = a->newLabel();
 	int key_start = a->offset();
@@ -119,9 +119,9 @@ size_t PatchDoExecve::patch_do_execve(const SymbolRegion& hook_func_start_region
 	a->str(wzr, ptr(x12, task_struct_seccomp_offset));
 	a->bind(label_end);
 	aarch64_asm_b(a, (int32_t)(hook_jump_back_addr - (hook_func_start_addr + a->offset())));
-	std::cout << print_aarch64_asm(asm_info) << std::endl;
+	std::cout << print_aarch64_asm(a) << std::endl;
 
-	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
+	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(a);
 	if (bytes.size() == 0) {
 		return 0;
 	}
