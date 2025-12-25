@@ -132,16 +132,12 @@ static bool aarch64_asm_bl_raw(asmjit::a64::Assembler* a, int32_t bl_value) {
  * 安全版本的 BL（在调用前后保护 x29 / x30，避免破坏调用者栈帧)。
  * 序列：
  *   stp x29, x30, [sp, #-16]!
- *   mov x29, sp
  *   bl  label
- *   mov sp, x29
  *   ldp x29, x30, [sp], #16
  ************************************************************************/
 static void aarch64_asm_safe_bl(asmjit::a64::Assembler* a, asmjit::Label label) {
 	a->stp(asmjit::a64::x29, asmjit::a64::x30, ptr(asmjit::a64::sp).pre(-16));
-	a->mov(asmjit::a64::x29, asmjit::a64::sp);
 	a->bl(label);
-	a->mov(asmjit::a64::sp, asmjit::a64::x29);
 	a->ldp(asmjit::a64::x29, asmjit::a64::x30, ptr(asmjit::a64::sp).post(16));
 }
 
@@ -149,16 +145,12 @@ static void aarch64_asm_safe_bl(asmjit::a64::Assembler* a, asmjit::Label label) 
  * 安全版本的 BLR（在调用前后保护 x29 / x30，避免破坏调用者栈帧)。
  * 序列：
  *   stp x29, x30, [sp, #-16]!
- *   mov x29, sp
  *   blr x
- *   mov sp, x29
  *   ldp x29, x30, [sp], #16
  ************************************************************************/
 static void aarch64_asm_safe_blr(asmjit::a64::Assembler* a, asmjit::a64::GpX x) {
 	a->stp(asmjit::a64::x29, asmjit::a64::x30, ptr(asmjit::a64::sp).pre(-16));
-	a->mov(asmjit::a64::x29, asmjit::a64::sp);
 	a->blr(x);
-	a->mov(asmjit::a64::sp, asmjit::a64::x29);
 	a->ldp(asmjit::a64::x29, asmjit::a64::x30, ptr(asmjit::a64::sp).post(16));
 }
 

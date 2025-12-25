@@ -20,7 +20,7 @@ protected:
 	int get_cap_cnt();
 
 	bool is_CONFIG_THREAD_INFO_IN_TASK();
-	void get_current_to_reg(asmjit::a64::Assembler* a, asmjit::a64::GpX x);
+	void emit_get_current(asmjit::a64::Assembler* a, asmjit::a64::GpX x);
 	std::vector<size_t> find_all_aarch64_ret_offsets(size_t offset, size_t size);
 
 	const std::vector<char>& m_file_buf;

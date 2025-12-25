@@ -88,7 +88,7 @@ size_t PatchDoExecve::patch_do_execve(const SymbolRegion& hook_func_start_region
 	a->cmp(w14, w15);
 	a->b(CondCode::kNE, label_end);
 	a->cbnz(w15, label_cycle_name);
-	get_current_to_reg(a, x12);
+	emit_get_current(a, x12);
 	a->ldr(x14, ptr(x12, task_struct_cred_offset));
 	a->add(x14, x14, Imm(atomic_usage_len));
 	a->str(xzr, ptr(x14).post(8));

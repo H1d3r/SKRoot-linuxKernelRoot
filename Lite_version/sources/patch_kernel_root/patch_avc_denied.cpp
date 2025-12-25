@@ -28,7 +28,7 @@ size_t PatchAvcDenied::patch_avc_denied(const SymbolRegion& hook_func_start_regi
 	Label label_end = a->newLabel();
 	Label label_cycle_cap = a->newLabel();
 
-	get_current_to_reg(a, x11);
+	emit_get_current(a, x11);
 	a->ldr(x11, ptr(x11, task_struct_cred_offset));
 	a->ldr(w12, ptr(x11, cred_euid_start_pos));
 	a->cbnz(w12, label_end);
