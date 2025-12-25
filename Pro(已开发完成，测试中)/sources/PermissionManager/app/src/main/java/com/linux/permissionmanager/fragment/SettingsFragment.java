@@ -34,6 +34,7 @@ public class SettingsFragment extends Fragment {
     private Activity mActivity;
     private String mRootKey = "";
 
+    private CheckBox mCkboxEnableBootFailProtect;
     private Button mBtnTestSkrootBasics;
     private Button mBtnTestSkrootDefaultModule;
     private CheckBox mCkboxEnableSkrootLog;
@@ -62,6 +63,7 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mCkboxEnableBootFailProtect = view.findViewById(R.id.enable_boot_fail_protect_ckbox);
         mBtnTestSkrootBasics = view.findViewById(R.id.test_skroot_basics_btn);
         mBtnTestSkrootDefaultModule = view.findViewById(R.id.test_skroot_default_module_btn);
         mCkboxEnableSkrootLog = view.findViewById(R.id.enable_skroot_log_ckbox);
@@ -82,16 +84,24 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initSettingsControl() {
-        mBtnTestSkrootBasics.setOnClickListener((v) -> showSelectTestSkrootBasicsDlg());
-        mBtnTestSkrootDefaultModule.setOnClickListener((v) -> showSelectTestDefaultModuleDlg());
-        mCkboxEnableSkrootLog.setChecked(NativeBridge.isEnableSkrootLog(mRootKey));
-        mBtnShowSkrootLog.setOnClickListener(v -> showSkrootLogDlg());
-        mCkboxEnableSkrootLog.setOnCheckedChangeListener(
+        mCkboxEnableBootFailProtect.setChecked(NativeBridge.isBootFailProtectEnabled(mRootKey));
+        mCkboxEnableBootFailProtect.setOnCheckedChangeListener(
                 (v, isChecked) -> {
-                    String tip = NativeBridge.setSkrootLogEnable(mRootKey, isChecked);
+                    String tip = NativeBridge.setBootFailProtectEnabled(mRootKey, isChecked);
                     DialogUtils.showMsgDlg(mActivity, "执行结果", tip, null);
                 }
         );
+        mBtnTestSkrootBasics.setOnClickListener((v) -> showSelectTestSkrootBasicsDlg());
+        mBtnTestSkrootDefaultModule.setOnClickListener((v) -> showSelectTestDefaultModuleDlg());
+
+        mCkboxEnableSkrootLog.setChecked(NativeBridge.isSkrootLogEnabled(mRootKey));
+        mCkboxEnableSkrootLog.setOnCheckedChangeListener(
+                (v, isChecked) -> {
+                    String tip = NativeBridge.setSkrootLogEnabled(mRootKey, isChecked);
+                    DialogUtils.showMsgDlg(mActivity, "执行结果", tip, null);
+                }
+        );
+        mBtnShowSkrootLog.setOnClickListener(v -> showSkrootLogDlg());
         mUpdateManager = new AppUpdateManager(mActivity);
         initAboutText();
         initLink();
@@ -113,8 +123,7 @@ public class SettingsFragment extends Fragment {
                 else if(which == 3) item = "ReadTrampoline";
                 else if(which == 4) item = "WriteTrampoline";
                 String log = NativeBridge.testSkrootBasics(mRootKey, item);
-                if(log.length() > 30) DialogUtils.showLogDialog(mActivity, log);
-                else DialogUtils.showMsgDlg(mActivity, "执行结果", log, null);
+                DialogUtils.showLogDialog(mActivity, log);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -140,8 +149,7 @@ public class SettingsFragment extends Fragment {
                 else if(which == 1) defName = "SuRedirect";
 
                 String log = NativeBridge.testSkrootDefaultModule(mRootKey, defName);
-                if(log.length() > 30) DialogUtils.showLogDialog(mActivity, log);
-                else DialogUtils.showMsgDlg(mActivity, "执行结果", log, null);
+                DialogUtils.showLogDialog(mActivity, log);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -162,7 +170,7 @@ public class SettingsFragment extends Fragment {
     private void initAboutText() {
         StringBuffer sb = new StringBuffer();
         sb.append("内置核心版本：");
-        sb.append(NativeBridge.getSdkSkrootEnvVersion());
+        sb.append(NativeBridge.getSdkVersion());
         mTvAboutVer.setText(sb.toString());
     }
 

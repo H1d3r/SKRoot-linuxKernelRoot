@@ -15,11 +15,7 @@ namespace kernel_module {
 *       arg_end_offset          输出参数，返回 arg_end 字段相对于 mm_struct 起始的偏移量（字节）
 * 返回: OK 表示成功
 ***************************************************************************/
-KModErr get_mm_struct_arg_offset(
-        const char*  root_key,
-        uint32_t   & arg_start_offset,
-        uint32_t   & arg_end_offset
-);
+KModErr get_mm_struct_arg_offset(const char* root_key, uint32_t & arg_start_offset, uint32_t & arg_end_offset);
 
 /***************************************************************************
 * 获取 mm_struct 结构体中 env_start\env_end 字段的偏移量
@@ -28,9 +24,6 @@ KModErr get_mm_struct_arg_offset(
 *       env_end_offset          输出参数，返回 env_end 字段相对于 mm_struct 起始的偏移量（字节）
 * 返回: OK 表示成功
 ***************************************************************************/
-KModErr get_mm_struct_env_offset(
-        const char*  root_key,
-        uint32_t   & env_start_offset,
-        uint32_t   & env_end_offset
-);
+KModErr get_mm_struct_env_offset(const char*  root_key, uint32_t & env_start_offset, uint32_t & env_end_offset);
+
 }

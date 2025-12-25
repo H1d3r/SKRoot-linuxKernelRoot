@@ -1,6 +1,7 @@
 ﻿#include <string.h>
 #include <thread>
 #include <vector>
+#include <map>
 #include <sstream>
 #include <filesystem>
 
@@ -10,32 +11,6 @@
 #include "test.h"
 
 char ROOT_KEY[256] = {0};
-constexpr const char* recommend_files[] = {"libc++_shared.so"};
-
-static void print_sep(char c) {
-    for (int i = 0; i < 32; ++i) std::putchar(c);
-    std::putchar('\n');
-}
-
-static void print_desc_info(const skroot_env::module_desc& desc) {
-    printf("----- SKRoot Module Meta -----\n");
-    printf("Name    : %s\n", desc.name);
-    printf("Version : %s\n", desc.version);
-    printf("Desc    : %s\n", desc.desc);
-    printf("Author  : %s\n", desc.author);
-    printf("UUID    : %s\n", desc.uuid);
-    auto & sdk = desc.min_sdk_ver;
-    printf("MinSDK  : %u.%u.%u\n", sdk.major, sdk.minor, sdk.patch);
-	
-	bool online_update = !!strlen(desc.update_json);
-    bool any_feature = desc.web_ui || online_update;
-    if (any_feature) {
-        std::puts("Features:");
-		if(desc.web_ui) std::printf("  [+] Web UI\n");
-		if(online_update) std::printf("  [+] Online Update\n");
-    }
-    printf("------------------------------\n");
-}
 
 void test_install_skroot() {
 	KModErr err = skroot_env::install_skroot_environment(ROOT_KEY);
@@ -49,13 +24,24 @@ void test_uninstall_skroot() {
 	if(is_ok(err)) printf("将在重启后生效\n");
 }
 
+void test_show_skroot_state() {
+	using SkrootEnvState = skroot_env::SkrootEnvState;
+	static std::map<SkrootEnvState, const char*> m = {
+        {SkrootEnvState::NotInstalled, "NotInstalled"},
+        {SkrootEnvState::Running,      "Running"},
+        {SkrootEnvState::Fault,        "Fault"},
+    };
+	SkrootEnvState state = skroot_env::get_skroot_environment_state(ROOT_KEY);
+    printf("get_skroot_environment_state: %s\n", m[state]);
+}
+
 void test_show_skroot_ver() {
-	if(!skroot_env::is_installed_skroot_environment(ROOT_KEY)) {
-		printf("not install skroot!\n");
-		return;
-	}
 	skroot_env::SkrootSdkVersion ver;
 	KModErr err = skroot_env::get_installed_skroot_environment_version(ROOT_KEY, ver);
+	if(is_failed(err)) {
+		printf("get_installed_skroot_environment_version err: %s\n", to_string(err).c_str());
+		return;
+	}
     printf("get_installed_skroot_environment_version: %s, %d.%d.%d\n", to_string(err).c_str(), ver.major, ver.minor, ver.patch);
 }
 
@@ -125,9 +111,14 @@ void test_clear_su_list() {
 }
 
 void test_add_module(const char* zip_file_path) {
-	KModErr err = skroot_env::install_module(ROOT_KEY, zip_file_path);
-	printf("install_module err: %s\n", to_string(err).c_str());
-	if(is_ok(err)) printf("将在重启后生效\n");
+	std::string reason;
+	KModErr err = skroot_env::install_module(ROOT_KEY, zip_file_path, reason);
+	if(is_ok(err)) {
+		printf("install_module: %s\n", to_string(err).c_str());
+		printf("将在重启后生效\n");
+	} else {
+		printf("install_module err: %s, reason: %s\n", to_string(err).c_str(), reason.c_str());
+	}
 }
 
 void test_remove_module(const char* mod_uuid) {
@@ -136,6 +127,29 @@ void test_remove_module(const char* mod_uuid) {
 	if(is_ok(err)) printf("将在重启后生效\n");
 }
 
+static void print_sep(char c) {
+    for (int i = 0; i < 32; ++i) std::putchar(c);
+    std::putchar('\n');
+}
+static void print_desc_info(const skroot_env::module_desc& desc) {
+    printf("----- SKRoot Module Meta -----\n");
+    printf("Name    : %s\n", desc.name);
+    printf("Version : %s\n", desc.version);
+    printf("Desc    : %s\n", desc.desc);
+    printf("Author  : %s\n", desc.author);
+    printf("UUID    : %s\n", desc.uuid);
+    auto & sdk = desc.min_sdk_ver;
+    printf("MinSDK  : %u.%u.%u\n", sdk.major, sdk.minor, sdk.patch);
+	
+	bool online_update = !!strlen(desc.update_json);
+    bool any_feature = desc.web_ui || online_update;
+    if (any_feature) {
+        std::puts("Features:");
+		if(desc.web_ui) std::printf("  [+] Web UI\n");
+		if(online_update) std::printf("  [+] Online Update\n");
+    }
+    printf("------------------------------\n");
+}
 void test_show_module_list() {
 	std::vector<skroot_env::module_desc> list1;
 	std::vector<skroot_env::module_desc> list2;
@@ -178,9 +192,10 @@ int main(int argc, char* argv[]) {
 		"---------------------- 基础环境 ----------------------\n");
 
 	printf("%-29s %s\n", "install", "安装 SKRoot 环境");
-	printf("%-29s %s\n","uninstall", "卸载 SKRoot 环境");
-	printf("%-29s %s\n","show-ver", "查看已安装 SKRoot 版本");
-	printf("%-29s %s\n\n","show-log", "查看 SKRoot 开机日志");
+	printf("%-29s %s\n", "uninstall", "卸载 SKRoot 环境");
+	printf("%-29s %s\n", "show-state", "获取当前 SKRoot 环境状态");
+	printf("%-29s %s\n", "show-ver", "查看已安装 SKRoot 版本");
+	printf("%-29s %s\n\n", "show-log", "查看 SKRoot 开机日志");
 
 	printf("------------------ 权限测试与执行 ------------------\n");
 	printf("%-29s %s\n", "test", "测试 ROOT 权限");
@@ -191,14 +206,14 @@ int main(int argc, char* argv[]) {
 	printf("%-29s %s\n", "su-list add <package>", "将 APP 加入 SU 授权列表");
 	printf("%-29s %s\n", "su-list remove <package>", "将 APP 移出 SU 授权列表");
 	printf("%-29s %s\n", "su-list show", "显示 SU 授权列表");
-	printf("%-29s %s\n\n","su-list clear", "清空 SU 授权列表");
+	printf("%-29s %s\n\n", "su-list clear", "清空 SU 授权列表");
 
 	printf("---------------------- 模块管理 ----------------------\n");
 	printf("%-29s %s\n", "module add <zip_file_path>", "添加 SKRoot 模块");
 	printf("%-29s %s\n", "module remove <mod_uuid>", "移除 SKRoot 模块");
-	printf("%-29s %s\n","module list", "显示 SKRoot 模块列表");
-	printf("%-29s %s\n\n","module desc <zip_file_path>", "解析 SKRoot 模块的描述信息");
-	printf("%-29s %s\n\n","module webui <mod_uuid>", "打开 SKRoot 模块 WebUI 页面");
+	printf("%-29s %s\n", "module list", "显示 SKRoot 模块列表");
+	printf("%-29s %s\n\n", "module desc <zip_file_path>", "解析 SKRoot 模块的描述信息");
+	printf("%-29s %s\n\n", "module webui <mod_uuid>", "打开 SKRoot 模块 WebUI 页面");
 
 	printf("-------------------------------------------------------\n"
 		"本工具特点：\n"
@@ -212,11 +227,12 @@ int main(int argc, char* argv[]) {
 	}
 
 	//TODO: 在此修改你的Root key值。
-	strncpy(ROOT_KEY, "rvCBb7n0tifGnhffn5N1tTNrVnWwW7cqZOJi8SH7BMdkuOAC", sizeof(ROOT_KEY) - 1);
+	strncpy(ROOT_KEY, "jnlTD3nGjaVcujsYSZ2C9wcd5CgXWa9T3CMx9Rc8aB8fPejl", sizeof(ROOT_KEY) - 1);
 
 	std::map<std::string, std::function<void()>> command_map = {
 		{"install", []() { test_install_skroot(); }},
 		{"uninstall", []() { test_uninstall_skroot(); }},
+		{"show-state", []() { test_show_skroot_state(); }},
 		{"show-ver", []() { test_show_skroot_ver(); }},
 		{"show-log", []() { test_show_skroot_log(); }},
 		{"test", []() { test_root(); }},

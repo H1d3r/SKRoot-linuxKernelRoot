@@ -95,9 +95,10 @@ private:
 };
 
 // SKRoot 模块名片
-SKROOT_MODULE_NAME("隐藏/data目录");
-SKROOT_MODULE_VERSION(MOD_VER);
-SKROOT_MODULE_DESC("隐藏 /data 下指定的目录名称，防扫描检测。");
-SKROOT_MODULE_AUTHOR("SKRoot官方");
-SKROOT_MODULE_UUID32("ae12076c010ebabbb233affdd0239c14");
-SKROOT_MODULE_WEB_UI(MyWebHttpHandler);
+SKROOT_MODULE_NAME("隐藏/data目录")
+SKROOT_MODULE_VERSION(MOD_VER)
+SKROOT_MODULE_DESC("隐藏 /data 下指定的目录名称，防扫描检测。")
+SKROOT_MODULE_AUTHOR("SKRoot")
+SKROOT_MODULE_UUID32("ae12076c010ebabbb233affdd0239c14")
+SKROOT_MODULE_WEB_UI(MyWebHttpHandler)
+SKROOT_MODULE_UPDATE_JSON("https://abcz316.github.io/SKRoot-linuxKernelRoot/module_hide_data_dir/update.json")

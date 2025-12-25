@@ -17,7 +17,7 @@ namespace kernel_module {
 namespace export_symbol {
 using namespace asmjit::a64;
 // 原型：struct task_struct *get_current(void);，获取current指针并赋值到寄存器x，需判空，因为kthread无法获取
-void get_current_to_reg(Assembler* a, GpX x);
+void get_current(Assembler* a, GpX x);
 
 // 原型：unsigned long copy_from_user(void *to, const void __user *from, unsigned long n)，返回值为X0寄存器
 void copy_from_user(const char* root_key, Assembler* a, KModErr& out_err, GpX to, GpX __user_from, GpX n);
@@ -49,7 +49,7 @@ void kallsyms_on_each_symbol(const char* root_key, Assembler* a, KModErr& out_er
 // 原型: struct mm_struct *get_task_mm(struct task_struct *task)，返回值为X0寄存器
 void get_task_mm(const char* root_key, Assembler* a, KModErr& out_err, GpX task);
 
-// 原型: void mmput(struct mm_struct *mm)
+// 原型: void mmput(struct mm_struct *mm) 无返回值
 void mmput(const char* root_key, Assembler* a, KModErr& out_err, GpX mm);
 
 // 原型: int set_memory_ro(unsigned long addr, int numpages)，返回值为W0寄存器
@@ -84,7 +84,7 @@ void kmalloc(const char* root_key, Assembler* a, KModErr& out_err, uint64_t size
 // kmalloc (外部封装版本)：申请内核内存，结果写入 out_objp，返回值为OK代表执行成功
 KModErr kmalloc(const char* root_key, uint64_t size, KmallocFlags flags, uint64_t& out_objp);
 
-// 原型：void kfree(const void *objp)
+// 原型：void kfree(const void *objp) 无返回值
 void kfree(const char* root_key, Assembler* a, KModErr& out_err, GpX objp);
 // kfree (外部封装版本)：释放内核内存，返回值为OK代表执行成功
 KModErr kfree(const char* root_key, uint64_t objp);
@@ -105,7 +105,7 @@ void execmem_alloc(const char* root_key, Assembler* a, KModErr& out_err, Execmem
 // execmem_alloc (外部封装版本)：申请内核内存，结果写入 out_ptr，返回值为OK代表执行成功
 KModErr execmem_alloc(const char* root_key, ExecmemTypes type, uint64_t size, uint64_t& out_ptr);
 
-// 原型：void execmem_free(void *ptr);
+// 原型：void execmem_free(void *ptr); 无返回值
 void execmem_free(const char* root_key, Assembler* a, KModErr& out_err, GpX ptr);
 // execmem_free (外部封装版本)：释放内核内存，返回值为OK代表执行成功
 KModErr execmem_free(const char* root_key, uint64_t ptr);
@@ -118,7 +118,7 @@ void module_alloc(const char* root_key, Assembler* a, KModErr& out_err, uint64_t
 // module_alloc (外部封装版本)：申请内核内存，结果写入 out_module_region，返回值为OK代表执行成功
 KModErr module_alloc(const char* root_key, uint64_t size, uint64_t& out_module_region);
 
-// 原型：void module_memfree(void *module_region);
+// 原型：void module_memfree(void *module_region); 无返回值
 void module_memfree(const char* root_key, Assembler* a, KModErr& out_err, GpX module_region);
 // module_memfree (外部封装版本)：释放内核内存，返回值为OK代表执行成功
 KModErr module_memfree(const char* root_key, uint64_t module_region);
@@ -153,5 +153,36 @@ enum class LookupFlags : uint32_t {
 void kern_path(const char* root_key, Assembler* a, KModErr& out_err, GpX name, GpW flags, GpX path);
 void kern_path(const char* root_key, Assembler* a, KModErr& out_err, GpX name, LookupFlags flags, GpX path);
 void kern_path(const char* root_key, Assembler* a, KModErr& out_err, GpX name, LookupFlags flags, uint64_t path_buf_addr);
+
+// 原型: struct pid *find_get_pid(pid_t nr)，返回值为X0寄存器
+void find_get_pid(const char* root_key, Assembler* a, KModErr & out_err, GpW nr);
+
+// 原型: void put_pid(struct pid *pid)，无返回值
+void put_pid(const char* root_key, Assembler* a, KModErr & out_err, GpX pid);
+
+namespace linux_above_4_19_0 {
+enum class PidType : uint32_t {
+	PIDTYPE_PID = 0,
+	PIDTYPE_TGID,
+	PIDTYPE_PGID,
+	PIDTYPE_SID,
+	PIDTYPE_MAX,
+};
+// 原型: struct task_struct *pid_task(struct pid *pid, enum pid_type type)，返回值为X0寄存器
+void pid_task(const char* root_key, Assembler* a, KModErr& out_err, GpX pid, GpW type);
+void pid_task(const char* root_key, Assembler* a, KModErr& out_err, GpX pid, PidType type);
+}
+namespace linux_older {
+enum class PidType : uint32_t {
+	PIDTYPE_PID = 0,
+	PIDTYPE_PGID,
+	PIDTYPE_SID,
+	PIDTYPE_MAX
+};
+// 原型: struct task_struct *pid_task(struct pid *pid, enum pid_type type)，返回值为X0寄存器
+void pid_task(const char* root_key, Assembler* a, KModErr& out_err, GpX pid, GpW type);
+void pid_task(const char* root_key, Assembler* a, KModErr& out_err, GpX pid, PidType type);
+}
+
 } // namespace export_symbol
 } // namespace kernel_module

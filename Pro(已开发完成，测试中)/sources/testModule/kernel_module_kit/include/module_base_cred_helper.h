@@ -18,10 +18,7 @@ struct caps_info {
  *       cred_uid_offset  输出参数，返回 uid 字段相对于 cred 起始的偏移量（字节）
  * 返回: OK 表示成功
  ***************************************************************************/
-KModErr get_cred_uid_offset(
-        const char* root_key,
-        uint32_t& cred_uid_offset
-);
+KModErr get_cred_uid_offset(const char* root_key, uint32_t& cred_uid_offset);
 
 /***************************************************************************
  * 获取当前内核支持的能力集字段数量

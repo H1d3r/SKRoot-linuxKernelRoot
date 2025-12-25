@@ -44,14 +44,14 @@ inline KModErr read_blob_disk_storage(const char* root_key, const char* key, std
 }
 
 // 详情请跳转：module_base_kernel_func_hook.h
-inline KModErr install_kernel_function_before_hook(const char* root_key, uint64_t kernel_func_addr, const std::vector<uint8_t>& my_shellcode_func) {
-    KModErr install_kfunc_before_hook_with_buf(const char* root_key, uint64_t hook_kernel_addr, const void *shellcode, uint32_t shellcode_len);
-    return install_kfunc_before_hook_with_buf(root_key, kernel_func_addr, my_shellcode_func.data(), my_shellcode_func.size());
+inline KModErr install_kernel_function_before_hook(const char* root_key, uint64_t kaddr, const std::vector<uint8_t>& hook_handler_code) {
+    KModErr install_kfunc_before_hook_with_buf(const char* root_key, uint64_t hook_kaddr, const void *shellcode, uint32_t shellcode_len);
+    return install_kfunc_before_hook_with_buf(root_key, kaddr, hook_handler_code.data(), hook_handler_code.size());
 }
 
 // 详情请跳转：module_base_kernel_func_hook.h
-inline KModErr install_kernel_function_after_hook(const char* root_key, uint64_t kernel_func_addr, const std::vector<uint8_t>& my_shellcode_func) {
-    KModErr install_kfunc_after_hook_with_buf(const char* root_key, uint64_t hook_kernel_addr, const void *shellcode, uint32_t shellcode_len);
-    return install_kfunc_after_hook_with_buf(root_key, kernel_func_addr, my_shellcode_func.data(), my_shellcode_func.size());
+inline KModErr install_kernel_function_after_hook(const char* root_key, uint64_t target_func_kaddr, const std::vector<uint8_t>& hook_handler_code) {
+    KModErr install_kfunc_after_hook_with_buf(const char* root_key, uint64_t hook_kaddr, const void *shellcode, uint32_t shellcode_len);
+    return install_kfunc_after_hook_with_buf(root_key, target_func_kaddr, hook_handler_code.data(), hook_handler_code.size());
 }
 }

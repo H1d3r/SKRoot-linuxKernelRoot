@@ -3,13 +3,13 @@
 #include "test_string_ops.h"
 
 KModErr Test_execute_kernel_asm_func() {
-    aarch64_asm_info asm_info = init_aarch64_asm();
-    auto a = asm_info.a.get();
+    aarch64_asm_ctx asm_ctx = init_aarch64_asm();
+    auto a = asm_ctx.assembler();
     kernel_module::arm64_module_asm_func_start(a);
     //nothing to do
     a->mov(x0, x0);
     kernel_module::arm64_module_asm_func_end(a, 0x12345);
-	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(asm_info);
+	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(a);
     if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
     uint64_t result = 0;
     RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
@@ -133,17 +133,20 @@ KModErr Test_disk_storage() {
 
 std::vector<uint8_t> generate_filename_lookup_before_hook_bytes() {
     KModErr err = KModErr::OK;
-    aarch64_asm_info asm_info = init_aarch64_asm();
-    auto a = asm_info.a.get();
+    aarch64_asm_ctx asm_ctx = init_aarch64_asm();
+    auto a = asm_ctx.assembler();
     kernel_module::arm64_before_hook_start(a);
     kernel_module::export_symbol::printk(g_root_key, a, err, "[!!!] test ok\n");
     kernel_module::arm64_before_hook_end(a, true);
-    return aarch64_asm_to_bytes(asm_info);;
+    return aarch64_asm_to_bytes(a);;
 }
 
 KModErr Test_install_kernel_function_before_hook() {
-    kernel_module::SymbolHit hit;
-    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(g_root_key, "filename_lookup", kernel_module::SymbolMatchMode::Prefix, hit));
+    using SymbolMatchMode = kernel_module::SymbolMatchMode;
+    using SymbolHit = kernel_module::SymbolHit;
+
+    SymbolHit hit;
+    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(g_root_key, "filename_lookup", SymbolMatchMode::Prefix, hit));
     printf("%s, Output addr: %p\n", hit.name, (void*)hit.addr);
    
     // Read memory before hook
@@ -175,18 +178,18 @@ KModErr Test_install_kernel_function_before_hook() {
 }
 
 std::vector<uint8_t> generate_avc_denied_after_hook_bytes() {
-    aarch64_asm_info asm_info = init_aarch64_asm();
-    auto a = asm_info.a.get();
+    aarch64_asm_ctx asm_ctx = init_aarch64_asm();
+    auto a = asm_ctx.assembler();
     kernel_module::arm64_after_hook_start(a);
     a->mov(x0, xzr);
     kernel_module::arm64_after_hook_end(a);
-    return aarch64_asm_to_bytes(asm_info);;
+    return aarch64_asm_to_bytes(a);;
 }
 
 KModErr Test_install_kernel_function_after_hook() {
     uint64_t avc_denied_addr = 0, ret_addr = 0;
-    RETURN_IF_ERROR(kernel_module::get_avc_denied_addr(g_root_key, avc_denied_addr, ret_addr));
-    printf("get_avc_denied_addr Output start addr: %p, ret addr: %p\n", (void*)avc_denied_addr, (void*)ret_addr);
+    RETURN_IF_ERROR(kernel_module::get_avc_denied_kaddr(g_root_key, avc_denied_addr, ret_addr));
+    printf("get_avc_denied_kaddr Output start addr: %p, ret addr: %p\n", (void*)avc_denied_addr, (void*)ret_addr);
    
     // Read memory before hook
     {
@@ -312,7 +315,7 @@ int main(int argc, char *argv[]) {
         strncpy(g_root_key, argv[1], sizeof(g_root_key) - 1);
     } else {
         //TODO: 在此修改你的Root key值。
-        strncpy(g_root_key, "SWT9NgXyUHjJwKRwLWILC9xCxDQAuwpnDl8YEJncQof8WPRT", sizeof(g_root_key) - 1);
+        strncpy(g_root_key, "yCaLYqIx4LWV3ZDNLlIrswSCAHhbHbepdZedyc4KXCwyMX8a", sizeof(g_root_key) - 1);
     }
     int idx = 1;
     // 单元测试：内核模块基础能力
@@ -324,8 +327,8 @@ int main(int argc, char *argv[]) {
     TEST(idx++, Test_write_rw_kernel_mem);                   // 写入内核内存(可读写区域)
     TEST(idx++, Test_write_x_kernel_mem);                    // 写入内核内存(仅执行区域)
     TEST(idx++, Test_disk_storage);                          // 读取、写入磁盘存储
-    TEST(idx++, Test_install_kernel_function_before_hook);   // 安装内核钩子（在内核函数执行前）
-    TEST(idx++, Test_install_kernel_function_after_hook);    // 安装内核钩子（在内核函数执行后）
+    TEST(idx++, Test_install_kernel_function_before_hook);   // 安装内核Hook（可在任意点位安装，执行前触发）
+    TEST(idx++, Test_install_kernel_function_after_hook);    // 安装内核Hook（在内核函数执行后触发）
     TEST(idx++, Test_get_task_struct_pid_offset);            // 获取 task_struct 结构体中 pid 字段的偏移量
     TEST(idx++, Test_get_task_struct_real_parent_offset);    // 获取 task_struct 结构体中 real_parent 字段的偏移量
     TEST(idx++, Test_get_task_struct_comm_offset);           // 获取 task_struct 结构体中 comm 字段的偏移量
@@ -367,6 +370,7 @@ int main(int argc, char *argv[]) {
     TEST(idx++, Test_kstrncmp5);
     TEST(idx++, Test_kstrncmp6);
     TEST(idx++, Test_kstrcpy);
+    TEST(idx++, Test_kstrncpy);
     TEST(idx++, Test_kstrstr1);
     TEST(idx++, Test_kstrstr2);
     TEST(idx++, Test_kstrstr3);

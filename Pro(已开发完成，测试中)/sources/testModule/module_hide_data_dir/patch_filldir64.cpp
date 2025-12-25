@@ -37,26 +37,26 @@ KModErr PatchFilldir64::patch_filldir64(const std::set<std::string>& hide_dir_li
 	GpX x_name_arg = x1;
 	GpW w_namelen_arg = w2;
 
+	std::vector<std::string> hide_dirs(hide_dir_list.begin(), hide_dir_list.end());
+
 	//生成Hook func汇编命令
-	aarch64_asm_info asm_info = init_aarch64_asm();
-	auto a = asm_info.a.get();
+	aarch64_asm_ctx asm_ctx = init_aarch64_asm();
+	auto a = asm_ctx.assembler();
 
 	std::vector<Label> label_next;
 	label_next.reserve(hide_dir_list.size());
 	for(auto &c : hide_dir_list) label_next.push_back(a->newLabel());
-	
 	kernel_module::arm64_before_hook_start(a);
-
-	int i = 0;
-	for (const auto& dir_name : hide_dir_list) {
+	for (size_t i = 0; i < hide_dirs.size(); ++i) {
+		const auto& dir_name = hide_dirs[i];
 		aarch64_asm_mov_w(a, w11, dir_name.length());
 		a->cmp(w_namelen_arg, w11);
 		a->b(CondCode::kNE, label_next[i]); //下一个
 
-		//key
+		// memcmp key
 		aarch64_asm_set_x_cstr_ptr(a, x12, dir_name);
 		{
-			RegProtectGuard g1(RegProtectGuard::SkipX0::No, a, x0);
+			RegProtectGuard g1(a, x0);
 			kernel_module::string_ops::kmemcmp(a, x_name_arg, x12, x11);
 			a->mov(x11, x0);
 		}
@@ -71,9 +71,7 @@ KModErr PatchFilldir64::patch_filldir64(const std::set<std::string>& hide_dir_li
 		kernel_module::arm64_before_hook_end(a, false); // 直接返回，不跳回原函数
 
 		a->bind(label_next[i]);
-		i++;
 	}
-	// 正常返回
-	kernel_module::arm64_before_hook_end(a, true);
-	return patch_kernel_before_hook(m_filldir64, asm_info);
+	kernel_module::arm64_before_hook_end(a, true); // 正常返回
+	return patch_kernel_before_hook(m_filldir64, a);
 }

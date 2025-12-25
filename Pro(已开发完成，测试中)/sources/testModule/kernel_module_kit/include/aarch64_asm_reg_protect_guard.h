@@ -14,17 +14,9 @@ class RegProtectGuard {
 	using GpW = asmjit::a64::GpW;
 public:
 	/*************************************************************************
-	 * 枚举 SkipX0
-	 * 作用: 控制是否在保护寄存器时跳过 X0（常用于保留返回值寄存器）
-	 *************************************************************************/
-	enum class SkipX0 : bool { No = false, Yes = true };
-
-
-	/*************************************************************************
 	 * 构造函数模板 (支持任意数量 X/W 寄存器)
-	 * 参数: skip  : 是否跳过 X0
-	 *   	a     : asmjit::a64::Assembler 指针
-	 *   	regs  : 可变参数列表（GpX/GpW）
+	 * 参数: a		: asmjit::a64::Assembler 指针
+	 *   	regs	: 可变参数列表（GpX/GpW）
 	 * 逻辑:
 	 *   	1. 生成 stp 指令序列 (push pairs)；
 	 *   	2. 析构时自动生成对应 ldp 指令 (pop pairs)。
@@ -34,8 +26,8 @@ public:
 				std::bool_constant<std::is_same_v<std::decay_t<Regs>, GpX> ||
 									std::is_same_v<std::decay_t<Regs>, GpW>>...
 			>)>>
-	explicit RegProtectGuard(SkipX0 skip, asmjit::a64::Assembler* a, const Regs&... regs)
-		: a_(a), skip_x0_(skip == SkipX0::Yes) {
+	explicit RegProtectGuard(asmjit::a64::Assembler* a, const Regs&... regs)
+		: a_(a) {
 		regs_.reserve(sizeof...(regs) + 1);
 		(appendOneUnique(regs), ...);
 		if (regs_.empty()) return;
@@ -46,9 +38,8 @@ public:
 
 	/*************************************************************************
 	 * 构造函数（根据寄存器编号集合构造）
-	 * 参数:skip     : 是否跳过 X0
-	 *		a        : Assembler 指针
-	 *		regs_id  : 需要保护的寄存器编号集合（0 表示 x0，1 表示 x1，...）。
+	 * 参数: a		: Assembler 指针
+	 *		regs_id	: 需要保护的寄存器编号集合（0 表示 x0，1 表示 x1，...）。
 	 *
 	 * 逻辑:
 	 *   1. 将每个编号转换为 GpX (x(id)) 并去重加入 regs_；
@@ -56,8 +47,8 @@ public:
 	 *   3. 发出 stp 指令对，将这些寄存器压栈；
 	 *   4. 析构时再自动弹栈恢复。
 	 *************************************************************************/
-	explicit RegProtectGuard(SkipX0 skip, asmjit::a64::Assembler* a, const std::set<uint32_t>& regs_id)
-		: a_(a), skip_x0_(skip == SkipX0::Yes) {
+	explicit RegProtectGuard(asmjit::a64::Assembler* a, const std::set<uint32_t>& regs_id)
+		: a_(a) {
 		regs_.reserve(regs_id.size() + 1);
 		for(auto id : regs_id) {
 			appendOneUnique(asmjit::a64::x(id));
@@ -72,20 +63,18 @@ public:
 	RegProtectGuard(const RegProtectGuard&) = delete;
 	RegProtectGuard& operator=(const RegProtectGuard&) = delete;
 	RegProtectGuard(RegProtectGuard&& other) noexcept
-		: a_(other.a_), regs_(std::move(other.regs_)),
-		pushed_(other.pushed_), skip_x0_(other.skip_x0_) {
-	other.pushed_ = false;
-	}
-	RegProtectGuard& operator=(RegProtectGuard&& other) noexcept {
-	if (this != &other) {
-		cleanup();
-		a_ = other.a_;
-		regs_ = std::move(other.regs_);
-		pushed_ = other.pushed_;
-		skip_x0_ = other.skip_x0_;
+		: a_(other.a_), regs_(std::move(other.regs_)), pushed_(other.pushed_) {
 		other.pushed_ = false;
 	}
-	return *this;
+	RegProtectGuard& operator=(RegProtectGuard&& other) noexcept {
+		if (this != &other) {
+			cleanup();
+			a_ = other.a_;
+			regs_ = std::move(other.regs_);
+			pushed_ = other.pushed_;
+			other.pushed_ = false;
+		}
+		return *this;
 	}
 
 	~RegProtectGuard() { cleanup(); }
@@ -101,14 +90,10 @@ private:
 	}
 	void appendOneUnique(const GpW& r) { appendOneUnique(asmjit::a64::x(r.id())); }
 
-	inline GpX mask(GpX r) const {
-		return (skip_x0_ && r.id() == 0) ? xzr : r;
-	}
-
 	void doPushPairs() {
 		for (size_t i = 0; i < regs_.size(); i += 2) {
-			GpX a1 = mask(regs_[i]);
-			GpX a2 = mask(regs_[i + 1]);
+			GpX a1 = regs_[i];
+			GpX a2 = regs_[i + 1];
 			if(a1 == xzr && a2 == xzr) continue;
 			a_->stp(a1, a2, ptr(sp).pre(-16));
 		}
@@ -116,8 +101,8 @@ private:
 
 	void doPopPairs() {
 		for (size_t i = regs_.size(); i > 0; i -= 2) {
-			GpX a1 = mask(regs_[i - 2]);
-			GpX a2 = mask(regs_[i - 1]);
+			GpX a1 = regs_[i - 2];
+			GpX a2 = regs_[i - 1];
 			if(a1 == xzr && a2 == xzr) continue;
 			a_->ldp(a1, a2, ptr(sp).post(16));
 		}
@@ -134,8 +119,13 @@ private:
 	asmjit::a64::Assembler* a_ = nullptr;
 	std::vector<GpX> regs_;
 	bool pushed_ = false;
-	bool skip_x0_ = true;
 
 	const GpX xzr = asmjit::a64::xzr;
 	const GpX sp = asmjit::a64::sp;
 };
+
+// 从输入的寄存器号集合中移除 X0（编号 0）
+static std::set<uint32_t> excluding_x0(std::set<uint32_t> reg_ids) {
+    reg_ids.erase(uint32_t{0});
+    return reg_ids;
+}

@@ -9,6 +9,7 @@
 #define ASMJIT_STATIC
 #include "asmjit2/core.h"
 #include "asmjit2/a64.h"
+
 /***************************************************************************
  * AArch64 / AsmJit 辅助工具集
  * 作用：
@@ -32,48 +33,55 @@ private:
 	bool isErr = false;
 };
 
-
 /*************************************************************************
- * AArch64 汇编构建上下文信息
- *   - codeHolder : 持有机器码缓冲区；
- *   - a          : AArch64 Assembler（带错误处理）；
- *   - logger     : 字符串日志，用于符号化打印汇编文本；
- *   - err        : 自定义错误处理器。
+ * AArch64 汇编上下文
+ *   - assembler() : 获取 AArch64 Assembler 指针
+ *   - has_error() : 查询是否发生过 AsmJit 错误
  *************************************************************************/
-struct aarch64_asm_info {
-	std::unique_ptr<asmjit::CodeHolder> codeHolder;
-	std::shared_ptr<asmjit::a64::Assembler> a;
-	std::unique_ptr<asmjit::StringLogger> logger;
-	std::unique_ptr<MyAsmJitErrorHandler> err;
+struct aarch64_asm_ctx {
+public:
+	asmjit::a64::Assembler* assembler() noexcept { return a_.get(); }
+	bool has_error() const noexcept { return err_ && err_->isError(); }
+private:
+	std::unique_ptr<asmjit::StringLogger>      logger_;
+	std::unique_ptr<asmjit::CodeHolder>        codeHolder_;
+	std::unique_ptr<MyAsmJitErrorHandler>      err_;
+	std::unique_ptr<asmjit::a64::Assembler>    a_;
+	friend aarch64_asm_ctx init_aarch64_asm();
 };
 
 /*************************************************************************
  * 初始化一个独立的 AArch64 汇编环境
  *************************************************************************/
-static aarch64_asm_info init_aarch64_asm() {
+inline aarch64_asm_ctx init_aarch64_asm() {
+	aarch64_asm_ctx ctx;
 	asmjit::Environment env(asmjit::Arch::kAArch64);
-	auto code = std::make_unique<asmjit::CodeHolder>();
-	code->init(env);
-	auto logger = std::make_unique<asmjit::StringLogger>();
-	logger->addFlags(asmjit::FormatFlags::kNone);
-	code->setLogger(logger.get());
-	auto a = std::make_shared<asmjit::a64::Assembler>(code.get());
-	auto err = std::make_unique<MyAsmJitErrorHandler>();
-	a->setErrorHandler(err.get());
-	return { std::move(code), std::move(a), std::move(logger), std::move(err) };
+	ctx.codeHolder_ = std::make_unique<asmjit::CodeHolder>();
+	ctx.codeHolder_->init(env);
+	ctx.logger_ = std::make_unique<asmjit::StringLogger>();
+	ctx.logger_->addFlags(asmjit::FormatFlags::kNone);
+	ctx.codeHolder_->setLogger(ctx.logger_.get());
+	ctx.err_ = std::make_unique<MyAsmJitErrorHandler>();
+	ctx.a_ = std::make_unique<asmjit::a64::Assembler>(ctx.codeHolder_.get());
+	ctx.a_->setErrorHandler(ctx.err_.get());
+	return ctx;
 }
 
 /*************************************************************************
- * 将 aarch64_asm_info 中的机器码导出为字节数组
+ * 将 AArch64 汇编机器码导出为字节数组
  *************************************************************************/
-static std::vector<uint8_t> aarch64_asm_to_bytes(const aarch64_asm_info& asm_info) {
-	if (asm_info.err->isError()) return {};
-	asm_info.codeHolder->flatten();
-	asmjit::Section* sec = asm_info.codeHolder->sectionById(0);
+inline std::vector<uint8_t> aarch64_asm_to_bytes(const asmjit::a64::Assembler* a) {
+	if (!a) return {};
+	auto* err_handler = a->errorHandler();
+	if (!err_handler) return {};
+	auto* my_err_handler = static_cast<MyAsmJitErrorHandler*>(err_handler);
+	if (my_err_handler->isError()) return {};
+	asmjit::CodeHolder* code = a->code();
+	if (!code) return {};
+	asmjit::Section* sec = code->sectionById(0);
+	if (!sec) return {};
 	const asmjit::CodeBuffer& buf = sec->buffer();
-	const uint8_t* data = buf.data();
-	size_t data_size = buf.size();
-	return std::vector<uint8_t>(data, data + data_size);
+	return { buf.data(), buf.data() + buf.size() };
 }
 
 /*************************************************************************
@@ -124,16 +132,12 @@ static bool aarch64_asm_bl_raw(asmjit::a64::Assembler* a, int32_t bl_value) {
  * 安全版本的 BL（在调用前后保护 x29 / x30，避免破坏调用者栈帧)。
  * 序列：
  *   stp x29, x30, [sp, #-16]!
- *   mov x29, sp
  *   bl  label
- *   mov sp, x29
  *   ldp x29, x30, [sp], #16
  ************************************************************************/
 static void aarch64_asm_safe_bl(asmjit::a64::Assembler* a, asmjit::Label label) {
 	a->stp(asmjit::a64::x29, asmjit::a64::x30, ptr(asmjit::a64::sp).pre(-16));
-	a->mov(asmjit::a64::x29, asmjit::a64::sp);
 	a->bl(label);
-	a->mov(asmjit::a64::sp, asmjit::a64::x29);
 	a->ldp(asmjit::a64::x29, asmjit::a64::x30, ptr(asmjit::a64::sp).post(16));
 }
 
@@ -141,16 +145,12 @@ static void aarch64_asm_safe_bl(asmjit::a64::Assembler* a, asmjit::Label label) 
  * 安全版本的 BLR（在调用前后保护 x29 / x30，避免破坏调用者栈帧)。
  * 序列：
  *   stp x29, x30, [sp, #-16]!
- *   mov x29, sp
  *   blr x
- *   mov sp, x29
  *   ldp x29, x30, [sp], #16
  ************************************************************************/
 static void aarch64_asm_safe_blr(asmjit::a64::Assembler* a, asmjit::a64::GpX x) {
 	a->stp(asmjit::a64::x29, asmjit::a64::x30, ptr(asmjit::a64::sp).pre(-16));
-	a->mov(asmjit::a64::x29, asmjit::a64::sp);
 	a->blr(x);
-	a->mov(asmjit::a64::sp, asmjit::a64::x29);
 	a->ldp(asmjit::a64::x29, asmjit::a64::x30, ptr(asmjit::a64::sp).post(16));
 }
 
@@ -163,40 +163,37 @@ static void aarch64_asm_safe_blr(asmjit::a64::Assembler* a, asmjit::a64::GpX x) 
  * 注意：这里采用 “临时汇编 + 抽取指令” 的方式，实际效果是等价于在当前 PC 附近生成一条 ADR x, label。
  ************************************************************************/
 static bool aarch64_asm_adr_x(asmjit::a64::Assembler* a, asmjit::a64::GpX x, int32_t adr_value) {
+	if (!a) return false;
 	if (adr_value % 4 != 0) {
 		std::cout << "[发生错误] The ADR instruction offset must be a multiple of 4" << std::endl;
 		return false;
 	}
-	int64_t immSigned = adr_value >> 2;
-	if (immSigned < -(1LL << 20) || immSigned >((1LL << 20) - 1)) {
+	// ADR 立即数范围：±1MB（字节范围）
+	if (adr_value < -(1 << 20) || adr_value >((1 << 20) - 1)) {
 		std::cout << "[发生错误] ADR instruction offset exceeds ± 1MB range" << std::endl;
 		return false;
 	}
-	aarch64_asm_info asm_info = init_aarch64_asm();
-	auto& a2 = asm_info.a;
-	asmjit::Label label_statr = a2->newLabel();
-	int32_t size = abs(adr_value);
-	std::vector<uint8_t> filler(size, 0x00);
+	aarch64_asm_ctx asm_ctx = init_aarch64_asm();
+	asmjit::a64::Assembler* a2 = asm_ctx.assembler();
+	if (!a2) return false;
+	asmjit::Label label_start = a2->newLabel();
+	const int32_t size = std::abs(adr_value);
+	std::vector<uint8_t> filler(static_cast<size_t>(size), 0x00);
 	if (adr_value > 0) {
-		a2->adr(x, label_statr);
-		a2->embed(filler.data(), size);
-		a2->bind(label_statr);
+		a2->adr(x, label_start);
+		if (size) a2->embed(filler.data(), filler.size());
+		a2->bind(label_start);
 		a2->nop();
+	} else {
+		a2->bind(label_start);
+		if (size) a2->embed(filler.data(), filler.size());
+		a2->adr(x, label_start);
 	}
-	else {
-		a2->bind(label_statr);
-		a2->embed(filler.data(), size);
-		a2->adr(x, label_statr);
-	}
-	asm_info.codeHolder->flatten();
-	asmjit::Section* sec = asm_info.codeHolder->sectionById(0);
-	const asmjit::CodeBuffer& buf = sec->buffer();
-	uint8_t* data = (uint8_t*)buf.data();
-	size_t dataSize = buf.size();
-	if (adr_value < 0) {
-		data += size;
-	}
-	a->embed((const uint8_t*)data, 4);
+	auto bytes = aarch64_asm_to_bytes(a2);
+	if (bytes.empty()) return false;
+	const size_t adr_off = (adr_value < 0) ? static_cast<size_t>(size) : 0;
+	if (bytes.size() < adr_off + 4) return false;
+	a->embed(bytes.data() + adr_off, 4);
 	return true;
 }
 
@@ -259,26 +256,26 @@ static void aarch64_asm_mov_w(asmjit::a64::Assembler* a, asmjit::a64::GpW w, uin
  * 		data	: 数据集
  ************************************************************************/
 static void aarch64_asm_set_x_data_ptr(asmjit::a64::Assembler* a, asmjit::a64::GpX x, const std::vector<uint8_t>& data) {
-    auto align_up4 = [](size_t v) -> size_t {
-        return (v + 3) & ~size_t(3);
-    };
+	auto align_up4 = [](size_t v) -> size_t {
+		return (v + 3) & ~size_t(3);
+		};
 
-    const size_t n_raw    = data.size();
-    const size_t n_padded = align_up4(n_raw);
+	const size_t n_raw = data.size();
+	const size_t n_padded = align_up4(n_raw);
 
-    std::vector<uint8_t> buf(n_padded, 0u);
-    if (!data.empty()) {
-        memcpy(buf.data(), data.data(), data.size());
-    }
+	std::vector<uint8_t> buf(n_padded, 0u);
+	if (!data.empty()) {
+		memcpy(buf.data(), data.data(), data.size());
+	}
 
-    asmjit::Label label_entry = a->newLabel();
-    a->b(label_entry);
-    int off_addr_start = a->offset();
-    a->embed(buf.data(), buf.size());
-    a->bind(label_entry);
+	asmjit::Label label_entry = a->newLabel();
+	a->b(label_entry);
+	int off_addr_start = a->offset();
+	a->embed(buf.data(), buf.size());
+	a->bind(label_entry);
 
-    const int off = off_addr_start - a->offset();
-    aarch64_asm_adr_x(a, x, off);
+	const int off = off_addr_start - a->offset();
+	aarch64_asm_adr_x(a, x, off);
 }
 
 /*************************************************************************
@@ -287,12 +284,12 @@ static void aarch64_asm_set_x_data_ptr(asmjit::a64::Assembler* a, asmjit::a64::G
  * 		x		: 目标 X 寄存器
  * 		data	: 字符串常量
  ************************************************************************/
-static void aarch64_asm_set_x_cstr_ptr(asmjit::a64::Assembler* a, asmjit::a64::GpX x, const std::string & str) {
-    std::vector<uint8_t> buf(str.size() + 1, 0u);
-    if (!str.empty()) {
-        memcpy(buf.data(), str.c_str(), str.size());
-    }
-    aarch64_asm_set_x_data_ptr(a, x, buf);
+static void aarch64_asm_set_x_cstr_ptr(asmjit::a64::Assembler* a, asmjit::a64::GpX x, const std::string& str) {
+	std::vector<uint8_t> buf(str.size() + 1, 0u);
+	if (!str.empty()) {
+		memcpy(buf.data(), str.c_str(), str.size());
+	}
+	aarch64_asm_set_x_data_ptr(a, x, buf);
 }
 
 /*************************************************************************
@@ -341,6 +338,15 @@ static bool aarch64_asm_bit_c(asmjit::a64::Assembler* a) {
  ************************************************************************/
 static bool aarch64_asm_bit_j(asmjit::a64::Assembler* a) {
 	uint32_t instr = 0xD503249F;
+	a->embed(reinterpret_cast<const uint8_t*>(&instr), sizeof(instr));
+	return true;
+}
+
+/*************************************************************************
+ * BTI JC
+ ************************************************************************/
+static bool aarch64_asm_bit_jc(asmjit::a64::Assembler* a) {
+	uint32_t instr = 0xD50324DF;
 	a->embed(reinterpret_cast<const uint8_t*>(&instr), sizeof(instr));
 	return true;
 }
@@ -403,8 +409,14 @@ static bool aarch64_asm_isb(asmjit::a64::Assembler* a) {
 /*************************************************************************
  * 打印 AsmJit 生成的 AArch64 汇编文本（大写）
  ************************************************************************/
-static std::string print_aarch64_asm(const aarch64_asm_info& asm_info) {
-	std::string text = asm_info.logger->data();
+static std::string print_aarch64_asm(asmjit::a64::Assembler* a) {
+	if (!a) return {};
+	asmjit::CodeHolder* code = a->code();
+	if (!code) return {};
+	asmjit::Logger* logger = code->logger();
+	if (!logger) return {};
+	auto* str_logger = static_cast<asmjit::StringLogger*>(logger);
+	std::string text = str_logger->data();
 	transform(text.begin(), text.end(), text.begin(), ::toupper);
 	return text;
 }

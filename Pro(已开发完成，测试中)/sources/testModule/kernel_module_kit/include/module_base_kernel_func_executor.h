@@ -26,10 +26,6 @@ void arm64_module_asm_func_end(asmjit::a64::Assembler* a, asmjit::a64::GpX x);
  *
  * 返回: OK 执行成功，output_result 已填充
  ***************************************************************************/
-KModErr execute_kernel_asm_func(
-                const char* root_key,
-                const std::vector<uint8_t>& func_bytes,
-                uint64_t& output_result
-);
+KModErr execute_kernel_asm_func(const char* root_key, const std::vector<uint8_t>& func_bytes, uint64_t & output_result);
 
 }

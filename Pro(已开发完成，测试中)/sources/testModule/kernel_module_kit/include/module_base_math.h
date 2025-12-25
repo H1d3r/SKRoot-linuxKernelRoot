@@ -1,6 +1,9 @@
 ﻿#pragma once
 #include <random>
 #include <cstdint>
+#define STATIC_ASSERT_SIZE_MULTIPLE_OF_4(x) \
+    static_assert(sizeof(x) % 4 == 0, #x " sizeof() must be multiple of 4")
+    
 namespace kernel_module {
 /***************************************************************************
  * 向上对齐 N 字节（N 必须是 4 的倍数）

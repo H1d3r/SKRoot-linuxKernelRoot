@@ -1,9 +1,19 @@
 ﻿#pragma once
 #include "____DO_NOT_EDIT____/private_desc_parser.h"
 #include "module_base_web_ui_server.h"
+#include "module_base_install_callback.h"
 
-/*************************************************************************** 
- * SKRoot 模块入口函数（实现方必须提供）
+/***************************************************************************
+ * SKRoot 模块入口函数（必须提供）
+ * 调用时机：将在 zygote64 进程启动前被执行
+ * 
+ * 参数：
+ *   root_key           ROOT 密钥文本。
+ *   module_private_dir	模块私有目录（受隐藏保护；需隐藏的文件请放在此目录）。
+ * 
+ * 返回值：默认 0；任意返回值仅记录到日志，便于排查。
+ * 
+ * 说明：skroot_module_main 返回后，代表本模块执行结束。如需继续运行请fork();
  ***************************************************************************/
 int skroot_module_main(const char* root_key, const char* module_private_dir);
 
@@ -28,9 +38,14 @@ int skroot_module_main(const char* root_key, const char* module_private_dir);
 /***************************************************************************
  * 可选能力（按需填写）
  ***************************************************************************/
-// SKRoot 模块 WebUI 处理类（可选）
-#define SKROOT_MODULE_WEB_UI(WebUIHandlerClass) ___MOD_WEB_UI(WebUIHandlerClass)
+// WebUI（可选）：Web管理页面
+#define SKROOT_MODULE_WEB_UI(WebUIHandlerClass)     ___MOD_WEB_UI(WebUIHandlerClass)
 
-// SKRoot 模块更新信息 JSON 的 URL（可选）
-// 示例：SKROOT_MODULE_UPDATE_JSON("https://example.com/your_module_update.json")
-#define SKROOT_MODULE_UPDATE_JSON(url)      ___MOD_UPDATE_JSON(url)
+// 安装模块回调（可选）：可拒绝安装。参考：module_base_install_callback.h
+#define SKROOT_MODULE_ON_INSTALL(callback)      ___MOD_ON_INSTALL(callback)
+
+// 卸载模块回调（可选）：用于清理与收尾。参考：module_base_install_callback.h
+#define SKROOT_MODULE_ON_UNINSTALL(callback)    ___MOD_ON_UNINSTALL(callback)
+
+// 更新 JSON（可选）：如"https://example.com/xxx.json"
+#define SKROOT_MODULE_UPDATE_JSON(url)          ___MOD_UPDATE_JSON(url)

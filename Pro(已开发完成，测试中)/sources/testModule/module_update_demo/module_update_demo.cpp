@@ -9,16 +9,12 @@ int skroot_module_main(const char* root_key, const char* module_private_dir) {
 }
 
 // SKRoot 模块名片
-SKROOT_MODULE_NAME("演示模块更新 JSON");
-SKROOT_MODULE_VERSION("0.0.1");
-SKROOT_MODULE_DESC("演示如何配置更新 JSON");
-SKROOT_MODULE_AUTHOR("SKRoot官方教程");
-SKROOT_MODULE_UUID32("62027df1409d6109da7e153d04915074");
+SKROOT_MODULE_NAME("更新 URL 配置示例模块")
+SKROOT_MODULE_VERSION("0.0.1")
+SKROOT_MODULE_DESC("演示配置更新 JSON")
+SKROOT_MODULE_AUTHOR("SKRoot官方教程")
+SKROOT_MODULE_UUID32("62027df1409d6109da7e153d04915074")
 
-// 在线更新 JSON 配置（演示用 example.com）
-SKROOT_MODULE_UPDATE_JSON("https://example.com/update.json")
-
-/*
 /*
 ==========================
  更新 JSON 示例与说明书
@@ -37,3 +33,7 @@ SKRoot App 会定期检查该 JSON，并在发现新版本时向用户提示更�
 - zipUrl    : 模块更新包（ZIP 文件）下载地址。
 - changelog : 更新说明文件，用于展示更新内容。
 */
+
+// 在线更新 JSON 配置（演示用 example.com）
+SKROOT_MODULE_UPDATE_JSON("https://example.com/update.json")
+

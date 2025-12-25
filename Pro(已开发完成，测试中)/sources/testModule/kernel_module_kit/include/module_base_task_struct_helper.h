@@ -15,10 +15,7 @@ namespace kernel_module {
  *       pid_offset  输出参数，返回 pid 字段相对于 task_struct 起始的偏移量（字节）
  * 返回: OK 表示成功
  ***************************************************************************/
-KModErr get_task_struct_pid_offset(
-        const char* root_key,
-        uint32_t   & pid_offset
-);
+KModErr get_task_struct_pid_offset(const char* root_key, uint32_t & pid_offset);
 
 /***************************************************************************
  * 获取 task_struct 结构体中 real_parent 字段的偏移量
@@ -26,10 +23,7 @@ KModErr get_task_struct_pid_offset(
  *       real_parent_offset  输出参数，返回 real_parent 字段相对于 task_struct 起始的偏移量（字节）
  * 返回: OK 表示成功
  ***************************************************************************/
-KModErr get_task_struct_real_parent_offset(
-        const char* root_key,
-        uint32_t   & real_parent_offset
-);
+KModErr get_task_struct_real_parent_offset(const char* root_key, uint32_t & real_parent_offset);
 
 /***************************************************************************
  * 获取 task_struct 结构体中 comm 字段的偏移量
@@ -37,10 +31,7 @@ KModErr get_task_struct_real_parent_offset(
  *       comm_offset  输出参数，返回 comm 字段相对于 task_struct 起始的偏移量（字节）
  * 返回: OK 表示成功
  ***************************************************************************/
-KModErr get_task_struct_comm_offset(
-        const char* root_key,
-        uint32_t   & comm_offset
-);
+KModErr get_task_struct_comm_offset(const char* root_key, uint32_t & comm_offset);
 
 /***************************************************************************
  * 获取 task_struct 结构体中 real_cred 字段的偏移量
@@ -48,10 +39,7 @@ KModErr get_task_struct_comm_offset(
  *       real_cred_offset  输出参数，返回 real_cred 字段相对于 task_struct 起始的偏移量（字节）
  * 返回: OK 表示成功
  ***************************************************************************/
-KModErr get_task_struct_real_cred_offset(
-        const char* root_key,
-        uint32_t   & real_cred_offset
-);
+KModErr get_task_struct_real_cred_offset(const char* root_key, uint32_t & real_cred_offset);
 
 /***************************************************************************
  * 获取 task_struct 结构体中 seccomp 字段的偏移量
@@ -59,10 +47,7 @@ KModErr get_task_struct_real_cred_offset(
  *       seccomp_offset         输出参数，返回 seccomp 字段相对于 task_struct 起始的偏移量（字节）
  * 返回: OK        表示调用成功；其他值为错误码
  ***************************************************************************/
-KModErr get_task_struct_seccomp_offset(
-        const char* root_key,
-        uint32_t & seccomp_offset
-);
+KModErr get_task_struct_seccomp_offset(const char* root_key, uint32_t & seccomp_offset);
 
 /***************************************************************************
  * 判断当前内核是否启用了 CONFIG_THREAD_INFO_IN_TASK 配置

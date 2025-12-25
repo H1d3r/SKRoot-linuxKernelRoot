@@ -11,12 +11,12 @@
 
 #include "aarch64_asm_arg.h"
 #include "aarch64_asm_idle_reg_pool.h"
-#include "module_base_kernel_symbol_addr.h"
+#include "module_base_kernel_addr_resolver.h"
 
 /***************************************************************************
- * AArch64 内核符号调用辅助类（Aarch64KernelSymCallHelper）
+ * AArch64 内核API调用辅助类
  * 作用：
- *  - 封装“按符号名调用内核函数”的通用流程：
+ *  - 封装“按符号名调用内核API”的完整流程：
  *      · 通过 root_key + kallsyms_lookup_name 解析符号地址；
  *      · 按 AAPCS64 规则将 Arm64Arg 参数打包到 x0~x7 / w0~w7；
  *      · 使用 BLR 生成实际调用指令序列。
@@ -64,13 +64,14 @@ public:
                                 const ArgVec& args) {
     // 1) 根据 AAPCS64 规则构建保护寄存器集合
     std::set<uint32_t> protect_ids = makeProtectSet(AAPCS64_ProtectRule::CallerSaved);
-    RegProtectGuard::SkipX0 skip =
-        (need_x0 == NeedReturnX0::Yes) ? RegProtectGuard::SkipX0::Yes
-                                  : RegProtectGuard::SkipX0::No;
-    RegProtectGuard guard(skip, a, protect_ids);
+    if(need_x0 == NeedReturnX0::Yes) {
+      protect_ids = excluding_x0(protect_ids);
+    }
+    RegProtectGuard guard(a, protect_ids);
 
     // 2) 建立“空闲寄存器池”，把当前参数里用到的寄存器标记为已占用
-    IdleRegPool pool = IdleRegPool::makeFromVec(args);
+    ArgVec args_ditry = makeDirtyArgsX0ToX7(args);
+    IdleRegPool pool = IdleRegPool::makeFromVec(args_ditry);
 
     // 3) 为每个寄存器参数分配新的临时寄存器，并插入 mov 从“旧寄存器”搬运到“新寄存器”
     ArgVec new_regs = acquireNewArgRegs(pool, args);
@@ -213,6 +214,38 @@ private:
     return s;
   }
 
+  // 仅用于 IdleRegPool 建池：强制把 x0~x7 也视为“已占用”
+  // 目的：避免池把参数寄存器(x0~x7/w0~w7)分配给临时寄存器，导致后续装参/搬运阶段互相踩寄存器。
+  static ArgVec makeDirtyArgsX0ToX7(const ArgVec& args) {
+    bool seen[8] = {}; // seen[i] 表示 args 中是否已经出现过 x{i}/w{i}
+
+    for (const auto& a : args) {
+      uint32_t id = 0;
+      switch (a.kind) {
+        case Arm64ArgKind::XReg:
+          id = static_cast<uint32_t>(a.x.id());
+          if (id < 8) seen[id] = true;
+          break;
+        case Arm64ArgKind::WReg:
+          id = static_cast<uint32_t>(a.w.id());
+          if (id < 8) seen[id] = true;
+          break;
+        case Arm64ArgKind::Imm64:
+        case Arm64ArgKind::Imm32:
+          break;
+      }
+    }
+
+    ArgVec out = args;
+    out.reserve(args.size() + 8);
+    for (uint32_t i = 0; i < 8; ++i) {
+      if (!seen[i]) {
+        // 注意：这里只是为了“占坑/保留”，不会用于真实 call 的装参，因为真实调用仍用原始 args
+        out.emplace_back(Arm64Arg::X(asmjit::a64::x(i)));
+      }
+    }
+    return out;
+  }
 
   /***************************************************************************
    * 从 IdleRegPool 中申请新的临时寄存器，并基于旧参数生成新的参数向量。
@@ -303,7 +336,7 @@ private:
 
     // 使用 x11 作跳板寄存器
     {
-      RegProtectGuard g1(RegProtectGuard::SkipX0::No, a, asmjit::a64::x(11));
+      RegProtectGuard g1(a, asmjit::a64::x(11));
       aarch64_asm_mov_x(a, asmjit::a64::x(11), target);
       aarch64_asm_safe_blr(a, asmjit::a64::x(11));
     }

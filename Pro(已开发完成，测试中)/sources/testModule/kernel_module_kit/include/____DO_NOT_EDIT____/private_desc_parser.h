@@ -8,6 +8,7 @@
 #include "private_mod_api_runtime_helper.h"
 #include "private_skroot_api_runtime_helper.h"
 #include "../module_base_web_ui_server.h"
+#include "../module_base_install_callback.h"
 
 #define ____INTERNEL_SKROOT_MODULE_MAIN __skroot_module_main_18fdf393885363712349ef3de5411bd5
 inline char skroot_module_name_5d1745f8a8fb4814fb0dbb5aab27bbca[1024] = {0};
@@ -98,6 +99,39 @@ inline char skroot_web_ui_enable_flag_e0c73f6473a0e653be67875a3cf23a53[1024] = {
         strncpy(skroot_web_ui_enable_flag_e0c73f6473a0e653be67875a3cf23a53, ___MOD_WEB_UI_FLAG_BEGIN ___MOD_WEB_UI_FLAG_END, sizeof(skroot_web_ui_enable_flag_e0c73f6473a0e653be67875a3cf23a53) - 1); \
         return 0; \
     }();
+
+#define ____INTERNEL_SKROOT_MODULE_ON_INSTALL __skroot_module_on_install_k6JkibrjUwzXFpshvFuIwdUNRP4fYtLA
+inline decltype(&skroot_module_on_install) skroot_module_on_install_func_jngvokk4mlkkwbg92nj1u7vkhyjan2qj = nullptr;
+inline char skroot_module_on_install_enable_flag_wnx27u34cpuazxit73f52qkylnq89f3s[1024] = {0};
+#define ___MOD_ON_INSTALL_FLAG_BEGIN "za5hrnp5r0rjm1dnjld7xoc6tza0qvdd"
+#define ___MOD_ON_INSTALL_FLAG_END "v2ltlw5plpqec7yr5ifeuta24l3rv7ep"
+#define ___MOD_ON_INSTALL(callback) \
+    inline int ____skroot_module_on_install_reg_token_bdc5immbyggdvjc8qh0vk817i8hfd74f = []() { \
+        skroot_module_on_install_func_jngvokk4mlkkwbg92nj1u7vkhyjan2qj = &callback; \
+        strncpy(skroot_module_on_install_enable_flag_wnx27u34cpuazxit73f52qkylnq89f3s, ___MOD_ON_INSTALL_FLAG_BEGIN ___MOD_ON_INSTALL_FLAG_END, sizeof(skroot_module_on_install_enable_flag_wnx27u34cpuazxit73f52qkylnq89f3s) - 1); \
+        return 0; \
+    }();\
+    extern "C" __attribute__((visibility("default"))) __attribute__((used, weak)) void ____INTERNEL_SKROOT_MODULE_ON_INSTALL(const char* root_key, const char* module_private_dir, void (*cb)(const char* reason)) { \
+        if(!skroot_module_on_install_func_jngvokk4mlkkwbg92nj1u7vkhyjan2qj) return;\
+        cb(skroot_module_on_install_func_jngvokk4mlkkwbg92nj1u7vkhyjan2qj(root_key, module_private_dir).c_str()); \
+    };
+
+#define ____INTERNEL_SKROOT_MODULE_ON_UNINSTALL __skroot_module_on_uninstall_epmoso85hw4w1rzjagiuzdmnyqamk7ep
+inline decltype(&skroot_module_on_uninstall) skroot_module_on_uninstall_func_lv5biogiKlWBDvrs1clgywqMPwmqXkry = nullptr;
+inline char skroot_module_on_uninstall_enable_flag_ngln4z5zaku6lil4vrz2jtpoecb64avp[1024] = {0};
+#define ___MOD_ON_UNINSTALL_FLAG_BEGIN "hft0lrndcqfoff3vankyj5drv30apccd"
+#define ___MOD_ON_UNINSTALL_FLAG_END "p6tv4rinog5a0rl83tzp2ac6fl0uyqhk"
+#define ___MOD_ON_UNINSTALL(callback) \
+    inline int ____skroot_module_on_uninstall_reg_token_hu8jz8grph4qiicr6lrexkkgamy6dvaw = []() { \
+        skroot_module_on_uninstall_func_lv5biogiKlWBDvrs1clgywqMPwmqXkry = &callback; \
+        strncpy(skroot_module_on_uninstall_enable_flag_ngln4z5zaku6lil4vrz2jtpoecb64avp, ___MOD_ON_UNINSTALL_FLAG_BEGIN ___MOD_ON_UNINSTALL_FLAG_END, sizeof(skroot_module_on_uninstall_enable_flag_ngln4z5zaku6lil4vrz2jtpoecb64avp) - 1); \
+        return 0; \
+    }();\
+    extern "C" __attribute__((visibility("default"))) __attribute__((used, weak)) void ____INTERNEL_SKROOT_MODULE_ON_UNINSTALL(const char* root_key, const char* module_private_dir) { \
+        if(!skroot_module_on_uninstall_func_lv5biogiKlWBDvrs1clgywqMPwmqXkry) return;\
+        skroot_module_on_uninstall_func_lv5biogiKlWBDvrs1clgywqMPwmqXkry(root_key, module_private_dir); \
+    };
+
 
 #ifndef FOLDER_HEAD_ROOT_KEY_LEN
 #define FOLDER_HEAD_ROOT_KEY_LEN 16
