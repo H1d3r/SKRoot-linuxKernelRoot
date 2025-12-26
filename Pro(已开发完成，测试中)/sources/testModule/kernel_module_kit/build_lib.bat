@@ -16,7 +16,7 @@ if not exist %ndk_path% (
 
 cd %module_path%\src\jni
 call "%ndk_path%" clean
-call "%ndk_path%" -j8
+call "%ndk_path%" -j16
 mkdir %module_path%\lib
 move /Y %module_path%\src\obj\local\arm64-v8a\libkernel_module_kit_static.a %module_path%\lib\
 
@@ -43,7 +43,7 @@ call generate_source_autorun_bootstrap_data.bat
 
 cd %module_path%\src\jni
 call "%ndk_path%" clean
-call "%ndk_path%" -j8
+call "%ndk_path%" -j16
 move /Y %module_path%\src\obj\local\arm64-v8a\libkernel_module_kit_static.a %module_path%\lib\
 
 echo All builds completed!
