@@ -102,11 +102,4 @@ static bool clear_dir(const std::filesystem::path& dir) {
   }
   return !ec;
 }
-
-static void chmod_tree_777(const std::filesystem::path& dir) {
-    ::chmod(dir.c_str(), 0777);
-    for (const auto& e : std::filesystem::recursive_directory_iterator(dir)) {
-        ::chmod(e.path().c_str(), 0777);
-    }
-}
 } // namespace file_utils

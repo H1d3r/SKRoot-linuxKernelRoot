@@ -13,7 +13,7 @@ namespace kernel_module {
  *      key			键名称
  *      value		要写入的值
  * 说明: 模块之间相互隔离，即使其他模块使用了相同的 key，也不会相互干扰。
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 // 标量类型
 KModErr write_bool_disk_storage   (const char* root_key, const char* key, bool    value);
@@ -37,7 +37,7 @@ KModErr write_blob_disk_storage   (const char* root_key, const char* key,
  *      key			键名称
  *      out			输出参数，存放读取到的值
  * 说明: 模块之间相互隔离，即使其他模块使用了相同的 key，也不会相互干扰。
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 // 标量类型
 KModErr read_bool_disk_storage   (const char* root_key, const char* key, bool&    out);

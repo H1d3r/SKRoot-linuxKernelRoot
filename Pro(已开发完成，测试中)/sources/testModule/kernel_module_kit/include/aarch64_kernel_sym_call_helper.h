@@ -18,7 +18,7 @@
  * 作用：
  *  - 封装“按符号名调用内核API”的完整流程：
  *      · 通过 root_key + kallsyms_lookup_name 解析符号地址；
- *      · 按 AAPCS64 规则将 Arm64Arg 参数打包到 x0~x7 / w0~w7；
+ *      · 按 AAPCS64 规则将 Arm64Arg 参数打包到 x0～x7 / w0～w7；
  *      · 使用 BLR 生成实际调用指令序列。
  *
  *  - 自动处理寄存器使用与保护：
@@ -184,8 +184,8 @@ private:
 
   /***************************************************************************
    * 根据 AAPCS64 规则构建需要保护的 X 寄存器集合
-   * 参数：CallerSaved : 保护 x0 ~ x17（x18 为平台寄存器，不在此范围内）
-   *    CalleeSaved : 保护 x19 ~ x28 以及 x29(FP)
+   * 参数：CallerSaved : 保护 x0～x17（x18 为平台寄存器，不在此范围内）
+   *    CalleeSaved : 保护 x19～x28 以及 x29(FP)
    *    AllABI      : 等价于 CallerSaved ∪ CalleeSaved。
    *
    * 典型用法：将返回的集合直接传入 RegProtectGuard，用于统一插入保存 / 恢复指令，保护调用现场寄存器。
@@ -214,8 +214,8 @@ private:
     return s;
   }
 
-  // 仅用于 IdleRegPool 建池：强制把 x0~x7 也视为“已占用”
-  // 目的：避免池把参数寄存器(x0~x7/w0~w7)分配给临时寄存器，导致后续装参/搬运阶段互相踩寄存器。
+  // 仅用于 IdleRegPool 建池：强制把 x0～x7 也视为“已占用”
+  // 目的：避免池把参数寄存器(x0～x7/w0～w7)分配给临时寄存器，导致后续装参/搬运阶段互相踩寄存器。
   static ArgVec makeDirtyArgsX0ToX7(const ArgVec& args) {
     bool seen[8] = {}; // seen[i] 表示 args 中是否已经出现过 x{i}/w{i}
 
@@ -294,7 +294,7 @@ private:
   }
   
   /***************************************************************************
-   * 将参数向量按 AAPCS64 规则放入 x0~x7 / w0~w7。
+   * 将参数向量按 AAPCS64 规则放入 x0～x7 / w0～w7。
    **************************************************************************/
   static bool pushArgsFromVec(Asm* a, const ArgVec& args) {
     const size_t n = args.size(); 
@@ -331,7 +331,7 @@ private:
     uint64_t target = 0;
     RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(root_key, sym_name, target));
 
-    // 按 AAPCS64 规则把参数放入 x0~x7 / w0~w7
+    // 按 AAPCS64 规则把参数放入 x0～x7 / w0～w7
     if(!pushArgsFromVec(a, args)) return KModErr::ERR_MODULE_SYMBOL_PARAM;
 
     // 使用 x11 作跳板寄存器

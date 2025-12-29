@@ -19,7 +19,7 @@ enum class KernMemProt: uint8_t {
  * 参数: root_key       ROOT权限密钥文本
  *       size           欲分配内存大小
  *       out_kaddr      返回分配到的内核地址
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr alloc_kernel_mem(const char* root_key, uint32_t size, uint64_t& out_kaddr);
 
@@ -27,7 +27,7 @@ KModErr alloc_kernel_mem(const char* root_key, uint32_t size, uint64_t& out_kadd
  * 释放内核内存
  * 参数: root_key       ROOT权限密钥文本
  *       kaddr          内核地址
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr free_kernel_mem(const char* root_key, uint64_t kaddr);
 
@@ -37,7 +37,7 @@ KModErr free_kernel_mem(const char* root_key, uint64_t kaddr);
  *       kaddr          要读取的内核地址
  *       buf            本地缓冲区指针
  *       size           读取长度（字节数）
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr read_kernel_mem(const char* root_key, uint64_t kaddr, void* buf, uint32_t size);
 
@@ -50,9 +50,9 @@ KModErr read_kernel_mem(const char* root_key, uint64_t kaddr, void* buf, uint32_
  *       prot           目标区域类型：
  *                      KMP_RW 写入可读写区域
  *                      KMP_X  写入仅执行区域
-* 备注: 当 prot 为 KMP_X（仅执行区域）且需要保证写入原子性时，
- *       len 必须 ≤ 4 字节。
- * 返回: OK 表示成功
+ * 备注: 当 prot 为 KMP_X（仅执行区域）且需要保证写入原子性时，len 必须 ≤ 4 字节。
+ * 
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr write_kernel_mem(const char*  root_key, uint64_t kaddr, const void* buf, uint32_t size, KernMemProt prot = KernMemProt::KMP_RW);
 
@@ -65,9 +65,9 @@ KModErr write_kernel_mem(const char*  root_key, uint64_t kaddr, const void* buf,
  *       prot           目标区域类型：
  *                      KMP_RW 写入可读写区域
  *                      KMP_X  写入仅执行区域
-* 备注: 当 prot 为 KMP_X（仅执行区域）且需要保证写入原子性时，
- *       size 必须 ≤ 4 字节。
- * 返回: OK 表示成功
+ * 备注: 当 prot 为 KMP_X（仅执行区域）且需要保证写入原子性时，size 必须 ≤ 4 字节。
+ * 
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr fill00_kernel_mem(const char*  root_key, uint64_t kaddr, uint32_t size, KernMemProt prot = KernMemProt::KMP_RW);
 
@@ -86,7 +86,7 @@ KModErr set_kernel_memory_protection(const char*  root_key, uint64_t kaddr, uint
  * 获取内核虚拟基址
  * 参数: root_key   ROOT 权限密钥字符串
  *       vaddr_out  输出参数，返回内核 .text 段的内核地址
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr get_kernel_base_vaddr(const char*  root_key, uint64_t & result);
 

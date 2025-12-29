@@ -13,7 +13,7 @@ namespace kernel_module {
  * 获取 task_struct 结构体中 pid 字段的偏移量
  * 参数: root_key      ROOT权限密钥文本
  *       pid_offset  输出参数，返回 pid 字段相对于 task_struct 起始的偏移量（字节）
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr get_task_struct_pid_offset(const char* root_key, uint32_t & pid_offset);
 
@@ -21,7 +21,7 @@ KModErr get_task_struct_pid_offset(const char* root_key, uint32_t & pid_offset);
  * 获取 task_struct 结构体中 real_parent 字段的偏移量
  * 参数: root_key      ROOT权限密钥文本
  *       real_parent_offset  输出参数，返回 real_parent 字段相对于 task_struct 起始的偏移量（字节）
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr get_task_struct_real_parent_offset(const char* root_key, uint32_t & real_parent_offset);
 
@@ -29,7 +29,7 @@ KModErr get_task_struct_real_parent_offset(const char* root_key, uint32_t & real
  * 获取 task_struct 结构体中 comm 字段的偏移量
  * 参数: root_key      ROOT权限密钥文本
  *       comm_offset  输出参数，返回 comm 字段相对于 task_struct 起始的偏移量（字节）
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr get_task_struct_comm_offset(const char* root_key, uint32_t & comm_offset);
 
@@ -37,7 +37,7 @@ KModErr get_task_struct_comm_offset(const char* root_key, uint32_t & comm_offset
  * 获取 task_struct 结构体中 real_cred 字段的偏移量
  * 参数: root_key           ROOT权限密钥文本
  *       real_cred_offset  输出参数，返回 real_cred 字段相对于 task_struct 起始的偏移量（字节）
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr get_task_struct_real_cred_offset(const char* root_key, uint32_t & real_cred_offset);
 
@@ -62,7 +62,7 @@ bool is_CONFIG_THREAD_INFO_IN_TASK();
  * 设置当前进程的 COMM 名称
  * 参数: root_key       ROOT 权限密钥文本
  *       comm_name      要设置的进程 COMM 名（仅前 15 字节有效，结尾自动补 '\0'）
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr set_current_process_name(const char* root_key, const char* comm_name);
 }

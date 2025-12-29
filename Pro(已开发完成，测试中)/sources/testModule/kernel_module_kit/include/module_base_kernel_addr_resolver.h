@@ -41,7 +41,7 @@ inline KModErr kallsyms_lookup_name(const char* root_key, const char * name, uin
  * 获取sys_call_table内核地址
  * 参数: root_key                   ROOT权限密钥字符串
  *      func_start_addr             输出sys_call_table内核地址
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 inline KModErr get_sys_call_table_kaddr(const char* root_key, uint64_t & kaddr) {
     return kallsyms_lookup_name(root_key, "sys_call_table", kaddr);
@@ -55,8 +55,7 @@ inline KModErr get_sys_call_table_kaddr(const char* root_key, uint64_t & kaddr) 
  *   syscall_nr              系统调用号（__NR_xxx）
  *   out_syscall_func_kaddr  [输出] sys_call_table[syscall_nr] 中的函数指针地址
  *
- * 返回:
- *   OK 表示成功；其他值为错误码
+ * 返回: OK 表示成功；其他值为错误码
  ***************************************************************************/
 inline KModErr get_syscall_func_kaddr(const char* root_key, int syscall_nr, uint64_t& out_syscall_func_kaddr) {
     uint64_t table_kaddr  = 0;
@@ -69,7 +68,7 @@ inline KModErr get_syscall_func_kaddr(const char* root_key, int syscall_nr, uint
  * 参数: root_key                   ROOT权限密钥字符串
  *      func_entry_kaddr            输出avc_denied内核地址
  *      before_ret_can_hook_addr    输出avc_denied return前可安装HOOK的地址
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr get_avc_denied_kaddr(const char* root_key, uint64_t & func_entry_kaddr, uint64_t & before_ret_can_hook_kaddr);
 

@@ -19,12 +19,22 @@ void arm64_module_asm_func_end(asmjit::a64::Assembler* a, uint64_t return_value)
 void arm64_module_asm_func_end(asmjit::a64::Assembler* a, asmjit::a64::GpX x);
 
 /***************************************************************************
- * 在内核态执行 AArch64 汇编函数
+ * 在内核态执行自定义 AArch64 汇编函数
  * 参数: root_key       ROOT权限密钥文本
  *      func_bytes      待执行的内核函数机器码 (函数必须在开头调用 arm64_module_asm_func_start，结尾调用 arm64_module_asm_func_end，否则不合法)。
- *      output_result   [输出] 函数返回的 64 位结果。仅当返回 KModErr::OK 时有效。
+ *      output_result   [输出] 函数的 64 位返回值；仅当本函数返回 OK 时有效
+ * 
+ * 注意事项：
+ *   - 本函数会自动保存/恢复 X0～X17、X29～X30。
+ *   - 因此在汇编函数体内：X0～X17、X29～X30 可直接使用，无需额外保护。
+ *   - 若需使用其它寄存器（例如 X18～X28），请自行保存/恢复（可使用 RegProtectGuard 等方式）。
  *
- * 返回: OK 执行成功，output_result 已填充
+ * 返回: OK 表示成功；其它值为错误码
+ * 
+ * 用法示例：
+ *  arm64_module_asm_func_start(a);
+ *  //TODO：在此开始编写代码
+ *  arm64_module_asm_func_end(a);
  ***************************************************************************/
 KModErr execute_kernel_asm_func(const char* root_key, const std::vector<uint8_t>& func_bytes, uint64_t & output_result);
 

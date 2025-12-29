@@ -114,7 +114,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             appendConsoleMsg("SKRoot环境出现故障，核心版本：" + installedVer);
         } else if(curState.indexOf("Running") != -1) {
             if (sdkVer.equals(installedVer)) {  
-                appendConsoleMsg("SKRoot环境已运行，核心版本：" + installedVer);
+                appendConsoleMsg("SKRoot环境运行中，核心版本：" + installedVer);
             } else {
                 appendConsoleMsg("SKRoot环境运行中，核心版本：" + installedVer + "，版本太低，请升级！");
                 appendConsoleMsg("升级方法：重新点击“安装SKRoot环境”按钮。");

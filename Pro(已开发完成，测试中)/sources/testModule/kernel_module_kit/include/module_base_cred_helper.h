@@ -16,7 +16,7 @@ struct caps_info {
  * 获取 cred 结构体中 uid 字段的偏移量
  * 参数: root_key           ROOT权限密钥文本
  *       cred_uid_offset  输出参数，返回 uid 字段相对于 cred 起始的偏移量（字节）
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr get_cred_uid_offset(const char* root_key, uint32_t& cred_uid_offset);
 
@@ -35,7 +35,7 @@ uint64_t get_cap_ability_max();
 /***************************************************************************
  * 获取当前进程能力集
  * 参数: out 输出能力集
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr get_current_caps(caps_info& out);
 
@@ -43,7 +43,7 @@ KModErr get_current_caps(caps_info& out);
  * 设置当前进程能力集
  * 参数: root_key       ROOT权限密钥文本
  *       new_caps       新的能力集
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr set_current_caps(const char* root_key, const caps_info& new_caps);
 

@@ -315,7 +315,7 @@ int main(int argc, char *argv[]) {
         strncpy(g_root_key, argv[1], sizeof(g_root_key) - 1);
     } else {
         //TODO: 在此修改你的Root key值。
-        strncpy(g_root_key, "yCaLYqIx4LWV3ZDNLlIrswSCAHhbHbepdZedyc4KXCwyMX8a", sizeof(g_root_key) - 1);
+        strncpy(g_root_key, "vzXtDKDAltAGxHtMGRZZfVouy90dgNqFsLM6UGeqb6OgH0VX", sizeof(g_root_key) - 1);
     }
     int idx = 1;
     // 单元测试：内核模块基础能力
@@ -360,6 +360,9 @@ int main(int argc, char *argv[]) {
 
     // 单元测试：内核字符串与内存操作
     TEST(idx++, Test_kstrlen);
+    TEST(idx++, Test_kstrnlen1);
+    TEST(idx++, Test_kstrnlen2);
+    TEST(idx++, Test_kstrnlen3);
     TEST(idx++, Test_kstrcmp1);
     TEST(idx++, Test_kstrcmp2);
     TEST(idx++, Test_kstrcmp3);
@@ -371,11 +374,23 @@ int main(int argc, char *argv[]) {
     TEST(idx++, Test_kstrncmp6);
     TEST(idx++, Test_kstrcpy);
     TEST(idx++, Test_kstrncpy);
+    TEST(idx++, Test_kstrcat1);
+    TEST(idx++, Test_kstrcat2);
+    TEST(idx++, Test_kstrcat3);
+    TEST(idx++, Test_kstrcat4);
+    TEST(idx++, Test_kstrncat1);
+    TEST(idx++, Test_kstrncat2);
+    TEST(idx++, Test_kstrncat3);
+    TEST(idx++, Test_kstrncat4);
+    TEST(idx++, Test_kstrncat5);
     TEST(idx++, Test_kstrstr1);
     TEST(idx++, Test_kstrstr2);
     TEST(idx++, Test_kstrstr3);
     TEST(idx++, Test_kstrchr1);
     TEST(idx++, Test_kstrchr2);
+    TEST(idx++, Test_kstrrchr1);
+    TEST(idx++, Test_kstrrchr2);
+    TEST(idx++, Test_kstrrchr3);
     TEST(idx++, Test_kmemset1);
     TEST(idx++, Test_kmemset2);
     TEST(idx++, Test_kmemcmp1);

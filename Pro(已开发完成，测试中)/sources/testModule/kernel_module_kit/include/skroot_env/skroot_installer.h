@@ -8,7 +8,7 @@ namespace skroot_env {
  * 安装 SKRoot 环境
  * 说明: 首次使用前必须调用此函数，用于创建 SKRoot 所需的环境文件。
  * 参数: root_key   ROOT权限密钥文本
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr install_skroot_environment(const char* root_key);
 
@@ -16,7 +16,7 @@ KModErr install_skroot_environment(const char* root_key);
  * 卸载 SKRoot 环境
  * 说明: 彻底删除所有SKRoot环境文件。
  * 参数: root_key  ROOT权限密钥文本
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 KModErr uninstall_skroot_environment(const char* root_key);
 
@@ -35,7 +35,7 @@ SkrootEnvState get_skroot_environment_state(const char* root_key);
 /***************************************************************************
  * 查询已安装的 SKRoot 环境版本号
  * 参数: root_key  ROOT权限密钥文本
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  ***************************************************************************/
 struct SkrootSdkVersion { uint32_t major = 0, minor = 0, patch = 0; };
 KModErr get_installed_skroot_environment_version(const char* root_key, SkrootSdkVersion& out_ver);

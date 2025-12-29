@@ -12,13 +12,13 @@
 namespace kernel_module {
     
 /***************************************************************************
- * （必须）Hook函数开始
+ * Hook函数开始
  * 参数： a 		ASMJIT 汇编器上下文
  ***************************************************************************/
 void arm64_before_hook_start(asmjit::a64::Assembler* a);
 
 /***************************************************************************
- * （必须）Hook函数结束：可选择是否跳回原函数
+ * Hook函数结束：可选择是否跳回原函数
  * 参数： a 					ASMJIT 汇编器上下文
  *  - continue_original = true  ：恢复现场并跳回原函数（从被覆盖指令后继续执行）
  *  - continue_original = false ：直接生成 RET，不再执行原函数，返回到调用者
@@ -42,16 +42,14 @@ void arm64_before_hook_end(asmjit::a64::Assembler* a, bool continue_original);
 KModErr install_kernel_function_before_hook(const char* root_key, uint64_t kaddr, const std::vector<uint8_t>& hook_handler_code);
 
 
-
-
 /***************************************************************************
- * （必须）Hook函数开始
+ * Hook函数开始
  * 参数： a 		ASMJIT 汇编器上下文
  ***************************************************************************/
 void arm64_after_hook_start(asmjit::a64::Assembler* a);
 
 /***************************************************************************
- * （必须）Hook函数结束
+ * Hook函数结束
  * 参数： a			ASMJIT 汇编器上下文
  ***************************************************************************/
 void arm64_after_hook_end(asmjit::a64::Assembler* a);
@@ -74,10 +72,7 @@ KModErr install_kernel_function_after_hook(const char* root_key, uint64_t target
 
 /***************************************************************************
  * （可选）装载“原始函数入口地址”到寄存器 xReg
- *
- * 作用：可在 Hook 处理函数内部，手动执行原始函数
- *       arm64hook_emit_load_original_func(a, x16);
- *       a->blr(x16);   // 调用原始函数一次（不会再次命中本 Hook）
+ * 作用：可在 Hook 处理函数内部，手动执行原始函数（不会再次命中本 Hook 导致死循环）
  *
  * 使用条件（重要）：
  *   - 仅适用于 Hook 点位为“目标函数入口地址”时使用。
@@ -87,19 +82,18 @@ KModErr install_kernel_function_after_hook(const char* root_key, uint64_t target
  * 注意事项：
  *   - 本函数只会覆盖 xReg，不会替你保存任何寄存器；需要保留的寄存器请在 blr 前自行保存。
  *   - 你需要显式写 a->blr(xReg) 才会真正执行原始函数一次。
- *   - 若你已手动 blr 执行过原始函数，则 arm64_before_hook_end 的 continue_original 参数必须传 false，
- *      否则原始函数会多执行一次，可能引发意外。
+ *   - 若你已手动 blr 执行过原始函数，则 arm64_before_hook_end 的 continue_original 参数需传 false，否则原始函数会再多执行一次，导致意外发生。
  *
  * 用法示例1：
  *   arm64_before_hook_start(a);
  *   arm64hook_emit_load_original_func(a, x16);
- *   a->blr(x16); // blr 会按调用约定破坏寄存器；如需保留寄存器，请在 blr 之前自行保存。
+ *   a->blr(x16); // blr 会按 AAPCS64 调用约定破坏寄存器；如需保留寄存器，请在 blr 前保存寄存器（可使用 RegProtectGuard 等方式）。
  *   arm64_before_hook_end(a, false);
  *
  * 用法示例2：
  *   arm64_after_hook_start(a);
  *   arm64hook_emit_load_original_func(a, x16);
- *   a->blr(x16); // blr 会按调用约定破坏寄存器；如需保留寄存器，请在 blr 之前自行保存。
+ *   a->blr(x16); // blr 会按 AAPCS64 调用约定破坏寄存器；如需保留寄存器，请在 blr 前保存寄存器（可使用 RegProtectGuard 等方式）。
  *   arm64_after_hook_end(a, false);
  ***************************************************************************/
 void arm64hook_emit_load_original_func(asmjit::a64::Assembler* a, asmjit::a64::GpX xReg);

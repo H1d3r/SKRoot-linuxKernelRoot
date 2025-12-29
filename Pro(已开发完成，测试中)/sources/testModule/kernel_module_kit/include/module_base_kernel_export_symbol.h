@@ -9,14 +9,33 @@
 #include "aarch64_asm_arg.h"
 
 /***************************************************************************
- * 这里封装了对内核导出符号（exported symbols）的 API 调用函数。
- * 实现细节在 module_base_kernel_export_symbol.inl 中，后续可补充。
- * 主要目的是为了在汇编代码生成（asmjit AArch64）过程中，更方便地调用内核 API，而无需处理寻址细节。
+ * 内核导出符号（exported symbols）调用封装
+ *
+ * 功能：简化内核导出符号调用，统一入口。外部调用无需关心符号解析、寻址、传参序列等细节，让上层逻辑更专注于业务流程。
+ *
+ * 实现：细节位于 module_base_kernel_export_symbol.inl（可按需扩展更多符号封装）。
+ *
+ * 寄存器说明：
+ *   - 保证 X1～X17、X29、X30 调用前后值不变；
+ *   - X0 用于返回值输出（会被改写）；
+ *   - 其余寄存器（X18～X28）不作保证（如需保持请由调用方自行保护）。
+ *
+ * 错误处理：out_err 用于回传错误码（成功为 OK），接收寻址失败等错误信息；调用方可据此决定是否继续生成后续指令。
+ * 
+ * 用法示例：
+ * {
+ *   RegProtectGuard g1(a, x0);  // 保存 X0 原值，作用域结束恢复；避免被下方返回值覆盖
+ *   aarch64_asm_mov_x(a, x1, 128);
+ *   export_symbol::kmalloc(root_key, a, err, x1, KmallocFlags::GFP_KERNEL);
+ *   RETURN_IF_ERROR(err);       // 若符号寻址/调用失败则中止生成
+ *   a->mov(x10, x0);            // 将返回值转存到 X10，供作用域外使用
+ * }
+ * a->cbz(x10, L_equal);        // 通过 X10 判断返回值
  ***************************************************************************/
 namespace kernel_module {
 namespace export_symbol {
 using namespace asmjit::a64;
-// 原型：struct task_struct *get_current(void);，获取current指针并赋值到寄存器x，需判空，因为kthread无法获取
+// 原型：struct task_struct *get_current(void);，获取current指针并赋值到寄存器x，需判空，因为kthread无法获取。无返回值。
 void get_current(Assembler* a, GpX x);
 
 // 原型：unsigned long copy_from_user(void *to, const void __user *from, unsigned long n)，返回值为X0寄存器

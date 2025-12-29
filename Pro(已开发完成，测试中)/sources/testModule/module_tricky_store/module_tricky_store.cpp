@@ -134,7 +134,6 @@ static void reset_system_dir() {
 
 std::string skroot_module_on_install(const char* root_key, const char* module_private_dir) {
     printf("[module_tricky_store] on install\n");
-    chmod_tree_777(module_private_dir);
     reset_system_dir();
     std::string my_ts_path = std::string(module_private_dir) + "TS/";
     copy_dir(my_ts_path, TARGET_TS_DIR);

@@ -25,7 +25,7 @@ enum class ModuleListMode : uint8_t {
  * 参数: root_key        ROOT权限密钥文本
  *       out_list       输出模块列表信息
  *       mode           列表模式：全部/仅运行中
- * 返回: OK 表示成功
+ * 返回: OK 表示成功；其它值为错误码
  * 
  ***************************************************************************/
 KModErr get_all_modules_list(const char* root_key, std::vector<module_desc>& out_list, ModuleListMode mode);
