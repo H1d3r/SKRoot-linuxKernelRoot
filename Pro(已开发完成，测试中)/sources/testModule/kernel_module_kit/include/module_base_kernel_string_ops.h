@@ -7,27 +7,31 @@
 #include <errno.h>
 
 #include "kernel_module_kit_umbrella.h"
-/*
- * 提供内核环境下的基础字符串与内存操作算法：
- *   - 覆盖 strlen / strcmp / strstr / memcmp / memcpy 等常见函数的汇编实现。
+
+/***************************************************************************
+ * 内核字符串与内存操作封装
  *
- * 寄存器说明：返回值放在 X0，仅改写 X0；其他寄存器调用前后值不变（内部已保存/恢复）。
+ * 功能：提供strlen、strcmp、strstr、memcmp、memcpy 等常见函数实现。便于上层业务调用。
+ * 
+* 寄存器说明：
+*    X0 可作为入参寄存器使用；调用结束后 X0 存放返回值（因此会被改写/覆盖）；
+*    除 X0 外，X1～X30 调用前后值保持不变（外部无需保护）。
  *
  * 用法示例 1（手动执行内核代码）：
  *   aarch64_asm_set_x_cstr_ptr(a, x10, "123aaa");
- *   kernel_module::string_ops::kstrcmp(a, x1, x10);
- *   a->cbz(x0, L_equal);   // 可直接判断返回值（X0）
+ *   kernel_module::string_ops::kstrcmp(a, x0, x10);
+ *   a->cbz(x0, L_equal);                // 直接用返回值（X0）判断
  *
  * 用法示例 2（Hook 函数中）：
  * {
- *   RegProtectGuard g1(a, x0);  // 保护原函数入参 X0
+ *   RegProtectGuard g1(a, x0);          // 保护原函数入参（按需选择要保护的寄存器）
  *   aarch64_asm_set_x_cstr_ptr(a, x10, "123aaa");
- *   kernel_module::string_ops::kstrcmp(a, x_name_arg, x1, x10);
- *   a->mov(x10, x0);            // 将返回值转存到 X10，供作用域外使用
+ *   kernel_module::string_ops::kstrcmp(a, x0, x10);
+ *   a->mov(x10, x0);                    // 转存返回值，供作用域外使用
  * }
- * // X0 通常是原函数第一个参数：尽量别在作用域外继续改写它。
- * a->cbz(x10, L_equal);
- */
+ * a->cbz(x10, L_equal);                 // 通过 X10 判断比较结果
+ ***************************************************************************/
+
 
 namespace kernel_module {
 namespace string_ops {

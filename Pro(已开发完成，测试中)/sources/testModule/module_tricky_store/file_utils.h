@@ -88,18 +88,4 @@ static bool copy_dir(const std::filesystem::path& src, const std::filesystem::pa
     return !ec;
 }
 
-static bool clear_dir(const std::filesystem::path& dir) {
-  std::error_code ec;
-  if (!std::filesystem::exists(dir, ec) || ec) return false;
-  if (!std::filesystem::is_directory(dir, ec) || ec) return false;
-
-  for (std::filesystem::directory_iterator it(dir, std::filesystem::directory_options::skip_permission_denied, ec);
-       !ec && it != std::filesystem::directory_iterator();
-       it.increment(ec)) {
-    std::error_code rm_ec;
-    std::filesystem::remove_all(it->path(), rm_ec);
-    if (rm_ec) return false;
-  }
-  return !ec;
-}
 } // namespace file_utils

@@ -9,7 +9,7 @@
 #include "file_utils.h"
 #include "android_packages_list_utils.h"
 
-#define MOD_VER "1.4.1-r3"
+#define MOD_VER "1.4.1-r4"
 
 #define TARGET_TS_DIR "/data/adb/"
 #define TARGET_TXT "/data/adb/tricky_store/target.txt"
@@ -126,15 +126,15 @@ int skroot_module_main(const char* root_key, const char* module_private_dir) {
     return 0;
 }
 
-static void reset_system_dir() {
-    clear_dir("/data/local/tmp");
-    clear_dir("/data/adb");
+static void clear_tricky_store_history_dir() {
+    delete_path("/data/adb/tricky_store");
+    delete_path("/data/adb/modules");
     ::chmod("/data/adb", 0700);
 }
 
 std::string skroot_module_on_install(const char* root_key, const char* module_private_dir) {
     printf("[module_tricky_store] on install\n");
-    reset_system_dir();
+    clear_tricky_store_history_dir();
     std::string my_ts_path = std::string(module_private_dir) + "TS/";
     copy_dir(my_ts_path, TARGET_TS_DIR);
     ::sync();
@@ -143,7 +143,7 @@ std::string skroot_module_on_install(const char* root_key, const char* module_pr
 
 void skroot_module_on_uninstall(const char* root_key, const char* module_private_dir) {
     printf("[module_tricky_store] on uninstall\n");
-    reset_system_dir();
+    clear_tricky_store_history_dir();
     ::sync();
 }
 
