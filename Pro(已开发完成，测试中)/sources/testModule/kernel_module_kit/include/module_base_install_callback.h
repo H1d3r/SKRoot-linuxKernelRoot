@@ -13,7 +13,7 @@
  *   返回 ""            ：允许安装继续
  *   返回 非空字符串     ：拒绝安装（输出该信息并终止安装流程）
  ***************************************************************************/
-std::string skroot_module_on_install(const char* root_key, const char* module_private_dir);
+std::string module_on_install(const char* root_key, const char* module_private_dir);
 
 /***************************************************************************
  * 卸载模块回调（可选）：SKROOT_MODULE_ON_UNINSTALL(callback)
@@ -23,4 +23,4 @@ std::string skroot_module_on_install(const char* root_key, const char* module_pr
  *   root_key            ROOT 密钥文本。
  *   module_private_dir  模块私有目录（受隐藏保护；需隐藏的文件请放在此目录）。
  ***************************************************************************/
-void skroot_module_on_uninstall(const char* root_key, const char* module_private_dir);
+void module_on_uninstall(const char* root_key, const char* module_private_dir);

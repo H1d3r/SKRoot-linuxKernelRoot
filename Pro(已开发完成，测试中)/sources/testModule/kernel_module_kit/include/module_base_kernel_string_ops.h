@@ -32,7 +32,6 @@
  * a->cbz(x10, L_equal);                 // 通过 X10 判断比较结果
  ***************************************************************************/
 
-
 namespace kernel_module {
 namespace string_ops {
 using namespace asmjit::a64;
@@ -40,13 +39,13 @@ using namespace asmjit::a64;
 /* strlen：计算以 '\0' 结尾的字符串长度；X0 返回长度 */
 void kstrlen(Assembler* a, GpX str);
 /* strlen (外部调用版本)：计算内核地址处字符串的长度，结果写入 out_len，返回值为OK代表执行成功 */
-KModErr kstrlen(const char* root_key, uint64_t kmem, uint64_t& out_len);
+KModErr kstrlen(uint64_t kmem, uint64_t& out_len);
 
 /* strnlen：最多扫描 maxlen 个字节，X0 返回字符串长度（不含 '\0'）；若 maxlen 内未遇到 '\0' 则 X0 返回 maxlen（与标准 strnlen 一致）*/
 void kstrnlen(Assembler* a, GpX str, GpX maxlen);
 void kstrnlen(Assembler* a, GpX str, uint64_t maxlen);
 /* strnlen (外部调用版本)：计算内核地址处字符串在 maxlen 限制下的长度，结果写入 out_len；返回值为OK代表执行成功 */
-KModErr kstrnlen(const char* root_key, uint64_t kmem, uint64_t maxlen, uint64_t& out_len);
+KModErr kstrnlen(uint64_t kmem, uint64_t maxlen, uint64_t& out_len);
 
 /* strcmp：文本字符串比较；若相等则 X0 为0 （与标准 strcmp 一致）*/
 void kstrcmp(Assembler* a, GpX str1, GpX str2);

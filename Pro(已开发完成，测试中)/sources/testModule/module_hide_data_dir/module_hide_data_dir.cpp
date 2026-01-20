@@ -29,12 +29,12 @@ static std::set<std::string> parse_json(const std::string& json) {
 }
 
 // 开始修补内核
-static KModErr patch_kernel_handler(const char* root_key, const std::set<std::string>& hide_dir_list) {
+static KModErr patch_kernel_handler(const std::set<std::string>& hide_dir_list) {
     kernel_module::SymbolHit filldir64;
-    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(root_key, "filldir64", kernel_module::SymbolMatchMode::Prefix, filldir64));
+    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name("filldir64", kernel_module::SymbolMatchMode::Prefix, filldir64));
     printf("%s, addr: %p\n", filldir64.name, (void*)filldir64.addr);
 
-    PatchBase patchBase(root_key);
+    PatchBase patchBase;
     PatchFilldir64 patchFilldir64(patchBase, filldir64.addr);
     KModErr err = patchFilldir64.patch_filldir64(hide_dir_list);
     printf("patch filldir64 ret: %s\n", to_string(err).c_str());
@@ -47,7 +47,7 @@ int skroot_module_main(const char* root_key, const char* module_private_dir) {
 
     //读取配置文件内容
     std::string json;
-    kernel_module::read_string_disk_storage(root_key, "hide_dir_json", json);
+    kernel_module::read_string_disk_storage("hide_dir_json", json);
     std::set<std::string> hide_dir_list = parse_json(json);
     if(hide_dir_list.empty()) {
         printf("hide dir list is empty.\n");
@@ -56,7 +56,7 @@ int skroot_module_main(const char* root_key, const char* module_private_dir) {
     printf("hide dir list (%zd total) :\n", hide_dir_list.size());
     for (const auto& item : hide_dir_list) printf("hide dir: %s\n", item.c_str());
 
-    KModErr err = patch_kernel_handler(root_key, hide_dir_list);
+    KModErr err = patch_kernel_handler(hide_dir_list);
     printf("patch_kernel_handler ret:%s\n", to_string(err).c_str());
     return 0;
 }
@@ -70,24 +70,15 @@ public:
     }
 
     // 这里的Web服务器仅起到读取、保存配置文件的作用。
-    bool handlePost(CivetServer* server, struct mg_connection* conn) override {
-        char buf[4096] = {0}; mg_read(conn, buf, sizeof(buf) - 1);
-        const struct mg_request_info* req_info = mg_get_request_info(conn);
-        std::string path = req_info->local_uri ? req_info->local_uri : "/";
-        std::string body(buf);
+    bool handlePost(CivetServer* server, struct mg_connection* conn, const std::string& path, const std::string& body) override {
         printf("[module_hide_data_dir] POST request\nPath: %s\nBody: %s\n", path.c_str(), body.c_str());
 
         std::string resp;
         if(path == "/getVersion") resp = MOD_VER;
-        else if(path == "/getHiddenDirsJson") kernel_module::read_string_disk_storage(m_root_key.c_str(), "hide_dir_json", resp);
-        else if(path == "/setHiddenDirsJson") resp = 
-                is_ok(kernel_module::write_string_disk_storage(m_root_key.c_str(), "hide_dir_json", body.c_str())) ? "OK" : "FAILED";
+        else if(path == "/getHiddenDirsJson") kernel_module::read_string_disk_storage("hide_dir_json", resp);
+        else if(path == "/setHiddenDirsJson") resp = is_ok(kernel_module::write_string_disk_storage("hide_dir_json", body.c_str())) ? "OK" : "FAILED";
             
-        mg_printf(conn,
-                  "HTTP/1.1 200 OK\r\n"
-                  "Content-Type: text/plain\r\n"
-                  "Connection: close\r\n\r\n%s",
-                  resp.c_str());
+        kernel_module::webui::send_text(conn, 200, resp);
         return true;
     }
 private:
@@ -97,7 +88,7 @@ private:
 // SKRoot 模块名片
 SKROOT_MODULE_NAME("隐藏/data目录")
 SKROOT_MODULE_VERSION(MOD_VER)
-SKROOT_MODULE_DESC("隐藏 /data 下指定的目录名称，防扫描检测。")
+SKROOT_MODULE_DESC("内核级隐藏 /data 指定目录，彻底阻断文件扫描；底层拦截机制，免疫各类基于漏洞的暴力扫盘。")
 SKROOT_MODULE_AUTHOR("SKRoot")
 SKROOT_MODULE_UUID32("ae12076c010ebabbb233affdd0239c14")
 SKROOT_MODULE_WEB_UI(MyWebHttpHandler)

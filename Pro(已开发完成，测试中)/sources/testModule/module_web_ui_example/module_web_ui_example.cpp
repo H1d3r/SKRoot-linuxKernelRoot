@@ -8,7 +8,7 @@ int skroot_module_main(const char* root_key, const char* module_private_dir) {
 
     //读取配置文件内容
     std::string value;
-    KModErr err = kernel_module::read_string_disk_storage(root_key, "myKey", value);
+    KModErr err = kernel_module::read_string_disk_storage("myKey", value);
     if(is_ok(err)) {
         printf("[module_web_ui_example] read storage succeed: value: %s\n", value.c_str());
     } else {
@@ -25,40 +25,25 @@ public:
         printf("[module_web_ui_example] MyHttpHandler root_key len=%zu\n", strlen(root_key));
         printf("[module_web_ui_example] MyHttpHandler module_private_dir=%s\n", module_private_dir);
         printf("[module_web_ui_example] MyHttpHandler port=%d\n", port);
-        m_root_key = root_key;
     }
 
-    bool handleGet(CivetServer* server, struct mg_connection* conn) override {
-        const struct mg_request_info* req_info = mg_get_request_info(conn);
-        std::string path = req_info->local_uri ? req_info->local_uri : "/";
-        std::string query = req_info->query_string ? req_info->query_string : "";
+    bool handleGet(CivetServer* server, struct mg_connection* conn, const std::string& path, const std::string& query) override {
         printf("GET request\nPath: %s\nQuery: %s\n", path.c_str(), query.c_str());
         return false;
     }
 
-    bool handlePost(CivetServer* server, struct mg_connection* conn) override {
-        char buf[4096] = {0}; mg_read(conn, buf, sizeof(buf) - 1);
-        const struct mg_request_info* req_info = mg_get_request_info(conn);
-        std::string path = req_info->local_uri ? req_info->local_uri : "/";
-        std::string body(buf);
+    bool handlePost(CivetServer* server, struct mg_connection* conn, const std::string& path, const std::string& body) override {
         printf("POST request\nPath: %s\nBody: %s\n", path.c_str(), body.c_str());
 
         std::string resp;
         if(path == "/getPid") resp = std::to_string(getpid());
         else if(path == "/getUid") resp = std::to_string(getuid());
-        else if(path == "/getValue") kernel_module::read_string_disk_storage(m_root_key.c_str(), "myKey", resp);
-        else if(path == "/setValue") resp = 
-                is_ok(kernel_module::write_string_disk_storage(m_root_key.c_str(), "myKey", body.c_str())) ? "OK" : "FAILED";
+        else if(path == "/getValue") kernel_module::read_string_disk_storage("myKey", resp);
+        else if(path == "/setValue") resp = is_ok(kernel_module::write_string_disk_storage("myKey", body.c_str())) ? "OK" : "FAILED";
         
-        mg_printf(conn,
-                  "HTTP/1.1 200 OK\r\n"
-                  "Content-Type: text/plain\r\n"
-                  "Connection: close\r\n\r\n%s",
-                  resp.c_str());
+        kernel_module::webui::send_text(conn, 200, resp);
         return true;
     }
-private:
-    std::string m_root_key;
 };
 
 // SKRoot 模块名片

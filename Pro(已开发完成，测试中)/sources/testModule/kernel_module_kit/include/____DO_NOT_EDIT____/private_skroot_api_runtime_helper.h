@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <unistd.h>
-#include "../module_base_err_def.h"
+#include "../module_err_def.h"
 #include "../skroot_env/skroot_module.h"
 #include "../skroot_env/skroot_su_auth.h"
 #include "../skroot_env/skroot_test.h"

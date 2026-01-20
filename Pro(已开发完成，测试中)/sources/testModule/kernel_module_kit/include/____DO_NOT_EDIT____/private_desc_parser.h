@@ -7,7 +7,7 @@
 
 #include "private_mod_api_runtime_helper.h"
 #include "private_skroot_api_runtime_helper.h"
-#include "../module_base_web_ui_server.h"
+#include "../module_web_ui_http_handler.h"
 #include "../module_base_install_callback.h"
 
 #define ____INTERNEL_SKROOT_MODULE_MAIN __skroot_module_main_18fdf393885363712349ef3de5411bd5
@@ -37,6 +37,8 @@ inline char skroot_module_name_5d1745f8a8fb4814fb0dbb5aab27bbca[1024] = {0};
         if(strlen(skroot_module_update_json_7310fa0a06d95799b3f9beaf60e26e85) == 0) printf(""); \
         extern void __compile_save_min_support_sdk_ver(void); \
         __compile_save_min_support_sdk_ver(); \
+        extern void __set_current_module_root_key_hd04aBTnbSZlTRP7S4mQpIeVvr2ssGjW(const char*); \
+        __set_current_module_root_key_hd04aBTnbSZlTRP7S4mQpIeVvr2ssGjW(root_key); \
         return skroot_module_main(root_key, module_private_dir); \
     }
 
@@ -75,7 +77,7 @@ inline char skroot_module_uuid_927fa0e9f491cdcbd07e8a647f09e1e2[1024] = {0};
     extern "C" void Error_Missing_SKRoot_Module_UUID32__Please_define_SKROOT_MODULE_UUID32() { \
         uuid32_check_bd8a9bbb16b9b755b96a9f2bc0114e13(val); \
         strncpy(skroot_module_uuid_927fa0e9f491cdcbd07e8a647f09e1e2, ___MOD_UUID32_TAG_BEGIN val ___MOD_UUID32_TAG_END, sizeof(skroot_module_uuid_927fa0e9f491cdcbd07e8a647f09e1e2) - 1); \
-        extern void __set_current_module_uuid32_1b0494ae8a788541db46b82cc1f0577c(const char* uuid32); \
+        extern void __set_current_module_uuid32_1b0494ae8a788541db46b82cc1f0577c(const char*); \
         __set_current_module_uuid32_1b0494ae8a788541db46b82cc1f0577c(val); \
     };
     
@@ -101,7 +103,7 @@ inline char skroot_web_ui_enable_flag_e0c73f6473a0e653be67875a3cf23a53[1024] = {
     }();
 
 #define ____INTERNEL_SKROOT_MODULE_ON_INSTALL __skroot_module_on_install_k6JkibrjUwzXFpshvFuIwdUNRP4fYtLA
-inline decltype(&skroot_module_on_install) skroot_module_on_install_func_jngvokk4mlkkwbg92nj1u7vkhyjan2qj = nullptr;
+inline decltype(&module_on_install) skroot_module_on_install_func_jngvokk4mlkkwbg92nj1u7vkhyjan2qj = nullptr;
 inline char skroot_module_on_install_enable_flag_wnx27u34cpuazxit73f52qkylnq89f3s[1024] = {0};
 #define ___MOD_ON_INSTALL_FLAG_BEGIN "za5hrnp5r0rjm1dnjld7xoc6tza0qvdd"
 #define ___MOD_ON_INSTALL_FLAG_END "v2ltlw5plpqec7yr5ifeuta24l3rv7ep"
@@ -113,11 +115,13 @@ inline char skroot_module_on_install_enable_flag_wnx27u34cpuazxit73f52qkylnq89f3
     }();\
     extern "C" __attribute__((visibility("default"))) __attribute__((used, weak)) void ____INTERNEL_SKROOT_MODULE_ON_INSTALL(const char* root_key, const char* module_private_dir, void (*cb)(const char* reason)) { \
         if(!skroot_module_on_install_func_jngvokk4mlkkwbg92nj1u7vkhyjan2qj) return;\
+        extern void __set_current_module_root_key_hd04aBTnbSZlTRP7S4mQpIeVvr2ssGjW(const char*); \
+        __set_current_module_root_key_hd04aBTnbSZlTRP7S4mQpIeVvr2ssGjW(root_key); \
         cb(skroot_module_on_install_func_jngvokk4mlkkwbg92nj1u7vkhyjan2qj(root_key, module_private_dir).c_str()); \
     };
 
 #define ____INTERNEL_SKROOT_MODULE_ON_UNINSTALL __skroot_module_on_uninstall_epmoso85hw4w1rzjagiuzdmnyqamk7ep
-inline decltype(&skroot_module_on_uninstall) skroot_module_on_uninstall_func_lv5biogiKlWBDvrs1clgywqMPwmqXkry = nullptr;
+inline decltype(&module_on_uninstall) skroot_module_on_uninstall_func_lv5biogiKlWBDvrs1clgywqMPwmqXkry = nullptr;
 inline char skroot_module_on_uninstall_enable_flag_ngln4z5zaku6lil4vrz2jtpoecb64avp[1024] = {0};
 #define ___MOD_ON_UNINSTALL_FLAG_BEGIN "hft0lrndcqfoff3vankyj5drv30apccd"
 #define ___MOD_ON_UNINSTALL_FLAG_END "p6tv4rinog5a0rl83tzp2ac6fl0uyqhk"
@@ -129,6 +133,8 @@ inline char skroot_module_on_uninstall_enable_flag_ngln4z5zaku6lil4vrz2jtpoecb64
     }();\
     extern "C" __attribute__((visibility("default"))) __attribute__((used, weak)) void ____INTERNEL_SKROOT_MODULE_ON_UNINSTALL(const char* root_key, const char* module_private_dir) { \
         if(!skroot_module_on_uninstall_func_lv5biogiKlWBDvrs1clgywqMPwmqXkry) return;\
+        extern void __set_current_module_root_key_hd04aBTnbSZlTRP7S4mQpIeVvr2ssGjW(const char*); \
+        __set_current_module_root_key_hd04aBTnbSZlTRP7S4mQpIeVvr2ssGjW(root_key); \
         skroot_module_on_uninstall_func_lv5biogiKlWBDvrs1clgywqMPwmqXkry(root_key, module_private_dir); \
     };
 
@@ -150,3 +156,13 @@ extern "C" __attribute__((visibility("default"))) __attribute__((used, weak)) vo
     KModErr unsafe_module_get_last_web_ui_server_port(int& out_port);
     err = unsafe_module_get_last_web_ui_server_port(out_port);
 }
+
+#ifdef KERNEL_MODULE_KIT_TEST
+    extern "C" int fake_skroot_module_main(const char* root_key) {
+        extern void __set_current_module_root_key_hd04aBTnbSZlTRP7S4mQpIeVvr2ssGjW(const char*);
+        __set_current_module_root_key_hd04aBTnbSZlTRP7S4mQpIeVvr2ssGjW(root_key);
+        extern void __set_current_module_uuid32_1b0494ae8a788541db46b82cc1f0577c(const char*);
+        __set_current_module_uuid32_1b0494ae8a788541db46b82cc1f0577c("u5BcRRTUwMqU6A6iLkG90jTEq8EXShrE");
+        return 0;
+    }
+#endif

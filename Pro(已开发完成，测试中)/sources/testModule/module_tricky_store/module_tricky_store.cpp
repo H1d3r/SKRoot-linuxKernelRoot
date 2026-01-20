@@ -32,20 +32,20 @@ static bool write_target_txt_applist() {
     return write_text_file(TARGET_TXT, sstr.str());
 }
 
-static bool get_auto_third_app_toggle(const std::string& root_key) {
+static bool get_auto_third_app_toggle() {
     bool enable = false;
-    kernel_module::read_bool_disk_storage(root_key.c_str(), "auto_third_app_toggle", enable);
+    kernel_module::read_bool_disk_storage("auto_third_app_toggle", enable);
     return enable;
 }
 
 static bool set_target_txt(const std::string& text);
-static bool set_auto_third_app_toggle(const std::string& root_key, bool enable) {
+static bool set_auto_third_app_toggle(bool enable) {
     if(enable) {
         write_target_txt_applist();
     } else {
         set_target_txt("");
     }
-    return is_ok(kernel_module::write_bool_disk_storage(root_key.c_str(), "auto_third_app_toggle", enable));
+    return is_ok(kernel_module::write_bool_disk_storage("auto_third_app_toggle", enable));
 }
 
 static bool get_fix_tee_toggle() {
@@ -58,14 +58,14 @@ static bool set_fix_tee_toggle(bool enable) {
     return write_text_file(TEE_STATUS, enable ? "teeBroken=true" : "teeBroken=false");
 }
 
-static bool get_hide_bootloader_toggle(const std::string& root_key) {
+static bool get_hide_bootloader_toggle() {
     bool enable = true;
-    kernel_module::read_bool_disk_storage(root_key.c_str(), "hide_bootloader_toggle", enable);
+    kernel_module::read_bool_disk_storage("hide_bootloader_toggle", enable);
     return enable;
 }
 
-static bool set_hide_bootloader_toggle(const std::string& root_key, bool enable) {
-    return is_ok(kernel_module::write_bool_disk_storage(root_key.c_str(), "hide_bootloader_toggle", enable));
+static bool set_hide_bootloader_toggle(bool enable) {
+    return is_ok(kernel_module::write_bool_disk_storage("hide_bootloader_toggle", enable));
 }
 
 static std::string get_target_txt() {
@@ -103,9 +103,9 @@ static bool set_hide_bootloader_script(const std::string& module_private_dir, co
 int skroot_module_main(const char* root_key, const char* module_private_dir) {
     printf("Hello! module_tricky_store!\n");
 
-    bool auto_third_app_toggle = get_auto_third_app_toggle(root_key);
+    bool auto_third_app_toggle = get_auto_third_app_toggle();
     bool tee_fix_toggle = get_fix_tee_toggle();
-    bool hide_bootloader_toggle = get_hide_bootloader_toggle(root_key);
+    bool hide_bootloader_toggle = get_hide_bootloader_toggle();
     printf("auto_third_app_toggle: %d\n", !!auto_third_app_toggle);
     printf("tee_fix_toggle: %d\n", !!tee_fix_toggle);
     printf("hide_bootloader_toggle: %d\n", !!hide_bootloader_toggle);
@@ -136,7 +136,7 @@ static void clear_tricky_store_history_dir() {
     ::chmod("/data/adb", 0700);
 }
 
-std::string skroot_module_on_install(const char* root_key, const char* module_private_dir) {
+std::string module_on_install(const char* root_key, const char* module_private_dir) {
     printf("[module_tricky_store] on install\n");
     clear_tricky_store_history_dir();
     std::string my_ts_path = std::string(module_private_dir) + "TS/";
@@ -145,7 +145,7 @@ std::string skroot_module_on_install(const char* root_key, const char* module_pr
     return "";
 }
 
-void skroot_module_on_uninstall(const char* root_key, const char* module_private_dir) {
+void module_on_uninstall(const char* root_key, const char* module_private_dir) {
     printf("[module_tricky_store] on uninstall\n");
     clear_tricky_store_history_dir();
     ::sync();
@@ -159,25 +159,20 @@ static std::string get_all_props() {
 class MyWebHttpHandler : public kernel_module::WebUIHttpHandler { // HTTP服务器基于civetweb库
 public:
     void onPrepareCreate(const char* root_key, const char* module_private_dir, uint32_t port) override {
-        m_root_key = root_key;
         m_module_private_dir = module_private_dir;
     }
 
-    bool handlePost(CivetServer* server, struct mg_connection* conn) override {
-        char buf[4096] = {0}; mg_read(conn, buf, sizeof(buf) - 1);
-        const struct mg_request_info* req_info = mg_get_request_info(conn);
-        std::string path = req_info->local_uri ? req_info->local_uri : "/";
-        std::string body(buf);
+    bool handlePost(CivetServer* server, struct mg_connection* conn, const std::string& path, const std::string& body) override {
         printf("[module_tricky_store] POST request\nPath: %s\nBody: %s\n", path.c_str(), body.c_str());
 
         std::string resp;
         if(path == "/getVersion") resp = MOD_VER;
-        else if(path == "/getAutoThirdAppToggle") resp = get_auto_third_app_toggle(m_root_key) ? "1" : "0";
-        else if(path == "/setAutoThirdAppToggle") resp = set_auto_third_app_toggle(m_root_key, body == "1") ? "OK" : "FAILED";
+        else if(path == "/getAutoThirdAppToggle") resp = get_auto_third_app_toggle() ? "1" : "0";
+        else if(path == "/setAutoThirdAppToggle") resp = set_auto_third_app_toggle(body == "1") ? "OK" : "FAILED";
         else if(path == "/getFixTeeToggle") resp = get_fix_tee_toggle() ? "1" : "0";
         else if(path == "/setFixTeeToggle") resp = set_fix_tee_toggle(body == "1") ? "OK" : "FAILED";
-        else if(path == "/getHideBootloaderToggle") resp = get_hide_bootloader_toggle(m_root_key) ? "1" : "0";
-        else if(path == "/setHideBootloaderToggle") resp = set_hide_bootloader_toggle(m_root_key, body == "1") ? "OK" : "FAILED";
+        else if(path == "/getHideBootloaderToggle") resp = get_hide_bootloader_toggle() ? "1" : "0";
+        else if(path == "/setHideBootloaderToggle") resp = set_hide_bootloader_toggle(body == "1") ? "OK" : "FAILED";
         else if(path == "/getTargetTxt") resp = get_target_txt();
         else if(path == "/setTargetTxt") resp = set_target_txt(body) ? "OK" : "FAILED";
         else if(path == "/getKeyboxXml") resp = get_keybox_xml();
@@ -186,15 +181,10 @@ public:
         else if(path == "/setBootloaderScript") resp = set_hide_bootloader_script(m_module_private_dir, body) ? "OK" : "FAILED";
         else if(path == "/getAllProps") resp = get_all_props();
 
-        mg_printf(conn,
-                  "HTTP/1.1 200 OK\r\n"
-                  "Content-Type: text/plain\r\n"
-                  "Connection: close\r\n\r\n%s",
-                  resp.c_str());
+        kernel_module::webui::send_text(conn, 200, resp);
         return true;
     }
 private:
-    std::string m_root_key;
     std::string m_module_private_dir;
 };
 
@@ -205,7 +195,7 @@ SKROOT_MODULE_DESC("提供系统证书接管与 TEE 状态修复能力。")
 SKROOT_MODULE_AUTHOR("5ec1cff, aviraxp, Cyberenchanter and topjohnwu")
 SKROOT_MODULE_UUID32("c3a70f603b48380a611131d29c50aac3")
 SKROOT_MODULE_WEB_UI(MyWebHttpHandler)
-SKROOT_MODULE_ON_INSTALL(skroot_module_on_install)
-SKROOT_MODULE_ON_UNINSTALL(skroot_module_on_uninstall)
+SKROOT_MODULE_ON_INSTALL(module_on_install)
+SKROOT_MODULE_ON_UNINSTALL(module_on_uninstall)
 SKROOT_MODULE_UPDATE_JSON("https://abcz316.github.io/SKRoot-linuxKernelRoot/module_tricky_store/update.json")
 

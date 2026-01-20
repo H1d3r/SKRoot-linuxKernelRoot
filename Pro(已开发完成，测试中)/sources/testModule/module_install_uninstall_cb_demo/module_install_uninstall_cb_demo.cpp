@@ -6,12 +6,12 @@ int skroot_module_main(const char* root_key, const char* module_private_dir) {
     return 0;
 }
 
-std::string skroot_module_on_install(const char* root_key, const char* module_private_dir) {
+std::string module_on_install(const char* root_key, const char* module_private_dir) {
     printf("[module_cb_demo] on install!!!\n");
     return "";
 }
 
-void skroot_module_on_uninstall(const char* root_key, const char* module_private_dir) {
+void module_on_uninstall(const char* root_key, const char* module_private_dir) {
     printf("[module_cb_demo] on uninstall!!!\n");
 }
 
@@ -22,6 +22,6 @@ SKROOT_MODULE_DESC("演示模块安装、卸载回调")
 SKROOT_MODULE_AUTHOR("SKRoot官方教程")
 SKROOT_MODULE_UUID32("b7e4d333fd4689044b58b59e631a40e5")
 
-SKROOT_MODULE_ON_INSTALL(skroot_module_on_install) // 配置安装模块回调
-SKROOT_MODULE_ON_UNINSTALL(skroot_module_on_uninstall) // 配置卸载模块回调
+SKROOT_MODULE_ON_INSTALL(module_on_install) // 配置安装模块回调
+SKROOT_MODULE_ON_UNINSTALL(module_on_uninstall) // 配置卸载模块回调
 

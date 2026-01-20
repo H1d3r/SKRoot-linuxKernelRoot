@@ -5,21 +5,16 @@ using namespace asmjit;
 using namespace asmjit::a64;
 using namespace asmjit::a64::Predicate;
 
-char g_root_key[256] = {0};
-
-#define TEST_RETURN_VALUE 0x12345
-
 KModErr run_kernel_shellcode(uint64_t & result) {
     aarch64_asm_ctx asm_ctx = init_aarch64_asm();
     auto a = asm_ctx.assembler();
     kernel_module::arm64_module_asm_func_start(a);
     
-    //TODO: 在此开始输入你的aarch64 asm指令
-
-    kernel_module::arm64_module_asm_func_end(a, TEST_RETURN_VALUE);
+    // TODO: 在此开始输入你的aarch64 asm指令
+    aarch64_asm_mov_x(a, x0, 0x12345);
+    kernel_module::arm64_module_asm_func_end(a, x0);
 	std::vector<uint8_t> bytes = aarch64_asm_to_bytes(a);
-    if (!bytes.size()) return KModErr::ERR_MODULE_ASM;
-    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(g_root_key, bytes, result));
+    RETURN_IF_ERROR(kernel_module::execute_kernel_asm_func(bytes, result));
     return KModErr::OK;
 }
 
@@ -40,13 +35,11 @@ int skroot_module_main(const char* root_key, const char* module_private_dir) {
     printf("[module_hello_world] root_key len=%zu\n", strlen(root_key));
     printf("[module_hello_world] module_private_dir=%s\n", module_private_dir);
 
-    strncpy(g_root_key, root_key, sizeof(g_root_key) - 1);
-
     // 开始执行内核shellcode。
     uint64_t result = 0;
 	KModErr err = run_kernel_shellcode(result);
     printf("run_kernel_shellcode err: %s\n", to_string(err).c_str());
-    printf(result == TEST_RETURN_VALUE ? "OK" : "FAILED");
+    printf(result == 0x12345 ? "OK" : "FAILED");
     printf("\n");
     return (int)result;
 }

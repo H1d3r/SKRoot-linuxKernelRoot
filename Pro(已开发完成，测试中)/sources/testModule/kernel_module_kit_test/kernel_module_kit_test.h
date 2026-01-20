@@ -11,10 +11,6 @@
 
 #include "kernel_module_kit_umbrella.h"
 
-inline char g_root_key[256] = {0};
-
-#define EN_MODULE_NAME "module_all_demo"
-
 #define TEST(NUM, NAME)                                                    \
     do {                                                                   \
         int _test_idx = (NUM);                                             \

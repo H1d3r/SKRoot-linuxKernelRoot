@@ -227,7 +227,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	//TODO: 在此修改你的Root key值。
-	strncpy(ROOT_KEY, "jnlTD3nGjaVcujsYSZ2C9wcd5CgXWa9T3CMx9Rc8aB8fPejl", sizeof(ROOT_KEY) - 1);
+	strncpy(ROOT_KEY, "vzXtDKDAltAGxHtMGRZZfVouy90dgNqFsLM6UGeqb6OgH0VX", sizeof(ROOT_KEY) - 1);
 
 	std::map<std::string, std::function<void()>> command_map = {
 		{"install", []() { test_install_skroot(); }},

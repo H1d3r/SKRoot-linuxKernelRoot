@@ -39,6 +39,9 @@ check_reset_prop "ro.secureboot.lockstate" "locked"
 check_reset_prop "ro.boot.realmebootstate" "green"
 check_reset_prop "ro.boot.realme.lockstate" "1"
 
+# ASUS specific
+check_reset_prop "ro.boot.asusverifiedstate" "PASS"
+
 # Hide that we booted from recovery when magisk is in recovery mode
 contains_reset_prop "ro.bootmode" "recovery" "unknown"
 contains_reset_prop "ro.boot.bootmode" "recovery" "unknown"

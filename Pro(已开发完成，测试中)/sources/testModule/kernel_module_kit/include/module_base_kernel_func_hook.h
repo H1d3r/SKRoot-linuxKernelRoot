@@ -28,18 +28,19 @@ void arm64_before_hook_end(asmjit::a64::Assembler* a, bool continue_original);
 /***************************************************************************
  * 安装内核Hook（可在任意点位安装，执行前触发）
  * 参数:
- *   root_key			 ROOT 权限密钥文本
  *   kaddr				 目标内核地址（指令地址/Hook 点位）
  *   hook_handler_code	 Hook 处理函数的机器码（shellcode）。
  *                       （注意：Hook处理函数开头必须调用 arm64_before_hook_start，结尾必须调用 arm64_before_hook_end，否则不合法。）
- * 返回: OK 表示成功，其他值为错误码
+ * 返回: OK 表示成功，其他值为错误码。
+ * 
+ * 工作原理：仅将 kaddr 位置的 1 条指令（4 字节）替换为单条 B 跳转指令，无任何性能损耗。
  * 
  * Hook处理函数示例：
  *   arm64_before_hook_start(a);
- *   //TODO：在此开始编写代码
+ *   // TODO: 在此开始编写代码
  *   arm64_before_hook_end(a, true);
  ***************************************************************************/
-KModErr install_kernel_function_before_hook(const char* root_key, uint64_t kaddr, const std::vector<uint8_t>& hook_handler_code);
+KModErr install_kernel_function_before_hook(uint64_t kaddr, const std::vector<uint8_t>& hook_handler_code);
 
 
 /***************************************************************************
@@ -57,18 +58,19 @@ void arm64_after_hook_end(asmjit::a64::Assembler* a);
 /***************************************************************************
  * 安装内核Hook（在内核函数执行后触发）
  * 参数:
- *   root_key            ROOT 权限密钥文本
  *   target_func_kaddr   目标内核函数的起始地址（函数入口）
  *   hook_handler_code   Hook 处理函数的机器码（shellcode）。
  *                       （注意：Hook处理函数开头必须调用 arm64_after_hook_start，结尾必须调用 arm64_after_hook_end，否则不合法。）
  * 返回: OK 表示成功，其他值为错误码
  * 
+ * 工作原理：仅将 kaddr 位置的 1 条指令（4 字节）替换为单条 B 跳转指令，无任何性能损耗。
+ *  
  * Hook处理函数示例：
  *   arm64_after_hook_start(a);
- *   //TODO：在此开始编写代码
+ *   // TODO: 在此开始编写代码
  *   arm64_after_hook_end(a);
  ***************************************************************************/
-KModErr install_kernel_function_after_hook(const char* root_key, uint64_t target_func_kaddr, const std::vector<uint8_t>& hook_handler_code);
+KModErr install_kernel_function_after_hook(uint64_t target_func_kaddr, const std::vector<uint8_t>& hook_handler_code);
 
 /***************************************************************************
  * （可选）装载“原始函数入口地址”到寄存器 xReg

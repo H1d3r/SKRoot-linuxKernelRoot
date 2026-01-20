@@ -11,13 +11,13 @@
 
 #include "aarch64_asm_arg.h"
 #include "aarch64_asm_idle_reg_pool.h"
-#include "module_base_kernel_addr_resolver.h"
+#include "module_base_kernel_symbol_lookup.h"
 
 /***************************************************************************
  * AArch64 内核API调用辅助类
  * 作用：
  *  - 封装“按符号名调用内核API”的完整流程：
- *      · 通过 root_key + kallsyms_lookup_name 解析符号地址；
+ *      · 通过 kallsyms_lookup_name 解析符号地址；
  *      · 按 AAPCS64 规则将 Arm64Arg 参数打包到 x0～x7 / w0～w7；
  *      · 使用 BLR 生成实际调用指令序列。
  *
@@ -51,17 +51,15 @@ public:
 
   /***************************************************************************
    * 自动保护 caller-saved 寄存器 + 申请临时寄存器 + 搬运旧寄存器，最终按符号名调用。
-   * 参数：root_key : 内核 root key
-   *      a        : Assembler 指针
+   * 参数：a        : Assembler 指针
    *      sym_name : 内核符号名
    *      need_x0  : 是否保留被调用函数的 x0 返回值
    *      args     : 原始参数向量
    **************************************************************************/
-  static KModErr callNameAuto(const char* root_key,
-                                Asm* a,
-                                const char* sym_name,
-                                NeedReturnX0 need_x0,
-                                const ArgVec& args) {
+  static KModErr callNameAuto(Asm* a,
+                              const char* sym_name,
+                              NeedReturnX0 need_x0,
+                              const ArgVec& args) {
     // 1) 根据 AAPCS64 规则构建保护寄存器集合
     std::set<uint32_t> protect_ids = makeProtectSet(AAPCS64_ProtectRule::CallerSaved);
     if(need_x0 == NeedReturnX0::Yes) {
@@ -78,7 +76,7 @@ public:
     emitMovesFromOldToNew(a, new_regs, args);
 
     // 4) 使用重映射后的参数向量进行调用
-    return call_by_name_raw(root_key, a, sym_name, new_regs);
+    return call_by_name_raw(a, sym_name, new_regs);
   }
 
   // 防止与 ArgVec 重载产生二义性：如果参数包里已经包含 ArgVec，则不参与该模板重载
@@ -92,13 +90,12 @@ public:
   template <
       typename... Args,
       std::enable_if_t<!std::disjunction_v<is_ArgVec<Args>...>, int> = 0>
-  static KModErr callNameAuto(const char* root_key,
-                                Asm* a,
-                                const char* sym_name,
-                                NeedReturnX0 need_x0,
-                                Args&&... args) {
+  static KModErr callNameAuto(Asm* a,
+                              const char* sym_name,
+                              NeedReturnX0 need_x0,
+                              Args&&... args) {
     ArgVec orig = mk_args(std::forward<Args>(args)...);
-    return callNameAuto(root_key, a, sym_name, need_x0, orig);
+    return callNameAuto(a, sym_name, need_x0, orig);
   }
 
   /***************************************************************************
@@ -116,7 +113,6 @@ public:
    **************************************************************************/
   template <typename... Args>
   static void callSymbolCandidates(
-      const char* root_key,
       Asm* a,
       KModErr& err,
       const std::vector<std::string>& candidates,
@@ -142,8 +138,7 @@ public:
     auto do_call = [&](const char* sym) -> KModErr {
       return std::apply(
           [&](auto&&... xs) {
-            return callNameAuto(
-                root_key, a, sym, need_x0, std::forward<decltype(xs)>(xs)...);
+            return callNameAuto(a, sym, need_x0, std::forward<decltype(xs)>(xs)...);
           },
           args_tpl);
     };
@@ -327,9 +322,9 @@ private:
    *  - 调用前需要外部已经做好 RegProtectGuard 等保护；
    *  - args 中的寄存器会被直接用作参数寄存器的来源。
    **************************************************************************/
-  static KModErr call_by_name_raw(const char* root_key, Asm* a, const char* sym_name, const ArgVec& args) {
+  static KModErr call_by_name_raw(Asm* a, const char* sym_name, const ArgVec& args) {
     uint64_t target = 0;
-    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(root_key, sym_name, target));
+    RETURN_IF_ERROR(kernel_module::kallsyms_lookup_name(sym_name, target));
 
     // 按 AAPCS64 规则把参数放入 x0～x7 / w0～w7
     if(!pushArgsFromVec(a, args)) return KModErr::ERR_MODULE_SYMBOL_PARAM;

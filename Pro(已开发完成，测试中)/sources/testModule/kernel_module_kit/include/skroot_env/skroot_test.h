@@ -6,14 +6,14 @@ namespace skroot_env {
  * 说明：检测到系统无法启动时，将自动禁用 SKRoot 环境框架，避免反复死机。
  * 参数: root_key     ROOT 权限密钥文本
  *       enabled      true 表示启用保护；false 表示禁用保护
- * 返回: OK           表示设置成功；其他值为错误码
+ * 返回: OK 表示设置成功；其他值为错误码
  ***************************************************************************/
 KModErr set_boot_fail_protect_enabled(const char* root_key, bool enabled);
 
 /***************************************************************************
  * 查询“开机失败保护”是否已启用
  * 参数: root_key     ROOT 权限密钥文本
- * 返回: true         表示已启用保护；false 表示未启用
+ * 返回: true 表示已启用保护；false 表示未启用
  ***************************************************************************/
 bool is_boot_fail_protect_enabled(const char* root_key);
 
@@ -24,7 +24,7 @@ bool is_boot_fail_protect_enabled(const char* root_key);
  *       item       要测试的项目
  *       out        测试输出文本（可为空字符串）
  *
- * 返回: OK         表示正常，其它错误码表示对应能力异常
+ * 返回: OK 表示正常，其它错误码表示对应能力异常
  ***************************************************************************/
 enum class BasicItem : uint32_t {
     Channel,            // 通道检查
