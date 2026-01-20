@@ -12,4 +12,4 @@
 1.不需要Linux内核源码
 2.支持Linux内核版本：3.10~6.6
 
-@如需参与测试：请联系TG频道：https://t.me/skrootabc
+@如需参与测试，请联系TG频道：https://t.me/skrootabc
