@@ -2,7 +2,7 @@ package com.linux.permissionmanager.model;
 
 import android.text.TextUtils;
 
-public class SkrModItem {
+public class SkrModInstalledItem {
     private String name;
     private String desc;
     private String ver;
@@ -15,7 +15,7 @@ public class SkrModItem {
 
     private SkrModUpdateInfo updateInfo;
 
-    public SkrModItem(String name, String desc, String ver, String uuid, String author, String updateJson, String miniSdk, boolean webUi, boolean isRunning) {
+    public SkrModInstalledItem(String name, String desc, String ver, String uuid, String author, String updateJson, String miniSdk, boolean webUi, boolean isRunning) {
         this.name = name;
         this.desc = desc;
         this.ver = ver;
