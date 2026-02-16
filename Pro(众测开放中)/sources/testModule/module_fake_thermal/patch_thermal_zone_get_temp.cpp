@@ -49,7 +49,7 @@ KModErr PatchThermalZoneGetTemp::patch_thermal_zone_get_temp() {
 
 	a->ldr(w10, ptr(x1)); // 读取内核即将要输出的温度。
 	
-	aarch64_asm_mov_w(a, w11, 38000); // 低温区放行
+	aarch64_asm_mov_w(a, w11, 35000); // 低温区放行
 	a->cmp(w10, w11);
 	a->b(CondCode::kLE, L_end);
 
@@ -58,26 +58,26 @@ KModErr PatchThermalZoneGetTemp::patch_thermal_zone_get_temp() {
 	a->b(CondCode::kGE, L_end);
 
 	// 精细化系数 0.37 (37%)
-    // 逻辑：(Real - 38) * 0.37 + 38
+    // 逻辑：(Real - 35) * 0.37 + 35
     // 效果：95度(真实) -> 59.1度(伪装)。
     // 这是一个巧妙的数值：平时奔放，极限时触发轻度温控保护主板。
-    // int fake = 38000 + ((real - 38000) * 37 / 100);
+    // int fake = 35000 + ((real - 35000) * 37 / 100);
 	// kernel_module::export_symbol::printk(a, err, "[!!!] thermal_zone_get_temp real val: %d\n", w10);
 
-	// (real - 38000)
-	aarch64_asm_mov_w(a, w11, 38000);
+	// (real - 35000)
+	aarch64_asm_mov_w(a, w11, 35000);
 	a->sub(w12, w10, w11);
 
-	// (real - 38000) * 35
+	// (real - 35000) * 35
 	aarch64_asm_mov_w(a, w11, 35);
 	a->mul(w12, w12, w11);
 
-	// (real - 38000) * 35 / 100
+	// (real - 35000) * 35 / 100
 	aarch64_asm_mov_w(a, w11, 100);
 	a->sdiv(w12, w12, w11);
 
-	// 38000 + ((real - 38000) * 35 / 100)
-	aarch64_asm_mov_w(a, w11, 38000);
+	// 35000 + ((real - 35000) * 35 / 100)
+	aarch64_asm_mov_w(a, w11, 35000);
 	a->add(w12, w12, w11); 
 	
 	// kernel_module::export_symbol::printk(a, err, "[!!!] thermal_zone_get_temp fake val: %d\n", w12);
