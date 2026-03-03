@@ -49,9 +49,9 @@
 3.安装并启动`PermissionManager.apk`或者`testRoot`，输入Root密匙值，即可正常使用SkRoot。
 
 ## SkRoot(Pro) 使用流程：
-*已全部开发完成，目前正在众测中。如想加入测试组织，请关注TG频道：https://t.me/skrootabc*
+*已全部开发完成，其中 “SkRootPro 模块开发 SDK” 已公开，其余组件将在稳定后逐步公开。*
 
-*其中 “SkRootPro 模块开发 SDK” 已公开，其余组件将在稳定后逐步公开。*
+*目前正在众测中。如想加入测试组织，请关注TG频道：https://t.me/skrootabc*
 
 ## 更新日志：
 2026-2：
