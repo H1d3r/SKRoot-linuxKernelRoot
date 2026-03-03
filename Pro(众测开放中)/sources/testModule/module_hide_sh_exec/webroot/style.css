@@ -232,7 +232,7 @@ input[type="text"]{
   margin-top:8px;
   font-size:11px;
   color:var(--muted);
-  line-height:1.4;
+  line-height:1.45;
 }
 
 .tip-main{
@@ -278,7 +278,7 @@ input[type="text"]{
   padding-top:6px;
   border-top:1px dashed rgba(100,116,139,.22);
   color:#55657d;
-  line-height:1.5;
+  line-height:1.55;
 }
 
 .tip code{
@@ -313,6 +313,7 @@ input[type="text"]{
 
   .out{
     padding:8px 10px 0 10px;
+    font-size:12px;
   }
 
   .composer{
@@ -328,9 +329,29 @@ input[type="text"]{
     border-radius:12px;
   }
 
+  .prompt{
+    font-size:12px;
+  }
+
+  input[type="text"]{
+    font-size:12px;
+  }
+
   .btn{
     padding:9px 10px;
     border-radius:12px;
+  }
+
+  .tip{
+    font-size:11px;
+  }
+
+  .tip-more summary{
+    font-size:11px;
+  }
+
+  .tip-sub{
+    font-size:11px;
   }
 }
 
@@ -355,12 +376,12 @@ input[type="text"]{
   }
 
   .title{
-    font-size:13px;
+    font-size:14px;
   }
 
   .conn{
     gap:6px;
-    font-size:11px;
+    font-size:12px;
   }
 
   .dot{
@@ -379,7 +400,7 @@ input[type="text"]{
   .out{
     padding:8px 10px 0 10px;
     font-size:11px;
-    line-height:1.45;
+    line-height:1.5;
   }
 
   .line{
@@ -407,11 +428,11 @@ input[type="text"]{
   }
 
   .prompt{
-    font-size:11px;
+    font-size:12px;
   }
 
   input[type="text"]{
-    font-size:11px;
+    font-size:12px;
   }
 
   .btn{
@@ -432,8 +453,12 @@ input[type="text"]{
 
   .tip{
     margin-top:6px;
-    font-size:10px;
-    line-height:1.35;
+    font-size:12px;
+    line-height:1.45;
+  }
+
+  .tip-main{
+    font-size:12px;
   }
 
   .tip-more{
@@ -441,20 +466,20 @@ input[type="text"]{
   }
 
   .tip-more summary{
-    font-size:10px;
+    font-size:12px;
   }
 
   .tip-more summary::before{
-    font-size:11px;
+    font-size:12px;
   }
 
   .tip-sub{
-    font-size:10px;
-    line-height:1.4;
+    font-size:12px;
+    line-height:1.5;
   }
 
   .tip code{
-    font-size:10px;
+    font-size:11px;
     padding:0 4px;
     border-radius:5px;
   }
@@ -467,14 +492,18 @@ input[type="text"]{
   }
 
   .title{
-    font-size:12px;
+    font-size:13px;
   }
 
   .conn{
-    font-size:10px;
+    font-size:11px;
   }
 
   .out{
+    font-size:11px;
+  }
+
+  .ts{
     font-size:10px;
   }
 
@@ -482,19 +511,37 @@ input[type="text"]{
     padding:7px 9px;
   }
 
+  .prompt{
+    font-size:11px;
+  }
+
+  input[type="text"]{
+    font-size:11px;
+  }
+
   .btn{
     padding:7px 9px;
   }
 
   .tip{
-    font-size:9px;
+    font-size:11px;
+    line-height:1.4;
+  }
+
+  .tip-main{
+    font-size:11px;
   }
 
   .tip-more summary{
-    font-size:9px;
+    font-size:11px;
   }
 
   .tip-sub{
-    font-size:9px;
+    font-size:11px;
+    line-height:1.45;
+  }
+
+  .tip code{
+    font-size:10px;
   }
 }
