@@ -32,13 +32,12 @@ bool parse_cred_uid_offset(const std::vector<char>& file_buf, const SymbolRegion
 	if (kernel_ver.is_kernel_version_less("6.6.8")) min_off = 4;
 
 	std::vector<int64_t> candidate_offsets;
-	if (!find_imm_register_offset(file_buf, symbol.offset, symbol.offset + symbol.size, candidate_offsets))
-		return false;
+	if (!find_imm_register_offset(file_buf, symbol.offset, symbol.offset + symbol.size, candidate_offsets)) return false;
 
 	auto it = std::find(candidate_offsets.begin(), candidate_offsets.end(), cred_offset);
 	if (it != candidate_offsets.end()) {
 		for (++it; it != candidate_offsets.end(); ++it) {
-			if (*it > 0x30 || *it < min_off) continue;
+			if (*it > 0x20 || *it < min_off) continue;
 			cred_uid_offset = *it;
 			break;
 		}
@@ -52,39 +51,19 @@ bool parser_seccomp_offset(const std::vector<char>& file_buf, const SymbolRegion
 }
 
 void cfi_bypass(const std::vector<char>& file_buf, KernelSymbolOffset &sym, std::vector<patch_bytes_data>& vec_patch_bytes_data) {
-	if (sym.__cfi_check.offset) {
-		PATCH_AND_CONSUME(sym.__cfi_check, patch_ret_cmd(file_buf, sym.__cfi_check.offset, vec_patch_bytes_data));
-	}
-	if (sym.__cfi_check_fail) {
-		patch_ret_cmd(file_buf, sym.__cfi_check_fail, vec_patch_bytes_data);
-	}
-	if (sym.__cfi_slowpath_diag) {
-		patch_ret_cmd(file_buf, sym.__cfi_slowpath_diag, vec_patch_bytes_data);
-	}
-	if (sym.__cfi_slowpath) {
-		patch_ret_cmd(file_buf, sym.__cfi_slowpath, vec_patch_bytes_data);
-	}
-	if (sym.__ubsan_handle_cfi_check_fail_abort) {
-		patch_ret_cmd(file_buf, sym.__ubsan_handle_cfi_check_fail_abort, vec_patch_bytes_data);
-	}
-	if (sym.__ubsan_handle_cfi_check_fail) {
-		patch_ret_cmd(file_buf, sym.__ubsan_handle_cfi_check_fail, vec_patch_bytes_data);
-	}
-	if (sym.report_cfi_failure) {
-		patch_ret_1_cmd(file_buf, sym.report_cfi_failure, vec_patch_bytes_data);
-	}
+	if (sym.__cfi_check.offset) PATCH_AND_CONSUME(sym.__cfi_check, patch_ret_cmd(file_buf, sym.__cfi_check.offset, vec_patch_bytes_data));
+	patch_ret_cmd(file_buf, sym.__cfi_check_fail, vec_patch_bytes_data);
+	patch_ret_cmd(file_buf, sym.__cfi_slowpath_diag, vec_patch_bytes_data);
+	patch_ret_cmd(file_buf, sym.__cfi_slowpath, vec_patch_bytes_data);
+	patch_ret_cmd(file_buf, sym.__ubsan_handle_cfi_check_fail_abort, vec_patch_bytes_data);
+	patch_ret_cmd(file_buf, sym.__ubsan_handle_cfi_check_fail, vec_patch_bytes_data);
+	patch_ret_1_cmd(file_buf, sym.report_cfi_failure, vec_patch_bytes_data);
 }
 
 void huawei_bypass(const std::vector<char>& file_buf, KernelSymbolOffset &sym, std::vector<patch_bytes_data>& vec_patch_bytes_data) {
-	if (sym.hkip_check_uid_root) {
-		patch_ret_0_cmd(file_buf, sym.hkip_check_uid_root, vec_patch_bytes_data);
-	}
-	if (sym.hkip_check_gid_root) {
-		patch_ret_0_cmd(file_buf, sym.hkip_check_gid_root, vec_patch_bytes_data);
-	}
-	if (sym.hkip_check_xid_root) {
-		patch_ret_0_cmd(file_buf, sym.hkip_check_xid_root, vec_patch_bytes_data);
-	}
+	patch_ret_0_cmd(file_buf, sym.hkip_check_uid_root, vec_patch_bytes_data);
+	patch_ret_0_cmd(file_buf, sym.hkip_check_gid_root, vec_patch_bytes_data);
+	patch_ret_0_cmd(file_buf, sym.hkip_check_xid_root, vec_patch_bytes_data);
 }
 
 PatchKernelResult patch_kernel_handler(const std::vector<char>& file_buf, size_t cred_offset, size_t cred_uid_offset, size_t seccomp_offset, KernelSymbolOffset& sym, std::vector<patch_bytes_data>& vec_patch_bytes_data) {
@@ -138,16 +117,14 @@ void write_all_patch(const char* file_path, std::vector<patch_bytes_data>& vec_p
 			std::cout << "写入文件发生错误" << std::endl;
 		}
 	}
-	if (vec_patch_bytes_data.size()) {
-		std::cout << "Done." << std::endl;
-	}
+	if (vec_patch_bytes_data.size()) std::cout << "Done." << std::endl;
 }
 
 int main(int argc, char* argv[]) {
 	++argv;
 	--argc;
 
-	std::cout << "本工具用于生成SKRoot(Lite) ARM64 Linux内核ROOT提权代码 V11" << std::endl << std::endl;
+	std::cout << "本工具用于生成SKRoot(Lite) ARM64 Linux内核ROOT提权代码 V12" << std::endl << std::endl;
 
 #ifdef _DEBUG
 #else
@@ -190,25 +167,25 @@ int main(int argc, char* argv[]) {
 	size_t cred_uid_offset = 0;
 	size_t seccomp_offset = 0;
 	if (!parser_cred_offset(file_buf, sym.sys_getuid, t_mode_name, cred_offset)) {
-		std::cout << "Failed to parse cred offsert" << std::endl;
+		std::cout << "Failed to parse cred offset" << std::endl;
 		system("pause");
 		return 0;
 	}
-	std::cout << "parse cred offsert mode name: " << t_mode_name  << std::endl;
+	std::cout << "parse cred offset mode name: " << t_mode_name  << std::endl;
 
 	if (!parse_cred_uid_offset(file_buf, sym.sys_getuid, cred_offset, cred_uid_offset)) {
-		std::cout << "Failed to parse cred uid offsert" << std::endl;
+		std::cout << "Failed to parse cred uid offset" << std::endl;
 		system("pause");
 		return 0;
 	}
 	std::cout << "cred uid offset:" << cred_uid_offset << std::endl;
 
 	if (!parser_seccomp_offset(file_buf, sym.prctl_get_seccomp, t_mode_name, seccomp_offset)) {
-		std::cout << "Failed to parse seccomp offsert" << std::endl;
+		std::cout << "Failed to parse seccomp offset" << std::endl;
 		system("pause");
 		return 0;
 	}
-	std::cout << "parse seccomp offsert mode name: " << t_mode_name << std::endl;
+	std::cout << "parse seccomp offset mode name: " << t_mode_name << std::endl;
 	std::cout << "cred offset:" << cred_offset << std::endl;
 	std::cout << "seccomp offset:" << seccomp_offset << std::endl;
 
